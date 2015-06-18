@@ -1,109 +1,53 @@
-package org.sqldroid;
+package com.fortysevendeg.android.sqlite
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.Properties;
-import java.util.logging.Logger;
+import java.io.PrintWriter
+import java.sql.{Connection, DriverManager}
+import java.util.Properties
+import java.util.logging.Logger
+import javax.sql.DataSource
 
-import javax.sql.DataSource;
+import org.sqldroid.SQLDroidDriver
 
-public class DroidDataSource implements DataSource {
-    Connection connection = null;    
-    protected String description = "Android Sqlite Data Source";
-    protected String packageName;
-    protected String databaseName;  
+import scala.util.{Failure, Success, Try}
 
-    public DroidDataSource() {
+class DroidDataSource(
+  packageName: String,
+  databaseName: String,
+  description: String = "Android SQLite Data Source") extends DataSource {
 
-    }        
-        
-    public DroidDataSource(String packageName, String databaseName) {
-      	setPackageName(packageName);
-       	setDatabaseName(databaseName);
-    }
-        
-    @Override
-    public Connection getConnection() throws SQLException {
-      	String url = "jdbc:sqldroid:" + "/data/data/" + packageName + "/" + databaseName + ".db";
-        connection = new org.sqldroid.SQLDroidDriver().connect(url , new Properties());
-        return connection;
-    }
+    private[this] val url: String = "jdbc:sqldroid:" + "/data/data/" + packageName + "/" + databaseName + ".db"
 
-    @Override
-    public Connection getConnection(String username, String password)
-    			throws SQLException {
-        return getConnection();
-    }
+    lazy val connection: Connection = new SQLDroidDriver().connect(url, new Properties)
 
-    @Override
-    public PrintWriter getLogWriter() throws SQLException {
-        PrintWriter logWriter = null;
-        try {
-            logWriter = new PrintWriter("droid.log");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    def getConnection: Connection = connection
+
+    def getConnection(username: String, password: String): Connection = getConnection
+
+    def getLogWriter: PrintWriter =
+        Try {
+            new PrintWriter("droid.log")
+        } match {
+            case Success(pw) => pw
+            case Failure(e) =>
+                e.printStackTrace()
+                javaNull
         }
-        return logWriter;
-    }
 
-    @Override
-    public int getLoginTimeout() throws SQLException {
-        return 0;
-    }
+    def getLoginTimeout: Int = 0
 
-    @Override
-    public void setLogWriter(PrintWriter out) throws SQLException {
-        try {
-            DriverManager.setLogWriter(new PrintWriter("droid.log"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    def setLogWriter(out: PrintWriter) =
+        Try {
+            DriverManager.setLogWriter(out)
+        } match {
+            case Failure(e) => e.printStackTrace()
+            case _ =>
         }
-    }
 
-    @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-    }
+    def setLoginTimeout(seconds: Int) = {}
 
-    public String getDescription() {
-      	return description;
-    }
+    def isWrapperFor(iface: Class[_]): Boolean = throw new UnsupportedOperationException("isWrapperfor")
 
-    public void setDescription(String desc) {
-        description = desc;
-    }
+    def unwrap[T](iface: Class[T]): T = throw new UnsupportedOperationException("unwrap")
 
-    public String getPackageName() {
-     	return packageName;
-    }
-
-    public void setPackageName(String packageName) {
-     	this.packageName = packageName;
-    }                
-
-    public String getDatabaseName() {
-    	return databaseName;
-    }
-
-    public void setDatabaseName(String databaseName) {
-     	this.databaseName = databaseName;
-    }             
-        
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        throw new UnsupportedOperationException("isWrapperfor");
-    }
-
-    @Override
-    public  <T> T unwrap(Class<T> iface) throws SQLException {
-        throw new UnsupportedOperationException("unwrap");
-    }
-        
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-      	return null;
-    }
-        
+    def getParentLogger: Logger = javaNull
 }

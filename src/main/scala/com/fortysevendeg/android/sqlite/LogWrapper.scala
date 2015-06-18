@@ -1,27 +1,40 @@
-package org.sqldroid;
+package com.fortysevendeg.android.sqlite
 
-public class Log {
-    public static int LEVEL = android.util.Log.WARN;
-    private static final String TAG = "SQLDroid";
+trait LogWrapper {
 
-    static void d(String message) {
-        if (LEVEL<=android.util.Log.DEBUG) android.util.Log.d(TAG, message);
-    }
+    val level: Int
 
-    static void e(String message) {
-        if (LEVEL<=android.util.Log.ERROR) android.util.Log.e(TAG, message);
-    }
+    def d(message: String)
 
-    static void e(String message, Throwable t) {
-        if (LEVEL<=android.util.Log.ERROR) android.util.Log.e(TAG, message, t);
-    }
+    def e(message: String)
 
-    static void i(String message) {
-        if (LEVEL<=android.util.Log.INFO) android.util.Log.i(TAG, message);
-    }
+    def e(message: String, t: Throwable)
 
-    static void v(String message) {
-        if (LEVEL<=android.util.Log.VERBOSE) android.util.Log.v(TAG, message);
-    }
+    def i(message: String)
+
+    def v(message: String)
+
+}
+
+trait AndroidLogWrapper extends LogWrapper {
+
+    val level = android.util.Log.WARN
+
+    val tag = "SQLDroid"
+
+    override def d(message: String) =
+        if (level <= android.util.Log.DEBUG) android.util.Log.d(tag, message)
+
+    override def e(message: String) =
+        if (level <= android.util.Log.ERROR) android.util.Log.e(tag, message)
+
+    override def e(message: String, t: Throwable) =
+        if (level <= android.util.Log.ERROR) android.util.Log.e(tag, message, t)
+
+    override def i(message: String) =
+        if (level <= android.util.Log.INFO) android.util.Log.i(tag, message)
+
+    override def v(message: String) =
+        if (level <= android.util.Log.VERBOSE) android.util.Log.v(tag, message)
 
 }
