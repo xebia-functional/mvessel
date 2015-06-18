@@ -20,7 +20,7 @@ trait AndroidLogWrapper extends LogWrapper {
 
     val level = android.util.Log.WARN
 
-    val tag = "SQLDroid"
+    val tag = "scala-sqlite-droid"
 
     override def d(message: String) =
         if (level <= android.util.Log.DEBUG) android.util.Log.d(tag, message)
