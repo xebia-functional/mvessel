@@ -1,6 +1,5 @@
 package org.sqldroid;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -27,6 +26,8 @@ import java.util.Calendar;
 import java.util.Map;
 
 import android.database.Cursor;
+import com.fortysevendeg.android.sqlite.SQLDroidBlob;
+import com.fortysevendeg.android.sqlite.SQLDroidClob;
 
 public class SQLDroidResultSet implements ResultSet {
     public static boolean dump = false;

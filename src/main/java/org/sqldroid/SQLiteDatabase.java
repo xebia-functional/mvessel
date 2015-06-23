@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.util.Log;
 
 /** A  proxy class for the database that allows actions to be retried without forcing every method 
  * through the reflection process.  This was originally implemented as an interface and a Proxy.
@@ -109,13 +110,13 @@ public class SQLiteDatabase {
    * @throws SQLException 
    */
   public Cursor rawQuery(String sql, String[] makeArgListQueryString) throws SQLException {
-    Log.v("SQLiteDatabase rawQuery: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
+    Log.v("SQLDroid", "SQLiteDatabase rawQuery: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
     long timeNow = System.currentTimeMillis();
     long delta = 0;
     do {
       try {
         Cursor cursor = sqliteDatabase.rawQuery(sql, makeArgListQueryString);
-        Log.v("SQLiteDatabase rawQuery OK: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
+        Log.v("SQLDroid", "SQLiteDatabase rawQuery OK: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
         return cursor;
       } catch (SQLiteException e) {
         if ( isLockedException(e) ) {
@@ -132,13 +133,13 @@ public class SQLiteDatabase {
    * @throws SQLException 
    */
   public void execSQL(String sql, Object[] makeArgListQueryObject) throws SQLException {
-    Log.v("SQLiteDatabase execSQL: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
+    Log.v("SQLDroid", "SQLiteDatabase execSQL: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
     long timeNow = System.currentTimeMillis();
     long delta = 0;
     do {
       try {
         sqliteDatabase.execSQL(sql, makeArgListQueryObject);
-        Log.v("SQLiteDatabase execSQL OK: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
+        Log.v("SQLDroid", "SQLiteDatabase execSQL OK: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
         return;
       } catch (SQLiteException e) {
         if ( isLockedException(e) ) {
@@ -155,13 +156,13 @@ public class SQLiteDatabase {
    * @throws SQLException 
    */
   public void execSQL(String sql) throws SQLException {
-    Log.v("SQLiteDatabase execSQL: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
+    Log.v("SQLDroid", "SQLiteDatabase execSQL: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
     long timeNow = System.currentTimeMillis();
     long delta = 0;
     do {
       try {
         sqliteDatabase.execSQL(sql);
-        Log.v("SQLiteDatabase execSQL OK: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
+        Log.v("SQLDroid", "SQLiteDatabase execSQL OK: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + sql);
         return;
       } catch (SQLiteException e) {
         if ( isLockedException(e) ) {
