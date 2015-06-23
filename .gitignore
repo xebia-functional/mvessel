@@ -1,9 +1,6 @@
-*~
-/.idea
-/bin
-/gen
-/pkg
 /target
-/lib/sqldroid/sqldroid-*.jar
-/sources_list.txt
-/*.iml
+/.idea
+/.idea_modules
+/project/project
+/project/target
+/proguard-sbt.txt
