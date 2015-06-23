@@ -21,7 +21,7 @@ class SQLDroidClob(string: String) extends Clob {
   override def setAsciiStream(pos: Long): OutputStream =
     throw new SQLFeatureNotSupportedException
 
-  override def getSubString(pos: Long, length: Int): String = {
+  override def getSubString(pos: Long = 1, length: Int): String = {
     val newPos = pos - 1
     val newLength = if (length > stringLength) stringLength else length
     (newPos, newLength) match {
@@ -40,7 +40,7 @@ class SQLDroidClob(string: String) extends Clob {
   override def getCharacterStream: Reader =
     Option(string) map (s => new StringReader(s)) getOrElse (throw new SQLException("Empty Clob"))
 
-  override def getCharacterStream(pos: Long, length: Long): Reader =
+  override def getCharacterStream(pos: Long = 1, length: Long): Reader =
     new StringReader(getSubString(pos, length.toInt))
 
   override def setCharacterStream(pos: Long): Writer =

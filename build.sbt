@@ -37,5 +37,5 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-core" % "3.3.1" % "test",
-  "org.specs2" % "specs2-mock_2.11" % "3.3.1" % "test",
+  "org.specs2" %% "specs2-mock" % "3.3.1" % "test",
   "com.google.android" % "android" % "4.1.1.4" % "provided")

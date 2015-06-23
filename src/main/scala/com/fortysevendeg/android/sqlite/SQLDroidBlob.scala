@@ -7,7 +7,7 @@ class SQLDroidBlob(byteArray: Array[Byte]) extends Blob {
 
   private[this] val arrayLength = Option(byteArray) map (_.length) getOrElse 0
 
-  def getBytes(pos: Long, length: Int): Array[Byte] = {
+  override def getBytes(pos: Long = 1, length: Int): Array[Byte] = {
     val newPos = pos - 1
     val newLength = if (length > arrayLength) arrayLength else length
     (newPos, newLength, arrayLength) match {
@@ -18,32 +18,32 @@ class SQLDroidBlob(byteArray: Array[Byte]) extends Blob {
     }
   }
 
-  def getBinaryStream: InputStream = new ByteArrayInputStream(byteArray)
+  override def getBinaryStream: InputStream = new ByteArrayInputStream(byteArray)
 
-  def getBinaryStream(pos: Long, length: Long): InputStream =
+  override def getBinaryStream(pos: Long = 1, length: Long): InputStream =
     new ByteArrayInputStream(getBytes(pos, length.toInt))
 
-  def length: Long = arrayLength
+  override def length: Long = arrayLength
 
-  def position(pattern: Blob, start: Long): Long =
+  override def position(pattern: Blob, start: Long): Long =
     throw new SQLFeatureNotSupportedException
 
-  def position(pattern: Array[Byte], start: Long): Long =
+  override def position(pattern: Array[Byte], start: Long): Long =
     throw new SQLFeatureNotSupportedException
 
-  def setBinaryStream(pos: Long): OutputStream =
+  override def setBinaryStream(pos: Long): OutputStream =
     throw new SQLFeatureNotSupportedException
 
-  def setBytes(pos: Long, theBytes: Array[Byte]): Int =
+  override def setBytes(pos: Long, theBytes: Array[Byte]): Int =
     throw new SQLFeatureNotSupportedException
 
-  def setBytes(pos: Long, theBytes: Array[Byte], offset: Int, len: Int): Int =
+  override def setBytes(pos: Long, theBytes: Array[Byte], offset: Int, len: Int): Int =
     throw new SQLFeatureNotSupportedException
 
-  def truncate(len: Long) =
+  override def truncate(len: Long) =
     throw new SQLFeatureNotSupportedException
 
-  def free() =
+  override def free() =
     throw new SQLFeatureNotSupportedException
 
   override def toString: String = {
@@ -53,7 +53,7 @@ class SQLDroidBlob(byteArray: Array[Byte]) extends Blob {
         val toPrint = if (b.length > 10) b.slice(0, 10) else b
         val hexString = toPrint map ("0x" + Integer.toHexString(_)) mkString " "
         val charString = toPrint map (b => "(" + Character.toString(b.toChar)) mkString " "
-        prefix + " " + hexString + " " + charString
+        s"$prefix $hexString $charString"
       case None => "Empty Blob"
     }
   }
