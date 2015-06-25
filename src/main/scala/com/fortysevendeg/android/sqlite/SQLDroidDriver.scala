@@ -33,8 +33,8 @@ object SQLDroidDriver {
   Try {
     java.sql.DriverManager.registerDriver(new SQLDroidDriver)
   } match {
-    case Success(_) =>
     case Failure(e) => e.printStackTrace()
+    case _ =>
   }
   
   val databaseFlags = "DatabaseFlags"
