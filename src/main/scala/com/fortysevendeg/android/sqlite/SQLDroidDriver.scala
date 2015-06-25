@@ -11,7 +11,7 @@ import scala.util.{Failure, Success, Try}
 class SQLDroidDriver extends Driver {
 
   override def acceptsURL(url: String): Boolean =
-    url.startsWith(sqlDroidPrefix) || url.startsWith(sqlitePrefix)
+    Option(url) exists (u => u.startsWith(sqlDroidPrefix) || u.startsWith(sqlitePrefix))
 
   override def jdbcCompliant(): Boolean = false
 

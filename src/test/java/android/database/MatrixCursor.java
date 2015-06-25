@@ -251,8 +251,6 @@ public class MatrixCursor implements Cursor {
         if (currentPosition < 0) {
             throw new SQLException("");
         }
-        // this should really intelligently determine the type and return a worthwhile value,
-        // but, for now, I'll just return "string".
         return columnTypes[ci];
     }
 

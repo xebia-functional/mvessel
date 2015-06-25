@@ -10,9 +10,7 @@ class TestLogWrapper extends LogWrapper {
 
   override def w(message: String): Unit = println(message)
 
-  override def e(message: String): Unit = println(message)
-
-  override def e(message: String, t: Throwable): Unit = println(message)
+  override def e(message: String, maybeThrowable: Option[Throwable]): Unit = println(message)
 
   override def notImplemented[T](result: T): T = result
 

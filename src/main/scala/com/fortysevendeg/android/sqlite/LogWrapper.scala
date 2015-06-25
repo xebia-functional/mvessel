@@ -12,9 +12,7 @@ trait LogWrapper {
 
   def w(message: String)
 
-  def e(message: String)
-
-  def e(message: String, t: Throwable)
+  def e(message: String, maybeThrowable: Option[Throwable] = None)
 
   def notImplemented[T](result: T): T
 
@@ -22,7 +20,8 @@ trait LogWrapper {
 
 class AndroidLogWrapper(
   level: Int = android.util.Log.INFO,
-  tag: String = "scala-sqlite-droid") extends LogWrapper {
+  tag: String = "scala-sqlite-droid"
+  ) extends LogWrapper {
 
   override def d(message: String) =
     if (level <= android.util.Log.DEBUG) android.util.Log.d(tag, message)
@@ -36,11 +35,12 @@ class AndroidLogWrapper(
   override def w(message: String) =
     if (level <= android.util.Log.WARN) android.util.Log.w(tag, message)
 
-  override def e(message: String) =
-    if (level <= android.util.Log.ERROR) android.util.Log.e(tag, message)
-
-  override def e(message: String, t: Throwable) =
-    if (level <= android.util.Log.ERROR) android.util.Log.e(tag, message, t)
+  override def e(message: String, maybeThrowable: Option[Throwable] = None) =
+    if (level <= android.util.Log.ERROR)
+      maybeThrowable match {
+        case Some(t) => android.util.Log.e(tag, message, t)
+        case _ => android.util.Log.e(tag, message)
+      }
 
   override def notImplemented[T](result: T): T = {
     val message = "Method not implemented" :: (stackTraces map (s => s" at ${methodName(s)}(${fileName(s)})")).toList
@@ -49,6 +49,7 @@ class AndroidLogWrapper(
   }
 
 }
+
 object Printer {
 
   private[this] val basePackage = "com.fortysevendeg.android.sqlite"
@@ -56,7 +57,7 @@ object Printer {
   def stackTraces: Seq[StackTraceElement] = Thread.currentThread.getStackTrace
 
   def stackTrace: Option[StackTraceElement] =
-    Thread.currentThread.getStackTrace find(_.getClassName.startsWith(basePackage))
+    Thread.currentThread.getStackTrace find (_.getClassName.startsWith(basePackage))
 
   def methodName(stackTrace: StackTraceElement) =
     s"${stackTrace.getClassName}.${stackTrace.getMethodName}"

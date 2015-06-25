@@ -18,37 +18,37 @@ class SQLDroidDataSource(
 
   lazy val connection: Connection = driver.connect(url, properties)
 
-  def getConnection: Connection = connection
+  override def getConnection: Connection = connection
 
-  def getConnection(username: String, password: String): Connection = getConnection
+  override def getConnection(username: String, password: String): Connection = getConnection
 
-  def getLogWriter: PrintWriter =
+  override def getLogWriter: PrintWriter =
     Try {
       new PrintWriter("droid.log")
     } match {
       case Success(pw) => pw
       case Failure(e) =>
-        e.printStackTrace()
+        log.e("Can't create log writer", Some(e))
         javaNull
     }
 
-  def setLogWriter(out: PrintWriter) =
+  override def setLogWriter(out: PrintWriter) =
     Try {
       DriverManager.setLogWriter(out)
     } match {
-      case Failure(e) => e.printStackTrace()
+      case Failure(e) => log.e("Error setting log writer", Some(e))
       case _ =>
     }
 
-  def getParentLogger: Logger = log.notImplemented(javaNull)
+  override def getParentLogger: Logger = log.notImplemented(javaNull)
 
-  def getLoginTimeout: Int = log.notImplemented(0)
+  override def getLoginTimeout: Int = log.notImplemented(0)
 
-  def setLoginTimeout(seconds: Int) = log.notImplemented(Unit)
+  override def setLoginTimeout(seconds: Int) = log.notImplemented(Unit)
 
-  def isWrapperFor(iface: Class[_]): Boolean =
+  override def isWrapperFor(iface: Class[_]): Boolean =
     throw new UnsupportedOperationException
 
-  def unwrap[T](iface: Class[T]): T =
+  override def unwrap[T](iface: Class[T]): T =
     throw new UnsupportedOperationException
 }
