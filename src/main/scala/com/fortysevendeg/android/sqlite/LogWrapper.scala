@@ -1,40 +1,67 @@
 package com.fortysevendeg.android.sqlite
 
+import Printer._
+
 trait LogWrapper {
 
-    val level: Int
+  def v(message: String)
 
-    def d(message: String)
+  def d(message: String)
 
-    def e(message: String)
+  def i(message: String)
 
-    def e(message: String, t: Throwable)
+  def w(message: String)
 
-    def i(message: String)
+  def e(message: String, maybeThrowable: Option[Throwable] = None)
 
-    def v(message: String)
+  def notImplemented[T](result: T): T
 
 }
 
-trait AndroidLogWrapper extends LogWrapper {
+class AndroidLogWrapper(
+  level: Int = android.util.Log.INFO,
+  tag: String = "scala-sqlite-droid"
+  ) extends LogWrapper {
 
-    val level = android.util.Log.WARN
+  override def d(message: String) =
+    if (level <= android.util.Log.DEBUG) android.util.Log.d(tag, message)
 
-    val tag = "scala-sqlite-droid"
+  override def v(message: String) =
+    if (level <= android.util.Log.VERBOSE) android.util.Log.v(tag, message)
 
-    override def d(message: String) =
-        if (level <= android.util.Log.DEBUG) android.util.Log.d(tag, message)
+  override def i(message: String) =
+    if (level <= android.util.Log.INFO) android.util.Log.i(tag, message)
 
-    override def e(message: String) =
-        if (level <= android.util.Log.ERROR) android.util.Log.e(tag, message)
+  override def w(message: String) =
+    if (level <= android.util.Log.WARN) android.util.Log.w(tag, message)
 
-    override def e(message: String, t: Throwable) =
-        if (level <= android.util.Log.ERROR) android.util.Log.e(tag, message, t)
+  override def e(message: String, maybeThrowable: Option[Throwable] = None) =
+    if (level <= android.util.Log.ERROR)
+      maybeThrowable match {
+        case Some(t) => android.util.Log.e(tag, message, t)
+        case _ => android.util.Log.e(tag, message)
+      }
 
-    override def i(message: String) =
-        if (level <= android.util.Log.INFO) android.util.Log.i(tag, message)
+  override def notImplemented[T](result: T): T = {
+    val message = "Method not implemented" :: (stackTraces map (s => s" at ${methodName(s)}(${fileName(s)})")).toList
+    w(message.mkString("\n"))
+    result
+  }
 
-    override def v(message: String) =
-        if (level <= android.util.Log.VERBOSE) android.util.Log.v(tag, message)
+}
 
+object Printer {
+
+  private[this] val basePackage = "com.fortysevendeg.android.sqlite"
+
+  def stackTraces: Seq[StackTraceElement] = Thread.currentThread.getStackTrace
+
+  def stackTrace: Option[StackTraceElement] =
+    Thread.currentThread.getStackTrace find (_.getClassName.startsWith(basePackage))
+
+  def methodName(stackTrace: StackTraceElement) =
+    s"${stackTrace.getClassName}.${stackTrace.getMethodName}"
+
+  def fileName(stackTrace: StackTraceElement) =
+    s"${stackTrace.getFileName}:${stackTrace.getLineNumber}"
 }
