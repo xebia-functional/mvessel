@@ -205,7 +205,7 @@ class SQLDroidResultSetMetaDataSpec
   "isDefinitelyWritable" should {
 
     "returns false" in new WithCursorMocked {
-      sqlDroid.isDefinitelyWritable(Random.nextInt(10)) shouldEqual false
+      sqlDroid.isDefinitelyWritable(Random.nextInt(10)) must beFalse
     }
 
   }
@@ -213,7 +213,7 @@ class SQLDroidResultSetMetaDataSpec
   "isCurrency" should {
 
     "returns false" in new WithCursorMocked {
-      sqlDroid.isCurrency(Random.nextInt(10)) shouldEqual false
+      sqlDroid.isCurrency(Random.nextInt(10)) must beFalse
     }
 
   }
@@ -221,7 +221,7 @@ class SQLDroidResultSetMetaDataSpec
   "isCaseSensitive" should {
 
     "returns false" in new WithCursorMocked {
-      sqlDroid.isCaseSensitive(Random.nextInt(10)) shouldEqual false
+      sqlDroid.isCaseSensitive(Random.nextInt(10)) must beFalse
     }
 
   }
@@ -229,7 +229,7 @@ class SQLDroidResultSetMetaDataSpec
   "isSearchable" should {
 
     "returns false" in new WithCursorMocked {
-      sqlDroid.isSearchable(Random.nextInt(10)) shouldEqual false
+      sqlDroid.isSearchable(Random.nextInt(10)) must beFalse
     }
 
   }
@@ -237,7 +237,7 @@ class SQLDroidResultSetMetaDataSpec
   "isReadOnly" should {
 
     "returns false" in new WithCursorMocked {
-      sqlDroid.isReadOnly(Random.nextInt(10)) shouldEqual false
+      sqlDroid.isReadOnly(Random.nextInt(10)) must beFalse
     }
 
   }
@@ -245,7 +245,7 @@ class SQLDroidResultSetMetaDataSpec
   "isWritable" should {
 
     "returns false" in new WithCursorMocked {
-      sqlDroid.isWritable(Random.nextInt(10)) shouldEqual false
+      sqlDroid.isWritable(Random.nextInt(10)) must beFalse
     }
 
   }
@@ -262,17 +262,17 @@ class SQLDroidResultSetMetaDataSpec
 
     "returns false when the column type is VARCHAR" in new WithMatrixCursor {
       cursor.addRow(Array("value1", "value2", "value3"))
-      sqlDroid.isSigned(1) shouldEqual false
+      sqlDroid.isSigned(1) must beFalse
     }
 
     "returns true when the column type is INTEGER" in new WithMatrixCursor {
       cursor.addRow(Array("value1", "value2", "value3"))
-      sqlDroid.isSigned(2) shouldEqual true
+      sqlDroid.isSigned(2) must beTrue
     }
 
     "returns true when the column type is FLOAT" in new WithMatrixCursor {
       cursor.addRow(Array("value1", "value2", "value3"))
-      sqlDroid.isSigned(3) shouldEqual true
+      sqlDroid.isSigned(3) must beTrue
     }
 
   }
@@ -295,8 +295,8 @@ class SQLDroidResultSetMetaDataSpec
 
   "isWrapperFor" should {
 
-    "returns false" in new WithCursorMocked {
-      sqlDroid.isWrapperFor(classOf[String]) shouldEqual false
+    "throws an UnsupportedOperationException" in new WithCursorMocked {
+      sqlDroid.unwrap(classOf[String]) must throwA[UnsupportedOperationException]
     }
 
   }

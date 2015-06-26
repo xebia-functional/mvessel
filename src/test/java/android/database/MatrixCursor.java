@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MatrixCursor implements Cursor {
@@ -48,7 +49,7 @@ public class MatrixCursor implements Cursor {
 
     @Override
     public int getCount() {
-        return rows.size();
+        return rows == null ? 0 : rows.size();
     }
 
     @Override
@@ -59,7 +60,8 @@ public class MatrixCursor implements Cursor {
 
     @Override
     public String getString(int i) {
-        return rows.get(currentPosition)[i].toString();
+        Object value = rows.get(currentPosition)[i];
+        return value == null ? null : value.toString();
     }
 
     @Override
@@ -79,20 +81,26 @@ public class MatrixCursor implements Cursor {
 
     @Override
     public boolean moveToLast() {
-        currentPosition = getCount() - 1;
-        return false;
+        int previousPosition = currentPosition;
+        if (getCount() > 0) {
+            currentPosition = getCount() - 1;
+        }
+        return previousPosition != currentPosition;
     }
 
     @Override
     public boolean moveToFirst() {
-        currentPosition = 0;
-        return false;
+        int previousPosition = currentPosition;
+        if (getCount() > 0) {
+            currentPosition = 0;
+        }
+        return previousPosition != currentPosition;
     }
 
     @Override
     public boolean moveToPrevious() {
         currentPosition--;
-        return false;
+        return true;
     }
 
     @Override
@@ -142,7 +150,17 @@ public class MatrixCursor implements Cursor {
 
     @Override
     public boolean move(int offset) {
-        return false;
+        if (getCount() == 0) {
+            return false;
+        }
+        int previous = currentPosition;
+        currentPosition = currentPosition + offset;
+        if (currentPosition < -1) {
+            currentPosition = -1;
+        } else if (currentPosition >= getCount()) {
+            currentPosition = getCount();
+        }
+        return previous != currentPosition;
     }
 
     @Override
@@ -167,7 +185,7 @@ public class MatrixCursor implements Cursor {
 
     @Override
     public boolean isNull(int ci) {
-        return false;
+        return rows.get(currentPosition)[ci] == null;
     }
 
     @Override
@@ -182,7 +200,7 @@ public class MatrixCursor implements Cursor {
 
     @Override
     public boolean isClosed() {
-        return rows != null;
+        return rows == null;
     }
 
     @Override
