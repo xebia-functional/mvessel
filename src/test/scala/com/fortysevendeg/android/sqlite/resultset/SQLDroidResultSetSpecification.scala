@@ -2,9 +2,11 @@ package com.fortysevendeg.android.sqlite.resultset
 
 import java.io.{BufferedReader, Reader, InputStream}
 import java.text.SimpleDateFormat
+import java.util.Date
 
 import android.database.{Cursor, MatrixCursor}
 import com.fortysevendeg.android.sqlite._
+import com.fortysevendeg.android.sqlite.util.DateUtils
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
@@ -13,9 +15,13 @@ import scala.util.Random
 
 trait SQLDroidResultSetSpecification
   extends Specification
-  with Mockito {
+  with Mockito
+  with DateUtils {
 
-  val dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S")
+  val log = new TestLogWrapper
+
+  def formatDateOrThrow(date: Date): String =
+    formatDate(date) getOrElse (throw new RuntimeException("Can't format date"))
 
   def inputStreamToString(is: InputStream): String =
     scala.io.Source.fromInputStream(is).mkString
@@ -30,7 +36,7 @@ trait SQLDroidResultSetSpecification
 
     val cursor = mock[Cursor]
 
-    val sqlDroid = new SQLDroidResultSet(cursor, new TestLogWrapper)
+    val sqlDroid = new SQLDroidResultSet(cursor, log)
 
   }
 
@@ -53,7 +59,7 @@ trait SQLDroidResultSetSpecification
 
     val cursor = new MatrixCursor(columnNames)
 
-    val sqlDroid = new SQLDroidResultSet(cursor, new TestLogWrapper)
+    val sqlDroid = new SQLDroidResultSet(cursor, log)
 
   }
 

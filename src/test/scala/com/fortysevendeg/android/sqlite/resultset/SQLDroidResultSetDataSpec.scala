@@ -13,18 +13,18 @@ class SQLDroidResultSetDataSpec
 
   "getTimestamp" should {
 
-    "return a right TimeStamp when time is stored in an number" in
+    "returns a right TimeStamp when time is stored in an number" in
       new WithMatrixCursor with WithData {
         val timeStamp = new Timestamp(rows.head(columnInteger - 1).asInstanceOf[Int])
         cursor.moveToNext()
         sqlDroid.getTimestamp(columnInteger) shouldEqual timeStamp
     }
 
-    "return a right TimeStamp when time is stored in a string with valid format" in
+    "returns a right TimeStamp when time is stored in a string with valid format" in
       new WithMatrixCursor {
         val timeStamp = new Timestamp(Random.nextInt(100))
         cursor.addRow(SArray[AnyRef](
-          dateFormat.format(new Date(timeStamp.getTime)),
+          formatDateOrThrow(new Date(timeStamp.getTime)),
           javaNull,
           javaNull,
           javaNull,
@@ -33,7 +33,7 @@ class SQLDroidResultSetDataSpec
         sqlDroid.getTimestamp(1) shouldEqual timeStamp
     }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getTimestamp(columnNull) must beNull
@@ -49,21 +49,21 @@ class SQLDroidResultSetDataSpec
 
   "getBinaryStream" should {
 
-    "return a right InputStream when the bytes are stored in an string" in
+    "returns a right InputStream when the bytes are stored in an string" in
       new WithMatrixCursor with WithData {
         val value = rows.head(columnString - 1)
         cursor.moveToNext()
         inputStreamToString(sqlDroid.getBinaryStream(columnString)) shouldEqual value
     }
 
-    "return a right InputStream when the bytes are stored in a byte array" in
+    "returns a right InputStream when the bytes are stored in a byte array" in
       new WithMatrixCursor with WithData {
         val value = new String(rows.head(columnBytes - 1).asInstanceOf[SArray[Byte]])
         cursor.moveToNext()
         inputStreamToString(sqlDroid.getBinaryStream(columnBytes)) shouldEqual value
     }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getBinaryStream(columnNull) must beNull
@@ -87,13 +87,13 @@ class SQLDroidResultSetDataSpec
 
   "getCharacterStream" should {
 
-    "return a right Reader when the stream is stored in an string" in
+    "returns a right Reader when the stream is stored in an string" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         readerToString(sqlDroid.getCharacterStream(columnString)) shouldEqual rows.head(columnString - 1)
       }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getCharacterStream(columnNull) must beNull
@@ -109,13 +109,13 @@ class SQLDroidResultSetDataSpec
 
   "getDouble" should {
 
-    "return a right Double the value is stored in a Float" in
+    "returns a right Double when the value is stored in a Float" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getDouble(columnFloat) shouldEqual rows.head(columnFloat - 1)
       }
 
-    "return 0 when the field is null" in
+    "returns 0 when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getDouble(columnNull) shouldEqual 0
@@ -155,13 +155,13 @@ class SQLDroidResultSetDataSpec
 
   "getFloat" should {
 
-    "return a right Float the value is stored in a Float" in
+    "returns a right Float when the value is stored in a Float" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getFloat(columnFloat) shouldEqual rows.head(columnFloat - 1)
       }
 
-    "return 0 when the field is null" in
+    "returns 0 when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getFloat(columnNull) shouldEqual 0
@@ -185,13 +185,13 @@ class SQLDroidResultSetDataSpec
 
   "getClob" should {
 
-    "return a right Clob when the data is stored in an string" in
+    "returns a right Clob when the data is stored in an string" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         readerToString(sqlDroid.getClob(columnString).getCharacterStream) shouldEqual rows.head(columnString - 1)
       }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getClob(columnNull) must beNull
@@ -207,13 +207,13 @@ class SQLDroidResultSetDataSpec
 
   "getLong" should {
 
-    "return a right Long the value is stored in a Integer" in
+    "returns a right Long when the value is stored in a Integer" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getLong(columnInteger) shouldEqual rows.head(columnInteger - 1)
       }
 
-    "return 0 when the field is null" in
+    "returns 0 when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getLong(columnNull) shouldEqual 0
@@ -229,13 +229,13 @@ class SQLDroidResultSetDataSpec
 
   "getString" should {
 
-    "return a right String the value is stored in a String" in
+    "returns a right String when the value is stored in a String" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getString(columnString) shouldEqual rows.head(columnString - 1)
       }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getString(columnNull) must beNull
@@ -259,18 +259,18 @@ class SQLDroidResultSetDataSpec
 
   "getTime" should {
 
-    "return a right Time when time is stored in an number" in
+    "returns a right Time when time is stored in an number" in
       new WithMatrixCursor with WithData {
         val timeStamp = new Time(rows.head(columnInteger - 1).asInstanceOf[Int])
         cursor.moveToNext()
         sqlDroid.getTime(columnInteger) shouldEqual timeStamp
       }
 
-    "return a right Time when time is stored in a string with valid format" in
+    "returns a right Time when time is stored in a string with valid format" in
       new WithMatrixCursor {
         val time = new Time(Random.nextInt(100))
         cursor.addRow(SArray[AnyRef](
-          dateFormat.format(new Date(time.getTime)),
+          formatDateOrThrow(new Date(time.getTime)),
           javaNull,
           javaNull,
           javaNull,
@@ -279,7 +279,7 @@ class SQLDroidResultSetDataSpec
         sqlDroid.getTime(1) shouldEqual time
       }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getTime(columnNull) must beNull
@@ -295,13 +295,13 @@ class SQLDroidResultSetDataSpec
 
   "getByte" should {
 
-    "return a right Byte the value is stored in a Integer" in
+    "returns a right Byte when the value is stored in a Integer" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getByte(columnInteger) shouldEqual rows.head(columnInteger - 1)
       }
 
-    "return 0 when the field is null" in
+    "returns 0 when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getByte(columnNull) shouldEqual 0
@@ -317,13 +317,13 @@ class SQLDroidResultSetDataSpec
 
   "getBoolean" should {
 
-    "return a right Boolean the value is stored in a Integer" in
+    "returns a right Boolean when the value is stored in a Integer" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getBoolean(columnInteger) shouldEqual rows.head(columnInteger - 1).asInstanceOf[Int] != 0
       }
 
-    "return false when the field is null" in
+    "returns false when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getBoolean(columnNull) must beFalse
@@ -347,13 +347,13 @@ class SQLDroidResultSetDataSpec
 
   "getShort" should {
 
-    "return a right Short the value is stored in a Integer" in
+    "returns a right Short when the value is stored in a Integer" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getShort(columnInteger) shouldEqual rows.head(columnInteger - 1)
       }
 
-    "return 0 when the field is null" in
+    "returns 0 when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getShort(columnNull) shouldEqual 0
@@ -369,7 +369,7 @@ class SQLDroidResultSetDataSpec
 
   "getObject" should {
 
-    "return the String when fetching the String value" in
+    "returns the String when fetching the String value" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         val o = sqlDroid.getObject(columnString)
@@ -377,7 +377,7 @@ class SQLDroidResultSetDataSpec
         o shouldEqual rows.head(columnString - 1)
       }
 
-    "return the Integer when fetching the Integer value" in
+    "returns the Integer when fetching the Integer value" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         val o = sqlDroid.getObject(columnInteger)
@@ -385,7 +385,7 @@ class SQLDroidResultSetDataSpec
         o shouldEqual rows.head(columnInteger - 1)
       }
 
-    "return the Float when fetching the Float value" in
+    "returns the Float when fetching the Float value" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         val o = sqlDroid.getObject(columnFloat)
@@ -393,14 +393,14 @@ class SQLDroidResultSetDataSpec
         o shouldEqual rows.head(columnFloat - 1)
       }
 
-    "return the Blob when fetching the byte array value" in
+    "returns the Blob when fetching the byte array value" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         val o = sqlDroid.getObject(columnBytes)
         o must haveClass[SQLDroidBlob]
       }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getObject(columnNull) must beNull
@@ -426,14 +426,14 @@ class SQLDroidResultSetDataSpec
 
   "getBlob" should {
 
-    "return a right Blob when the data is stored in a byte array" in
+    "returns a right Blob when the data is stored in a byte array" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         val value = new String(rows.head(columnBytes - 1).asInstanceOf[SArray[Byte]])
         inputStreamToString(sqlDroid.getBlob(columnBytes).getBinaryStream) shouldEqual value
       }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getBlob(columnNull) must beNull
@@ -449,18 +449,18 @@ class SQLDroidResultSetDataSpec
 
   "getDate" should {
 
-    "return a right Date when is stored in an number" in
+    "returns a right Date when is stored in an number" in
       new WithMatrixCursor with WithData {
         val date = new java.sql.Date(rows.head(columnInteger - 1).asInstanceOf[Int])
         cursor.moveToNext()
         sqlDroid.getDate(columnInteger) shouldEqual date
       }
 
-    "return a right Date when is stored in a string with valid format" in
+    "returns a right Date when is stored in a string with valid format" in
       new WithMatrixCursor {
-        val date = new java.sql.Date(Random.nextInt(100))
+        val date = new java.sql.Date(Random.nextInt(100).toLong)
         cursor.addRow(SArray[AnyRef](
-          dateFormat.format(new Date(date.getTime)),
+          formatDateOrThrow(new Date(date.getTime)),
           javaNull,
           javaNull,
           javaNull,
@@ -469,7 +469,7 @@ class SQLDroidResultSetDataSpec
         sqlDroid.getDate(1) shouldEqual date
       }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getDate(columnNull) must beNull
@@ -501,13 +501,13 @@ class SQLDroidResultSetDataSpec
 
   "getInt" should {
 
-    "return a right Int the value is stored in a Integer" in
+    "returns a right Int when the value is stored in a Integer" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getInt(columnInteger) shouldEqual rows.head(columnInteger - 1)
       }
 
-    "return 0 when the field is null" in
+    "returns 0 when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getInt(columnNull) shouldEqual 0
@@ -523,13 +523,13 @@ class SQLDroidResultSetDataSpec
 
   "getBytes" should {
 
-    "return a right byte array when the value is stored in byte array" in
+    "returns a right byte array when the value is stored in byte array" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getBytes(columnBytes) shouldEqual rows.head(columnBytes - 1)
       }
 
-    "return null when the field is null" in
+    "returns null when the field is null" in
       new WithMatrixCursor with WithData {
         cursor.moveToNext()
         sqlDroid.getBytes(columnNull) must beNull
@@ -545,7 +545,7 @@ class SQLDroidResultSetDataSpec
 
   "getHoldability" should {
 
-    "return ResultSet.CLOSE_CURSORS_AT_COMMIT on a valid cursor" in new WithCursorMocked {
+    "returns ResultSet.CLOSE_CURSORS_AT_COMMIT on a valid cursor" in new WithCursorMocked {
       sqlDroid.getHoldability shouldEqual ResultSet.CLOSE_CURSORS_AT_COMMIT
     }
 
@@ -559,7 +559,7 @@ class SQLDroidResultSetDataSpec
 
   "getConcurrency" should {
 
-    "return ResultSet.CONCUR_READ_ONLY on a valid cursor" in new WithCursorMocked {
+    "returns ResultSet.CONCUR_READ_ONLY on a valid cursor" in new WithCursorMocked {
       sqlDroid.getConcurrency shouldEqual ResultSet.CONCUR_READ_ONLY
     }
 
@@ -573,7 +573,7 @@ class SQLDroidResultSetDataSpec
 
   "getFetchDirection" should {
 
-    "return ResultSet.FETCH_FORWARD on a valid cursor" in new WithCursorMocked {
+    "returns ResultSet.FETCH_FORWARD on a valid cursor" in new WithCursorMocked {
       sqlDroid.getFetchDirection shouldEqual ResultSet.FETCH_FORWARD
     }
 
@@ -595,7 +595,7 @@ class SQLDroidResultSetDataSpec
 
   "getStatement" should {
 
-    "return null with a valid cursor" in new WithCursorMocked {
+    "returns null with a valid cursor" in new WithCursorMocked {
       sqlDroid.getStatement must beNull
     }
 
