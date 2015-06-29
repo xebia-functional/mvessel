@@ -21,7 +21,7 @@ import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import com.fortysevendeg.android.sqlite.AndroidLogWrapper;
 import com.fortysevendeg.android.sqlite.LogWrapper;
-import com.fortysevendeg.android.sqlite.SQLDroidResultSet;
+import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet;
 
 public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 

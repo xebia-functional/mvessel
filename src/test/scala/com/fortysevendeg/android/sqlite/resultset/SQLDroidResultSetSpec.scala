@@ -1,57 +1,10 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.resultset
 
-import java.sql.{ResultSetMetaData, ResultSet, SQLException}
+import java.sql.{ResultSet, ResultSetMetaData, SQLException}
 
-import android.database.{MatrixCursor, Cursor}
-import org.specs2.mock.Mockito
-import org.specs2.mutable.Specification
-import org.specs2.specification.Scope
+import com.fortysevendeg.android.sqlite._
 
 import scala.util.Random
-
-trait SQLDroidResultSetSpecification
-  extends Specification
-  with Mockito {
-
-  trait WithCursorMocked
-    extends Scope {
-
-    val cursor = mock[Cursor]
-
-    val sqlDroid = new SQLDroidResultSet(cursor, new TestLogWrapper)
-
-  }
-
-  trait WithMatrixCursor
-    extends Scope {
-
-    val columnNames = Array("column1", "column2", "column3", "column4", "column5")
-
-    val columnTypes = Array(Cursor.FIELD_TYPE_STRING, Cursor.FIELD_TYPE_INTEGER, Cursor.FIELD_TYPE_FLOAT, Cursor.FIELD_TYPE_BLOB, Cursor.FIELD_TYPE_NULL)
-
-    val cursor = new MatrixCursor(columnNames, columnTypes)
-
-    val sqlDroid = new SQLDroidResultSet(cursor, new TestLogWrapper)
-
-  }
-
-  trait WithData {
-
-    self: WithMatrixCursor =>
-
-    val numRows = 10
-
-    1 to numRows foreach { _ =>
-      cursor.addRow(Array(
-        Random.nextString(10),
-        new java.lang.Integer(Random.nextInt(10)),
-        new java.lang.Float(Random.nextFloat() * Random.nextInt(10)),
-        Random.nextString(10),
-        javaNull))
-    }
-  }
-
-}
 
 class SQLDroidResultSetSpec
   extends SQLDroidResultSetSpecification {
@@ -166,8 +119,8 @@ class SQLDroidResultSetSpec
       sqlDroid.absolute(1) must beFalse
     }
 
-    "return true and move before first when passing 0" in new WithMatrixCursor with WithData {
-      sqlDroid.absolute(0) must beTrue
+    "return false and move before first when passing 0" in new WithMatrixCursor with WithData {
+      sqlDroid.absolute(0) must beFalse
       cursor.isBeforeFirst must beTrue
     }
 
@@ -202,10 +155,12 @@ class SQLDroidResultSetSpec
       sqlDroid.relative(1) must beFalse
     }
 
-    "return true and move before first when passing -1" in new WithMatrixCursor with WithData {
+      "return true and move to previous position when passing -1" in new WithMatrixCursor with WithData {
+      cursor.moveToNext()
+      val position = cursor.getPosition
       cursor.moveToNext()
       sqlDroid.relative(-1) must beTrue
-      cursor.isBeforeFirst must beTrue
+      cursor.getPosition shouldEqual position
     }
 
     "return false when move to a position greater than number of rows" in new WithMatrixCursor with WithData {
@@ -302,6 +257,7 @@ class SQLDroidResultSetSpec
 
     "return true and decrement position by one with a cursor with data" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
+      cursor.moveToNext()
       val position = cursor.getPosition
       sqlDroid.previous() must beTrue
       cursor.getPosition shouldEqual (position - 1)
@@ -336,10 +292,8 @@ class SQLDroidResultSetSpec
 
   "first" should {
 
-    "return true and don't change the position with an empty cursor" in new WithMatrixCursor {
-      val position = cursor.getPosition
+    "return false with an empty cursor" in new WithMatrixCursor {
       sqlDroid.first() must beFalse
-      cursor.getPosition shouldEqual position
     }
 
     "change the position to 0 with a cursor with data" in new WithMatrixCursor with WithData {
@@ -372,12 +326,17 @@ class SQLDroidResultSetSpec
   "findColumn" should {
 
     "return the column position for an existing one" in new WithMatrixCursor {
-      sqlDroid.findColumn(columnNames(1)) shouldEqual 1
+      sqlDroid.findColumn(columnNames(1)) shouldEqual 2
     }
 
     "throws SQLException if the cursor is closed" in new WithMatrixCursor with WithData {
       cursor.close()
       sqlDroid.findColumn(columnNames(1)) must throwA[SQLException]
+    }
+
+    "throws SQLException if the column doesn't exists" in new WithMatrixCursor with WithData {
+      cursor.close()
+      sqlDroid.findColumn(nonExistentColumnName) must throwA[SQLException]
     }
 
   }
@@ -408,7 +367,7 @@ class SQLDroidResultSetSpec
   "wasNull" should {
 
     "return true if the last fetch value was null" in new WithMatrixCursor {
-      cursor.addRow(Array(
+      cursor.addRow(Array[AnyRef](
         javaNull,
         new java.lang.Integer(Random.nextInt(10)),
         new java.lang.Float(Random.nextFloat() * Random.nextInt(10)),

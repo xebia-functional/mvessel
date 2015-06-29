@@ -3,7 +3,7 @@ package org.sqldroid;
 import android.database.Cursor;
 import android.util.Log;
 import com.fortysevendeg.android.sqlite.AndroidLogWrapper;
-import com.fortysevendeg.android.sqlite.SQLDroidResultSet;
+import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

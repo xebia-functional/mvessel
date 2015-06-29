@@ -1,41 +1,8 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.resultset
 
 import java.sql.{ResultSetMetaData, Types}
 
-import android.database.{MatrixCursor, Cursor}
-import org.specs2.mock.Mockito
-import org.specs2.mutable.Specification
-import org.specs2.specification.Scope
-
 import scala.util.Random
-
-trait SQLDroidResultSetMetaDataSpecification
-  extends Specification
-  with Mockito {
-
-  trait WithCursorMocked
-    extends Scope {
-
-    val cursor = mock[Cursor]
-
-    val sqlDroid = new SQLDroidResultSetMetaData(cursor, new TestLogWrapper)
-
-  }
-
-  trait WithMatrixCursor
-    extends Scope {
-
-    val columnNames = Array("column1", "column2", "column3")
-
-    val columnTypes = Array(Cursor.FIELD_TYPE_STRING, Cursor.FIELD_TYPE_INTEGER, Cursor.FIELD_TYPE_FLOAT)
-
-    val cursor = new MatrixCursor(columnNames, columnTypes)
-
-    val sqlDroid = new SQLDroidResultSetMetaData(cursor, new TestLogWrapper)
-
-  }
-
-}
 
 class SQLDroidResultSetMetaDataSpec
   extends SQLDroidResultSetMetaDataSpecification {
@@ -108,34 +75,34 @@ class SQLDroidResultSetMetaDataSpec
       sqlDroid.getColumnType(1) shouldEqual Types.NULL
     }
 
-    "return type VARCHAR for first column when the cursor has data and positioned on first row" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "return type VARCHAR for first column when the cursor has data and positioned on first row" in
+      new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.getColumnType(1) shouldEqual Types.VARCHAR
     }
 
-    "return type INTEGER for second column when the cursor has data and positioned on first row" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "return type INTEGER for second column when the cursor has data and positioned on first row" in
+      new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.getColumnType(2) shouldEqual Types.INTEGER
     }
 
-    "return type FLOAT for third column when the cursor has data and positioned on first row" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "return type FLOAT for third column when the cursor has data and positioned on first row" in
+      new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.getColumnType(3) shouldEqual Types.FLOAT
     }
 
-    "return type VARCHAR and restore position when the cursor has data but has been read" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "return type VARCHAR and restore position when the cursor has data but has been read" in
+      new WithMatrixCursor with WithData {
       cursor.moveToNext()
       cursor.moveToNext()
       sqlDroid.getColumnType(1) shouldEqual Types.VARCHAR
       cursor.getPosition shouldEqual 1
     }
 
-    "return type VARCHAR and restore position when the cursor is unread" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "return type VARCHAR and restore position when the cursor is unread" in
+      new WithMatrixCursor with WithData {
       sqlDroid.getColumnType(1) shouldEqual Types.VARCHAR
       cursor.getPosition shouldEqual -1
     }
@@ -148,22 +115,22 @@ class SQLDroidResultSetMetaDataSpec
       sqlDroid.getColumnTypeName(1) shouldEqual "NULL"
     }
 
-    "return name TEXT when the cursor has data and positioned on first row" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "return name TEXT when the cursor has data and positioned on first row" in
+      new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.getColumnTypeName(1) shouldEqual "TEXT"
     }
 
-    "return type VARCHAR and restore position when the cursor has data but has been read" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "return type VARCHAR and restore position when the cursor has data but has been read" in
+      new WithMatrixCursor with WithData {
       cursor.moveToNext()
       cursor.moveToNext()
       sqlDroid.getColumnTypeName(1) shouldEqual "TEXT"
       cursor.getPosition shouldEqual 1
     }
 
-    "return type VARCHAR and restore position when the cursor is unread" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "return type VARCHAR and restore position when the cursor is unread" in
+      new WithMatrixCursor with WithData {
       sqlDroid.getColumnTypeName(1) shouldEqual "TEXT"
       cursor.getPosition shouldEqual -1
     }
@@ -260,18 +227,15 @@ class SQLDroidResultSetMetaDataSpec
 
   "isSigned" should {
 
-    "returns false when the column type is VARCHAR" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "returns false when the column type is VARCHAR" in new WithMatrixCursor with WithData {
       sqlDroid.isSigned(1) must beFalse
     }
 
-    "returns true when the column type is INTEGER" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "returns true when the column type is INTEGER" in new WithMatrixCursor with WithData {
       sqlDroid.isSigned(2) must beTrue
     }
 
-    "returns true when the column type is FLOAT" in new WithMatrixCursor {
-      cursor.addRow(Array("value1", "value2", "value3"))
+    "returns true when the column type is FLOAT" in new WithMatrixCursor with WithData {
       sqlDroid.isSigned(3) must beTrue
     }
 

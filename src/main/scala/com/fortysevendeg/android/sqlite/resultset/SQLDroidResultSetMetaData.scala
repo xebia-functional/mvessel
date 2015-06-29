@@ -1,10 +1,9 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.resultset
 
-import java.sql.{Types, ResultSetMetaData}
+import java.sql.{ResultSetMetaData, Types}
 
 import android.database.Cursor
-
-import scala.util.{Success, Try}
+import com.fortysevendeg.android.sqlite.{AndroidLogWrapper, LogWrapper, WrapperNotSupported, CursorOps}
 
 class SQLDroidResultSetMetaData(
   cursor: Cursor,

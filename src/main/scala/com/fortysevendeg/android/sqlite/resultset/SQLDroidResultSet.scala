@@ -1,17 +1,18 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.resultset
 
 import java.io._
 import java.math.BigDecimal
 import java.net.URL
-import java.text.SimpleDateFormat
-import scala.{Array => SArray}
 import java.sql._
+import java.text.SimpleDateFormat
 import java.util
 import java.util.Calendar
 
 import android.database.Cursor
+import com.fortysevendeg.android.sqlite._
 
 import scala.util.{Failure, Success, Try}
+import scala.{Array => SArray}
 
 class SQLDroidResultSet(
   cursor: Cursor,
@@ -61,11 +62,9 @@ class SQLDroidResultSet(
 
   private[this] def readBytes(columnIndex: Int): Option[SArray[Byte]] =
     notNull(columnIndex) {
-      val bytes = getOp(columnIndex.index)(cursor.getBlob)
-      // SQLite includes the zero-byte at the end for Strings.
       cursor.getTypeSafe(columnIndex.index) match {
-        case Cursor.FIELD_TYPE_STRING if bytes.nonEmpty => bytes.dropRight(1)
-        case _ => bytes
+        case Cursor.FIELD_TYPE_STRING => getOp(columnIndex.index)(cursor.getString).getBytes
+        case _ => getOp(columnIndex.index)(cursor.getBlob)
       }
     }
 
@@ -75,9 +74,8 @@ class SQLDroidResultSet(
   private[this] def readTime(columnIndex: Int): Option[Long] =
     notNull(columnIndex) {
       cursor.getTypeSafe(columnIndex.index) match {
-        case (Cursor.FIELD_TYPE_INTEGER) => Some(getOp(columnIndex)(cursor.getLong))
-        case (Cursor.FIELD_TYPE_NULL) => None
-        case _ => parseDate(getString(columnIndex)) map (_.getTime)
+        case (Cursor.FIELD_TYPE_INTEGER) => Some(getOp(columnIndex.index)(cursor.getLong))
+        case _ => parseDate(getOp(columnIndex.index)(cursor.getString)) map (_.getTime)
       }
     } getOrElse None
 
@@ -299,10 +297,10 @@ class SQLDroidResultSet(
   override def getObject(columnIndex: Int): AnyRef = notClosed {
     notNull(columnIndex) {
       cursor.getTypeSafe(columnIndex.index) match {
-        case Cursor.FIELD_TYPE_INTEGER => new java.lang.Integer(getOp(columnIndex)(cursor.getInt))
-        case Cursor.FIELD_TYPE_FLOAT => new java.lang.Float(getOp(columnIndex)(cursor.getFloat))
-        case Cursor.FIELD_TYPE_BLOB => new SQLDroidBlob(getOp(columnIndex)(cursor.getBlob))
-        case _ => getOp(columnIndex)(cursor.getString)
+        case Cursor.FIELD_TYPE_INTEGER => new java.lang.Integer(getOp(columnIndex.index)(cursor.getInt))
+        case Cursor.FIELD_TYPE_FLOAT => new java.lang.Float(getOp(columnIndex.index)(cursor.getFloat))
+        case Cursor.FIELD_TYPE_BLOB => new SQLDroidBlob(getOp(columnIndex.index)(cursor.getBlob))
+        case _ => getOp(columnIndex.index)(cursor.getString)
       }
     } getOrElse javaNull
   }
