@@ -11,16 +11,16 @@ class SQLDroidResultSetSpec
 
   "isBeforeFirst" should {
 
-    "return true if the cursor is before to the first" in new WithMatrixCursor with WithData {
+    "returns true if the cursor is before to the first" in new WithMatrixCursor with WithData {
       sqlDroid.isBeforeFirst must beTrue
     }
 
-    "return false if the cursor is in the first position" in new WithMatrixCursor with WithData {
+    "returns false if the cursor is in the first position" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.isBeforeFirst must beFalse
     }
 
-    "return false if the cursor is after last" in new WithMatrixCursor with WithData {
+    "returns false if the cursor is after last" in new WithMatrixCursor with WithData {
       cursor.moveToLast()
       cursor.moveToNext()
       sqlDroid.isBeforeFirst must beFalse
@@ -34,16 +34,16 @@ class SQLDroidResultSetSpec
 
   "isAfterLast" should {
 
-    "return false if the cursor is before to the first" in new WithMatrixCursor with WithData {
+    "returns false if the cursor is before to the first" in new WithMatrixCursor with WithData {
       sqlDroid.isAfterLast must beFalse
     }
 
-    "return false if the cursor is in the first position" in new WithMatrixCursor with WithData {
+    "returns false if the cursor is in the first position" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.isAfterLast must beFalse
     }
 
-    "return true if the cursor is after last" in new WithMatrixCursor with WithData {
+    "returns true if the cursor is after last" in new WithMatrixCursor with WithData {
       cursor.moveToLast()
       cursor.moveToNext()
       sqlDroid.isAfterLast must beTrue
@@ -58,22 +58,22 @@ class SQLDroidResultSetSpec
 
   "isFirst" should {
 
-    "return false if the cursor is before to the first" in new WithMatrixCursor with WithData {
+    "returns false if the cursor is before to the first" in new WithMatrixCursor with WithData {
       sqlDroid.isFirst must beFalse
     }
 
-    "return true if the cursor is in the first position" in new WithMatrixCursor with WithData {
+    "returns true if the cursor is in the first position" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.isFirst must beTrue
     }
 
-    "return true if the cursor is in the second position" in new WithMatrixCursor with WithData {
+    "returns true if the cursor is in the second position" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       cursor.moveToNext()
       sqlDroid.isFirst must beFalse
     }
 
-    "return false if the cursor is after last" in new WithMatrixCursor with WithData {
+    "returns false if the cursor is after last" in new WithMatrixCursor with WithData {
       cursor.moveToLast()
       cursor.moveToNext()
       sqlDroid.isFirst must beFalse
@@ -87,21 +87,21 @@ class SQLDroidResultSetSpec
 
   "isLast" should {
 
-    "return false if the cursor is before to the first" in new WithMatrixCursor with WithData {
+    "returns false if the cursor is before to the first" in new WithMatrixCursor with WithData {
       sqlDroid.isLast must beFalse
     }
 
-    "return false if the cursor is in the first position" in new WithMatrixCursor with WithData {
+    "returns false if the cursor is in the first position" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.isLast must beFalse
     }
 
-    "return true if the cursor is in the last position" in new WithMatrixCursor with WithData {
+    "returns true if the cursor is in the last position" in new WithMatrixCursor with WithData {
       cursor.moveToLast()
       sqlDroid.isLast must beTrue
     }
 
-    "return false if the cursor is after last" in new WithMatrixCursor with WithData {
+    "returns false if the cursor is after last" in new WithMatrixCursor with WithData {
       cursor.moveToLast()
       cursor.moveToNext()
       sqlDroid.isLast must beFalse
@@ -115,29 +115,29 @@ class SQLDroidResultSetSpec
 
   "absolute" should {
 
-    "return false for an empty cursor" in new WithMatrixCursor {
+    "returns false for an empty cursor" in new WithMatrixCursor {
       sqlDroid.absolute(1) must beFalse
     }
 
-    "return false and move before first when passing 0" in new WithMatrixCursor with WithData {
+    "returns false and move before first when passing 0" in new WithMatrixCursor with WithData {
       sqlDroid.absolute(0) must beFalse
       cursor.isBeforeFirst must beTrue
     }
 
-    "return false when move to a position greater than number of rows" in new WithMatrixCursor with WithData {
+    "returns false when move to a position greater than number of rows" in new WithMatrixCursor with WithData {
       sqlDroid.absolute(numRows + 1) must beFalse
     }
 
-    "return true and move to the first position when passing 1" in new WithMatrixCursor with WithData {
+    "returns true and move to the first position when passing 1" in new WithMatrixCursor with WithData {
       sqlDroid.absolute(1) must beTrue
       cursor.isFirst must beTrue
     }
 
-    "return false when move to a negative position whose absolute value is greater than number of rows" in new WithMatrixCursor with WithData {
+    "returns false when move to a negative position whose absolute value is greater than number of rows" in new WithMatrixCursor with WithData {
       sqlDroid.absolute(-numRows - 1) must beFalse
     }
 
-    "return true and move to the last position when passing -1" in new WithMatrixCursor with WithData {
+    "returns true and move to the last position when passing -1" in new WithMatrixCursor with WithData {
       sqlDroid.absolute(-1) must beTrue
       cursor.isLast must beTrue
     }
@@ -151,11 +151,11 @@ class SQLDroidResultSetSpec
 
   "relative" should {
 
-    "return false for an empty cursor" in new WithMatrixCursor {
+    "returns false for an empty cursor" in new WithMatrixCursor {
       sqlDroid.relative(1) must beFalse
     }
 
-      "return true and move to previous position when passing -1" in new WithMatrixCursor with WithData {
+      "returns true and move to previous position when passing -1" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       val position = cursor.getPosition
       cursor.moveToNext()
@@ -163,21 +163,21 @@ class SQLDroidResultSetSpec
       cursor.getPosition shouldEqual position
     }
 
-    "return false when move to a position greater than number of rows" in new WithMatrixCursor with WithData {
+    "returns false when move to a position greater than number of rows" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.relative(numRows + 1) must beFalse
     }
 
-    "return true and move to the first position when passing 1" in new WithMatrixCursor with WithData {
+    "returns true and move to the first position when passing 1" in new WithMatrixCursor with WithData {
       sqlDroid.relative(1) must beTrue
       cursor.isFirst must beTrue
     }
 
-    "return false when move to a negative position whose absolute value is greater than number of rows" in new WithMatrixCursor with WithData {
+    "returns false when move to a negative position whose absolute value is greater than number of rows" in new WithMatrixCursor with WithData {
       sqlDroid.relative(-numRows - 1) must beFalse
     }
 
-    "return true and move to the previous position when passing -1" in new WithMatrixCursor with WithData {
+    "returns true and move to the previous position when passing -1" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       cursor.moveToNext()
       val position = cursor.getPosition
@@ -240,7 +240,7 @@ class SQLDroidResultSetSpec
 
   "next" should {
 
-    "return true and increment position by one with a cursor with data" in new WithMatrixCursor with WithData {
+    "returns true and increment position by one with a cursor with data" in new WithMatrixCursor with WithData {
       val position = cursor.getPosition
       sqlDroid.next() must beTrue
       cursor.getPosition shouldEqual (position + 1)
@@ -255,7 +255,7 @@ class SQLDroidResultSetSpec
 
   "previous" should {
 
-    "return true and decrement position by one with a cursor with data" in new WithMatrixCursor with WithData {
+    "returns true and decrement position by one with a cursor with data" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       cursor.moveToNext()
       val position = cursor.getPosition
@@ -272,7 +272,7 @@ class SQLDroidResultSetSpec
 
   "last" should {
 
-    "return true and don't change the position with an empty cursor" in new WithMatrixCursor {
+    "returns true and don't change the position with an empty cursor" in new WithMatrixCursor {
       val position = cursor.getPosition
       sqlDroid.last() must beFalse
       cursor.getPosition shouldEqual position
@@ -292,7 +292,7 @@ class SQLDroidResultSetSpec
 
   "first" should {
 
-    "return false with an empty cursor" in new WithMatrixCursor {
+    "returns false with an empty cursor" in new WithMatrixCursor {
       sqlDroid.first() must beFalse
     }
 
@@ -310,7 +310,7 @@ class SQLDroidResultSetSpec
 
   "getRow" should {
 
-    "return position plus 1" in new WithMatrixCursor with WithData {
+    "returns position plus 1" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       val position = cursor.getPosition
       sqlDroid.getRow shouldEqual position + 1
@@ -325,7 +325,7 @@ class SQLDroidResultSetSpec
 
   "findColumn" should {
 
-    "return the column position for an existing one" in new WithMatrixCursor {
+    "returns the column position for an existing one" in new WithMatrixCursor {
       sqlDroid.findColumn(columnNames(1)) shouldEqual 2
     }
 
@@ -352,12 +352,12 @@ class SQLDroidResultSetSpec
 
   "isClosed" should {
 
-    "return true if close method in cursor return true" in new WithCursorMocked {
+    "returns true if close method in cursor return true" in new WithCursorMocked {
       cursor.isClosed returns true
       sqlDroid.isClosed must beTrue
     }
 
-    "return false if close method in cursor return false" in new WithCursorMocked {
+    "returns false if close method in cursor return false" in new WithCursorMocked {
       cursor.isClosed returns false
       sqlDroid.isClosed must beFalse
     }
@@ -366,7 +366,7 @@ class SQLDroidResultSetSpec
 
   "wasNull" should {
 
-    "return true if the last fetch value was null" in new WithMatrixCursor {
+    "returns true if the last fetch value was null" in new WithMatrixCursor {
       cursor.addRow(Array[AnyRef](
         javaNull,
         new java.lang.Integer(Random.nextInt(10)),
@@ -378,7 +378,7 @@ class SQLDroidResultSetSpec
       sqlDroid.wasNull() must beTrue
     }
 
-    "return false if the last fetch value wasn't null" in new WithMatrixCursor with WithData {
+    "returns false if the last fetch value wasn't null" in new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.getString(1)
       sqlDroid.wasNull() must beFalse
@@ -388,7 +388,7 @@ class SQLDroidResultSetSpec
 
   "getType" should {
 
-    "return ResultSet.TYPE_SCROLL_SENSITIVE" in new WithCursorMocked {
+    "returns ResultSet.TYPE_SCROLL_SENSITIVE" in new WithCursorMocked {
       sqlDroid.getType shouldEqual ResultSet.TYPE_SCROLL_SENSITIVE
     }
 
@@ -396,7 +396,7 @@ class SQLDroidResultSetSpec
 
   "getMetaData" should {
 
-    "return a ResultSetMetaData" in new WithCursorMocked {
+    "returns a ResultSetMetaData" in new WithCursorMocked {
       sqlDroid.getMetaData must beAnInstanceOf[ResultSetMetaData]
     }
 

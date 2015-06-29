@@ -9,21 +9,21 @@ class SQLDroidResultSetMetaDataSpec
 
   "getCatalogName" should {
 
-    "return an empty string" in new WithCursorMocked {
+    "returns an empty string" in new WithCursorMocked {
       sqlDroid.getCatalogName(Random.nextInt(10)) shouldEqual ""
     }
   }
 
   "getSchemaName" should {
 
-    "return an empty string" in new WithCursorMocked {
+    "returns an empty string" in new WithCursorMocked {
       sqlDroid.getSchemaName(Random.nextInt(10)) shouldEqual ""
     }
   }
 
   "getTableName" should {
 
-    "return an empty string" in new WithCursorMocked {
+    "returns an empty string" in new WithCursorMocked {
       sqlDroid.getTableName(Random.nextInt(10)) shouldEqual ""
     }
 
@@ -31,7 +31,7 @@ class SQLDroidResultSetMetaDataSpec
 
   "getColumnCount" should {
 
-    "return the value returned by getColumnCount in cursor" in new WithCursorMocked {
+    "returns the value returned by getColumnCount in cursor" in new WithCursorMocked {
       val count = Random.nextInt(10)
 
       cursor.getColumnCount returns count
@@ -43,7 +43,7 @@ class SQLDroidResultSetMetaDataSpec
 
   "getColumnName" should {
 
-    "return the value returned by getColumnName in cursor with right column index" in new WithCursorMocked {
+    "returns the value returned by getColumnName in cursor with right column index" in new WithCursorMocked {
       val index = Random.nextInt(10)
 
       val name = Random.nextString(10)
@@ -57,7 +57,7 @@ class SQLDroidResultSetMetaDataSpec
 
   "getColumnLabel" should {
 
-    "return the value returned by getColumnName in cursor with right column index" in new WithCursorMocked {
+    "returns the value returned by getColumnName in cursor with right column index" in new WithCursorMocked {
       val index = Random.nextInt(10)
 
       val name = Random.nextString(10)
@@ -71,29 +71,29 @@ class SQLDroidResultSetMetaDataSpec
 
   "getColumnType" should {
 
-    "return type NULL when the cursor is empty" in new WithMatrixCursor {
+    "returns type NULL when the cursor is empty" in new WithMatrixCursor {
       sqlDroid.getColumnType(1) shouldEqual Types.NULL
     }
 
-    "return type VARCHAR for first column when the cursor has data and positioned on first row" in
+    "returns type VARCHAR for first column when the cursor has data and positioned on first row" in
       new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.getColumnType(1) shouldEqual Types.VARCHAR
     }
 
-    "return type INTEGER for second column when the cursor has data and positioned on first row" in
+    "returns type INTEGER for second column when the cursor has data and positioned on first row" in
       new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.getColumnType(2) shouldEqual Types.INTEGER
     }
 
-    "return type FLOAT for third column when the cursor has data and positioned on first row" in
+    "returns type FLOAT for third column when the cursor has data and positioned on first row" in
       new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.getColumnType(3) shouldEqual Types.FLOAT
     }
 
-    "return type VARCHAR and restore position when the cursor has data but has been read" in
+    "returns type VARCHAR and restore position when the cursor has data but has been read" in
       new WithMatrixCursor with WithData {
       cursor.moveToNext()
       cursor.moveToNext()
@@ -101,7 +101,7 @@ class SQLDroidResultSetMetaDataSpec
       cursor.getPosition shouldEqual 1
     }
 
-    "return type VARCHAR and restore position when the cursor is unread" in
+    "returns type VARCHAR and restore position when the cursor is unread" in
       new WithMatrixCursor with WithData {
       sqlDroid.getColumnType(1) shouldEqual Types.VARCHAR
       cursor.getPosition shouldEqual -1
@@ -111,17 +111,17 @@ class SQLDroidResultSetMetaDataSpec
 
   "getColumnTypeName" should {
 
-    "return name NULL when the cursor is empty" in new WithMatrixCursor {
+    "returns name NULL when the cursor is empty" in new WithMatrixCursor {
       sqlDroid.getColumnTypeName(1) shouldEqual "NULL"
     }
 
-    "return name TEXT when the cursor has data and positioned on first row" in
+    "returns name TEXT when the cursor has data and positioned on first row" in
       new WithMatrixCursor with WithData {
       cursor.moveToNext()
       sqlDroid.getColumnTypeName(1) shouldEqual "TEXT"
     }
 
-    "return type VARCHAR and restore position when the cursor has data but has been read" in
+    "returns type VARCHAR and restore position when the cursor has data but has been read" in
       new WithMatrixCursor with WithData {
       cursor.moveToNext()
       cursor.moveToNext()
@@ -129,7 +129,7 @@ class SQLDroidResultSetMetaDataSpec
       cursor.getPosition shouldEqual 1
     }
 
-    "return type VARCHAR and restore position when the cursor is unread" in
+    "returns type VARCHAR and restore position when the cursor is unread" in
       new WithMatrixCursor with WithData {
       sqlDroid.getColumnTypeName(1) shouldEqual "TEXT"
       cursor.getPosition shouldEqual -1

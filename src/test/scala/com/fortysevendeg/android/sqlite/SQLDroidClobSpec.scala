@@ -43,11 +43,11 @@ class SQLDroidClobSpec
 
   "length" should {
 
-    "return the string size" in new SQLDroidClobScope {
+    "returns the string size" in new SQLDroidClobScope {
       sqlDroid.length shouldEqual string.length
     }
 
-    "return 0 for an empty string" in new SQLDroidClobScope {
+    "returns 0 for an empty string" in new SQLDroidClobScope {
       emptySqlDroid.length shouldEqual 0
     }
 
@@ -55,11 +55,11 @@ class SQLDroidClobSpec
 
   "getAsciiStream" should {
 
-    "return a valid InputStream with the string content" in new SQLDroidClobScope {
+    "returns a valid InputStream with the string content" in new SQLDroidClobScope {
       toString(sqlDroid.getAsciiStream) shouldEqual string
     }
 
-    "return an empty InputStream when the original string is empty" in new SQLDroidClobScope {
+    "returns an empty InputStream when the original string is empty" in new SQLDroidClobScope {
       toString(emptySqlDroid.getAsciiStream) shouldEqual emptyString
     }
 
@@ -67,15 +67,15 @@ class SQLDroidClobSpec
 
   "getSubString" should {
 
-    "return the complete string when specify the string dimensions" in new SQLDroidClobScope {
+    "returns the complete string when specify the string dimensions" in new SQLDroidClobScope {
       sqlDroid.getSubString(1, string.length) shouldEqual string
     }
 
-    "return an array with one element when specify length 1" in new SQLDroidClobScope {
+    "returns an array with one element when specify length 1" in new SQLDroidClobScope {
       sqlDroid.getSubString(2, 1) shouldEqual string.substring(1, 2)
     }
 
-    "return the complete string when the pos plus length is greater than the string length" in new SQLDroidClobScope {
+    "returns the complete string when the pos plus length is greater than the string length" in new SQLDroidClobScope {
       sqlDroid.getSubString(1, string.length + 1) shouldEqual string
     }
 
@@ -91,19 +91,19 @@ class SQLDroidClobSpec
 
   "getCharacterStream" should {
 
-    "return a Reader for a valid string" in new SQLDroidClobScope {
+    "returns a Reader for a valid string" in new SQLDroidClobScope {
       toString(sqlDroid.getCharacterStream) shouldEqual string
     }
 
-    "return an InputStream when specify the string dimensions" in new SQLDroidClobScope {
+    "returns an InputStream when specify the string dimensions" in new SQLDroidClobScope {
       toString(sqlDroid.getCharacterStream(1, string.length)) shouldEqual string
     }
 
-    "return an string with one element when specify length 1" in new SQLDroidClobScope {
+    "returns an string with one element when specify length 1" in new SQLDroidClobScope {
       toString(sqlDroid.getCharacterStream(2, 1)) shouldEqual string.substring(1, 2)
     }
 
-    "return the complete string when the pos plus length is greater than the string length" in new SQLDroidClobScope {
+    "returns the complete string when the pos plus length is greater than the string length" in new SQLDroidClobScope {
       toString(sqlDroid.getCharacterStream(1, string.length + 1)) shouldEqual string
     }
 
