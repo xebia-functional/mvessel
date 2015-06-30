@@ -8,16 +8,20 @@ import com.fortysevendeg.android.sqlite.SQLDroidDatabase._
 
 import scala.util.{Failure, Success, Try}
 
-class SQLDroidDatabase(name: String, timeout: Long, retry: Long, flags: Int) {
+class SQLDroidDatabase(val name: String, timeout: Long, retry: Long, flags: Int) {
 
   val database = executeWithRetry(retry, timeout)(openDatabase(name, flags))
 
   def openDatabase(name: String, flags: Int) = SQLiteDatabase.openDatabase(name, javaNull, flags)
 
-  def rawQuery(sql: String, selectionArgs: Array[String] = Array.empty): Cursor =
+  def rawQuery(sql: String): Cursor = rawQuery(sql, Array.empty)
+
+  def rawQuery(sql: String, selectionArgs: Array[String]): Cursor =
     executeWithRetry(retry, timeout)(database.rawQuery(sql, selectionArgs))
 
-  def execSQL(sql: String, bindArgs: Array[AnyRef] = Array.empty): Unit =
+  def execSQL(sql: String): Unit = execSQL(sql, Array.empty)
+
+  def execSQL(sql: String, bindArgs: Array[AnyRef]): Unit =
     executeWithRetry(retry, timeout) {
       if (bindArgs.isEmpty) database.execSQL(sql)
       else database.execSQL(sql, bindArgs)
