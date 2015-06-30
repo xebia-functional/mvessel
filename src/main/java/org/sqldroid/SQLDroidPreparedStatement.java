@@ -3,6 +3,7 @@ package org.sqldroid;
 import android.database.Cursor;
 import android.util.Log;
 import com.fortysevendeg.android.sqlite.AndroidLogWrapper;
+import com.fortysevendeg.android.sqlite.SQLDroidDatabase;
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet;
 
 import java.io.ByteArrayOutputStream;
@@ -34,7 +35,7 @@ import java.util.List;
 
 public class SQLDroidPreparedStatement implements PreparedStatement {
 
-  protected SQLiteDatabase db;
+  protected SQLDroidDatabase db;
   protected SQLDroidConnection sqldroidConnection;
   protected SQLDroidResultSet rs = null;
   protected String sql;

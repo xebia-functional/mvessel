@@ -1,6 +1,7 @@
 package org.sqldroid;
 
 import android.util.Log;
+import com.fortysevendeg.android.sqlite.SQLDroidDatabase;
 
 import java.lang.reflect.Constructor;
 import java.sql.Array;
@@ -27,18 +28,16 @@ public class SQLDroidConnection implements Connection {
     /**
     * A map to a single instance of a SQLiteDatabase per DB.
     */
-    private static final Map<String, SQLiteDatabase> dbMap =
-            new HashMap<String, SQLiteDatabase>();
+    private static final Map<String, SQLDroidDatabase> dbMap = new HashMap<>();
 
     /**
     * A map from a connection to a SQLiteDatabase instance.
     * Used to track the use of each instance, and close the database when last conneciton is closed.
     */
-    private static final Map<SQLDroidConnection, SQLiteDatabase> clientMap =
-            new HashMap<SQLDroidConnection, SQLiteDatabase>();
+    private static final Map<SQLDroidConnection, SQLDroidDatabase> clientMap = new HashMap<>();
 
     /** The Android sqlitedb. */
-    private SQLiteDatabase sqlitedb;
+    private SQLDroidDatabase sqlitedb;
 
     private boolean autoCommit = true;
 
@@ -130,7 +129,7 @@ public class SQLDroidConnection implements Connection {
             sqlitedb = dbMap.get(dbQname);
             if (sqlitedb == null) {
                 Log.i("SQLDroid", "SQLDroidConnection: " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + this + " Opening new database: " + dbQname);
-                sqlitedb = new SQLiteDatabase(dbQname, timeout, retryInterval, flags);
+                sqlitedb = new SQLDroidDatabase(dbQname, timeout, retryInterval, flags);
                 dbMap.put(dbQname, sqlitedb);
                 clientMap.put(this, sqlitedb);
             }
@@ -138,7 +137,7 @@ public class SQLDroidConnection implements Connection {
     }
 
     /** Returns the delegate SQLiteDatabase. */
-    public SQLiteDatabase getDb() {
+    public SQLDroidDatabase getDb() {
         return sqlitedb;
     }
 
@@ -184,7 +183,7 @@ public class SQLDroidConnection implements Connection {
                 if (!clientMap.containsValue(sqlitedb)) {
                     Log.i("SQLDroid", "SQLDroidConnection.close(): " + Thread.currentThread().getId() + " \"" + Thread.currentThread().getName() + "\" " + this + " Closing the database since since last connection was closed.");
                     sqlitedb.close();
-                    dbMap.remove(sqlitedb.dbQname);
+                    dbMap.remove(sqlitedb.name());
                 }
             }
             sqlitedb = null;
@@ -275,8 +274,8 @@ public class SQLDroidConnection implements Connection {
     @Override
     public boolean isClosed() throws SQLException {
         // assuming that "isOpen" doesn't throw a locked exception..
-        return sqlitedb == null || sqlitedb.getSqliteDatabase() == null ||
-                !sqlitedb.getSqliteDatabase().isOpen();
+        return sqlitedb == null || sqlitedb.database() == null ||
+                !sqlitedb.database().isOpen();
     }
 
     @Override

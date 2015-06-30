@@ -1,6 +1,8 @@
 package com.fortysevendeg.android.sqlite.resultset
 
 import java.sql._
+import com.fortysevendeg.android.sqlite.data.SQLDroidBlob
+
 import scala.{Array => SArray}
 import java.util.Date
 

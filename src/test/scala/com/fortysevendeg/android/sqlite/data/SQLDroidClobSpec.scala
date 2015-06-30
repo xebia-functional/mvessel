@@ -1,7 +1,7 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.data
 
-import java.io.{BufferedReader, Reader, InputStream}
-import java.sql.{Clob, SQLFeatureNotSupportedException, Blob, SQLException}
+import java.io.{BufferedReader, InputStream, Reader}
+import java.sql.{Clob, SQLException, SQLFeatureNotSupportedException}
 
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -31,7 +31,7 @@ trait SQLDroidClobSpecification
 
     def toString(reader: Reader): String = {
       val buffer = new BufferedReader(reader)
-      Stream.continually(buffer.readLine()).takeWhile(_ != null).mkString
+      Stream.continually(buffer.readLine()).takeWhile(Option(_).isDefined).mkString
     }
 
   }

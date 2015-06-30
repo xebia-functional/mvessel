@@ -21,6 +21,7 @@ import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import com.fortysevendeg.android.sqlite.AndroidLogWrapper;
 import com.fortysevendeg.android.sqlite.LogWrapper;
+import com.fortysevendeg.android.sqlite.SQLDroidDatabase;
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet;
 
 public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
@@ -194,7 +195,7 @@ public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 	          Integer.valueOf(2) /* columnNullableUnknown */, null, null, null, null, Integer.valueOf(-1), Integer.valueOf(-1), "",
 	      null, null, null, null, ""};
 
-	  SQLiteDatabase db = con.getDb();
+	  SQLDroidDatabase db = con.getDb();
 	  final String[] types = new String[] {TABLE_TYPE, VIEW_TYPE};
 	  ResultSet rs = null;
 	  List<Cursor> cursorList = new ArrayList<Cursor>();
@@ -306,7 +307,7 @@ public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 	}
 	@Override
 	public int getDatabaseMajorVersion() throws SQLException {
-		return con.getDb().getSqliteDatabase().getVersion();
+		return con.getDb().database().getVersion();
 	}
 
 	@Override
@@ -761,7 +762,7 @@ public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 	public ResultSet getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
 	  final String[] columnNames = new String [] {"TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "COLUMN_NAME", "KEY_SEQ", "PK_NAME"};
 	  final Object[] columnValues = new Object[] {null, null, null, null, null, null};
-	  SQLiteDatabase db = con.getDb();
+	  SQLDroidDatabase db = con.getDb();
 
 	  Cursor c = db.rawQuery("pragma table_info('" + table + "')", new String[] {});
 	  MatrixCursor mc = new MatrixCursor(columnNames);
@@ -930,7 +931,7 @@ public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 		final String selectStringEnd = "' as TABLE_TYPE, 'No Comment' as REMARKS, null as TYPE_CAT, null as TYPE_SCHEM, null as TYPE_NAME, null as SELF_REFERENCING_COL_NAME, null as REF_GENERATION" +
 		" FROM sqlite_temp_master WHERE tbl_name LIKE ? AND name NOT LIKE 'android_metadata' AND upper(type) = ? ORDER BY 3";
 
-		SQLiteDatabase db = con.getDb();
+		SQLDroidDatabase db = con.getDb();
 		List<Cursor> cursorList = new ArrayList<Cursor>();
 		for ( String tableType : types ) {
 			StringBuffer selectString = new StringBuffer ();

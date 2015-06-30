@@ -1,7 +1,7 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.data
 
 import java.io.{ByteArrayInputStream, InputStream, OutputStream}
-import java.sql.{SQLException, Blob, SQLFeatureNotSupportedException}
+import java.sql.{Blob, SQLException, SQLFeatureNotSupportedException}
 
 class SQLDroidBlob(byteArray: Array[Byte]) extends Blob {
 

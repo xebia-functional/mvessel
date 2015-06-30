@@ -1,7 +1,7 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.data
 
 import java.io.InputStream
-import java.sql.{SQLFeatureNotSupportedException, Blob, SQLException}
+import java.sql.{Blob, SQLException, SQLFeatureNotSupportedException}
 
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification

@@ -2,6 +2,7 @@ package org.sqldroid;
 
 import android.database.Cursor;
 import com.fortysevendeg.android.sqlite.AndroidLogWrapper;
+import com.fortysevendeg.android.sqlite.SQLDroidDatabase;
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet;
 
 import java.sql.Connection;
@@ -12,7 +13,7 @@ import java.sql.Statement;
 
 public class SQLDroidStatement implements Statement {
 
-  private SQLiteDatabase db;
+  private SQLDroidDatabase db;
   private SQLDroidConnection sqldroidConnection;
   private SQLDroidResultSet rs = null;
   protected StringBuffer sqlBatch = new StringBuffer();
