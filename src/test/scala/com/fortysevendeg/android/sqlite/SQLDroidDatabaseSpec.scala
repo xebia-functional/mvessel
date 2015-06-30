@@ -17,6 +17,8 @@ trait SQLDroidDatabaseSpecification
   val retry = 500
 
   val flags = 0
+  
+  val sql = "SELECT * FROM table"
 
   trait SQLDroidDatabaseScope
     extends Scope {
@@ -39,41 +41,41 @@ class SQLDroidDatabaseSpec extends SQLDroidDatabaseSpecification {
 
     "returns the Cursor when the method rawQuery in SQLiteDatabase works" in new SQLDroidDatabaseScope {
       mockedDatabase.rawQuery(any, any) returns cursor
-      sqlDroid.rawQuery(sql = "", selectionArgs = Array()) shouldEqual cursor
-      there was one(mockedDatabase).rawQuery("", Array())
+      sqlDroid.rawQuery(sql = sql, selectionArgs = Array()) shouldEqual cursor
+      there was one(mockedDatabase).rawQuery(sql, Array())
     }
 
     "returns the Cursor when the method rawQuery in SQLiteDatabase throws an exception in the first call and returns cursor in the second call" in new SQLDroidDatabaseScope {
       mockedDatabase.rawQuery(any, any) throws new SQLiteDatabaseLockedException("Error") thenReturn cursor
-      sqlDroid.rawQuery(sql = "", selectionArgs = Array()) shouldEqual cursor
-      there was two(mockedDatabase).rawQuery("", Array())
+      sqlDroid.rawQuery(sql = sql, selectionArgs = Array()) shouldEqual cursor
+      there was two(mockedDatabase).rawQuery(sql, Array())
     }
 
     "throws SQLiteDatabaseLockedException when rawQuery in SQLiteDatabase throws always an exception" in new SQLDroidDatabaseScope {
       mockedDatabase.rawQuery(any, any) throws new SQLiteDatabaseLockedException("Error")
-      sqlDroid.rawQuery(sql = "", selectionArgs = Array()) must throwA[SQLiteDatabaseLockedException]
-      there was two(mockedDatabase).rawQuery("", Array())
+      sqlDroid.rawQuery(sql = sql, selectionArgs = Array()) must throwA[SQLiteDatabaseLockedException]
+      there was two(mockedDatabase).rawQuery(sql, Array())
     }
 
   }
 
   "execSQL" should {
 
-    "executes successfully when the method execSQL in SQLiteDatabase works" in new SQLDroidDatabaseScope {
-      sqlDroid.execSQL(sql = "")
-      there was one(mockedDatabase).execSQL("")
+    "executes the SQL statement successful when the method execSQL in SQLite Database works fine" in new SQLDroidDatabaseScope {
+      sqlDroid.execSQL(sql = sql)
+      there was one(mockedDatabase).execSQL(sql)
     }
 
-    "executes successfully when the method execSQL in SQLiteDatabase throws an exception in the first call and returns cursor in the second call" in new SQLDroidDatabaseScope {
+    "executes the SQL statement successful when the method execSQL in SQLiteDatabase throws an exception in the first call and returns cursor in the second call" in new SQLDroidDatabaseScope {
       mockedDatabase.execSQL(any) throws new SQLiteDatabaseLockedException("Error") thenAnswer new MockAnswer[Unit](args => Unit)
-      sqlDroid.execSQL(sql = "")
-      there was two(mockedDatabase).execSQL("")
+      sqlDroid.execSQL(sql = sql)
+      there was two(mockedDatabase).execSQL(sql)
     }
 
     "throws SQLiteDatabaseLockedException when execSQL in SQLiteDatabase throws always an exception" in new SQLDroidDatabaseScope {
       mockedDatabase.execSQL(any) throws new SQLiteDatabaseLockedException("Error")
-      sqlDroid.execSQL(sql = "") must throwA[SQLiteDatabaseLockedException]
-      there was two(mockedDatabase).execSQL("")
+      sqlDroid.execSQL(sql = sql) must throwA[SQLiteDatabaseLockedException]
+      there was two(mockedDatabase).execSQL(sql)
     }
 
   }

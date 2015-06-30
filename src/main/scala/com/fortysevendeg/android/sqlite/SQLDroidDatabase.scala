@@ -52,13 +52,13 @@ object SQLDroidDatabase {
 
   sealed trait TransactionState
 
-  object TransactionSuccessful  extends TransactionState
+  case object TransactionSuccessful  extends TransactionState
 
-  object StartsTransaction      extends TransactionState
+  case object StartsTransaction      extends TransactionState
 
-  object FinishTransaction      extends TransactionState
+  case object FinishTransaction      extends TransactionState
 
-  object Close                  extends TransactionState
+  case object Close                  extends TransactionState
 
   def isLockedException(exception: SQLException): Boolean =
     lockedExceptionClass exists (_.isAssignableFrom(exception.getClass))
