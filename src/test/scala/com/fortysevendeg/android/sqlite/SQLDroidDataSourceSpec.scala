@@ -55,7 +55,7 @@ class SQLDroidDataSourceSpec
 
   "getParentLogger" should {
 
-    "return a java null" in new SQLDroidDataSourceScope {
+    "returns a java null" in new SQLDroidDataSourceScope {
       sqlDroid.getParentLogger shouldEqual javaNull
     }
 
@@ -63,7 +63,7 @@ class SQLDroidDataSourceSpec
 
   "getLoginTimeout" should {
 
-    "return 0" in new SQLDroidDataSourceScope {
+    "returns 0" in new SQLDroidDataSourceScope {
       sqlDroid.getLoginTimeout shouldEqual 0
     }
 

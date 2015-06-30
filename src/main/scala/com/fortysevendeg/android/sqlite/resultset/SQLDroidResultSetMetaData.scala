@@ -1,14 +1,15 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.resultset
 
-import java.sql.{Types, ResultSetMetaData}
+import java.sql.{ResultSetMetaData, Types}
 
 import android.database.Cursor
-
-import scala.util.{Success, Try}
+import com.fortysevendeg.android.sqlite.{AndroidLogWrapper, LogWrapper, WrapperNotSupported, CursorOps}
 
 class SQLDroidResultSetMetaData(
   cursor: Cursor,
-  log: LogWrapper = new AndroidLogWrapper) extends ResultSetMetaData {
+  log: LogWrapper = new AndroidLogWrapper)
+  extends ResultSetMetaData
+  with WrapperNotSupported {
 
   override def getCatalogName(column: Int): String = log.notImplemented("")
 
@@ -29,7 +30,7 @@ class SQLDroidResultSetMetaData(
       case (None, _) =>
         Types.NULL
       case (Some(c), maybeInt) =>
-        val nativeType = getType(column - 1)
+        val nativeType = cursor.getTypeSafe(column - 1)
         maybeInt map cursor.moveToPosition
         fromNativeType(nativeType)
     }
@@ -69,17 +70,6 @@ class SQLDroidResultSetMetaData(
 
   override def isAutoIncrement(column: Int): Boolean =
     throw new UnsupportedOperationException
-
-  override def unwrap[T](iface: Class[T]): T =
-    throw new UnsupportedOperationException
-
-  override def isWrapperFor(iface: Class[_]): Boolean = log.notImplemented(false)
-
-  private[this] def getType(index: Int): Int =
-    Try(classOf[Cursor].getMethod("getType", classOf[Int])) match {
-      case Success(method) => method.invoke(cursor, index.asInstanceOf[Integer]).asInstanceOf[Int]
-      case _ => Types.OTHER
-    }
 
   private[this] def prepareCursor: (Option[Cursor], Option[Int]) =
     (cursor.getCount, cursor.isBeforeFirst || cursor.isAfterLast) match {

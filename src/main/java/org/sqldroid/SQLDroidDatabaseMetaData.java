@@ -19,6 +19,9 @@ import java.util.regex.Pattern;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
+import com.fortysevendeg.android.sqlite.AndroidLogWrapper;
+import com.fortysevendeg.android.sqlite.LogWrapper;
+import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet;
 
 public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 
@@ -35,6 +38,8 @@ public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 	getColumnPrivileges   = null;
 	
 	SQLDroidConnection con;
+
+	LogWrapper log = new AndroidLogWrapper(android.util.Log.INFO, "scala-sqlite-droid");
     
 	public SQLDroidDatabaseMetaData(SQLDroidConnection con) {
 		this.con = con;
@@ -265,11 +270,11 @@ public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 	  cursors = cursorList.toArray(cursors);
 
 	  if ( cursors.length == 0 ) {
-	    resultSet = new SQLDroidResultSet(new MatrixCursor(columnNames,0));
+	    resultSet = new SQLDroidResultSet(new MatrixCursor(columnNames,0), log);
 	  } else if ( cursors.length == 1 ) {
-	    resultSet = new SQLDroidResultSet(cursors[0]);
+	    resultSet = new SQLDroidResultSet(cursors[0], log);
 	  } else {
-	    resultSet = new SQLDroidResultSet(new MergeCursor( cursors )); 
+	    resultSet = new SQLDroidResultSet(new MergeCursor(cursors), log);
 	  }
 	  return resultSet;
 	}
@@ -770,7 +775,7 @@ public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 	  }
 	  // The matrix cursor should be sorted by column name, but isn't
 	  c.close();
-	  return new SQLDroidResultSet(mc);
+	  return new SQLDroidResultSet(mc, log);
 	}
 
 	@Override
@@ -947,10 +952,10 @@ public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 			resultSet = null;  // is this a valid return?? I think this can only occur on a SQL exception
 		}
 		else if ( cursors.length == 1 ) {
-			resultSet = new SQLDroidResultSet(cursors[0]);
+			resultSet = new SQLDroidResultSet(cursors[0], log);
 		}
 		else {
-			resultSet = new SQLDroidResultSet(new MergeCursor( cursors )); 
+			resultSet = new SQLDroidResultSet(new MergeCursor(cursors), log);
 		}
 		return resultSet;
 	}
@@ -995,7 +1000,7 @@ public class SQLDroidDatabaseMetaData implements DatabaseMetaData {
 //        getTypeInfo.clearParameters();
 //        return getTypeInfo.executeQuery();
 
-  	return new SQLDroidResultSet(con.getDb().rawQuery(sql, new String[0]));
+  	return new SQLDroidResultSet(con.getDb().rawQuery(sql, new String[0]), log);
   }
 
 	

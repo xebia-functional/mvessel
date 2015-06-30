@@ -12,7 +12,9 @@ class SQLDroidDataSource(
   driver: SQLDroidDriver,
   properties: Properties = new Properties,
   dbPath: String,
-  log: LogWrapper = new AndroidLogWrapper) extends DataSource {
+  log: LogWrapper = new AndroidLogWrapper)
+  extends DataSource
+  with WrapperNotSupported {
 
   private[this] val url: String = "jdbc:sqldroid:" + dbPath
 
@@ -45,10 +47,4 @@ class SQLDroidDataSource(
   override def getLoginTimeout: Int = log.notImplemented(0)
 
   override def setLoginTimeout(seconds: Int) = log.notImplemented(Unit)
-
-  override def isWrapperFor(iface: Class[_]): Boolean =
-    throw new UnsupportedOperationException
-
-  override def unwrap[T](iface: Class[T]): T =
-    throw new UnsupportedOperationException
 }

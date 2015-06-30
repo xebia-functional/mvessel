@@ -2,6 +2,8 @@ package org.sqldroid;
 
 import android.database.Cursor;
 import android.util.Log;
+import com.fortysevendeg.android.sqlite.AndroidLogWrapper;
+import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -184,7 +186,7 @@ public class SQLDroidPreparedStatement implements PreparedStatement {
         if (isSelect) {
             String limitedSql = sql + (maxRows != null ? " LIMIT " + maxRows : "");
             Cursor c = db.rawQuery(limitedSql, makeArgListQueryString());
-            rs = new SQLDroidResultSet(c);
+            rs = new SQLDroidResultSet(c, new AndroidLogWrapper(android.util.Log.INFO, "scala-sqlite-droid"));
         } else {
             db.execSQL(sql, makeArgListQueryObject());
             updateCount = db.changedRowCount();
@@ -210,7 +212,7 @@ public class SQLDroidPreparedStatement implements PreparedStatement {
     // when querying, all ? values must be converted to Strings for some reason
     Cursor c = db.rawQuery(sql, makeArgListQueryString());
     // Log.d("sqldroid", "executeQuery " + 2);
-    rs = new SQLDroidResultSet(c);
+    rs = new SQLDroidResultSet(c, new AndroidLogWrapper(android.util.Log.INFO, "scala-sqlite-droid"));
     // Log.d("sqldroid", "executeQuery " + 3);
     return rs;
   }

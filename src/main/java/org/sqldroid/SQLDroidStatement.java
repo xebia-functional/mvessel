@@ -1,6 +1,8 @@
 package org.sqldroid;
 
 import android.database.Cursor;
+import com.fortysevendeg.android.sqlite.AndroidLogWrapper;
+import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -91,7 +93,7 @@ public class SQLDroidStatement implements Statement {
     if (isSelect) {
       String limitedSql = sql + (maxRows != null ? " LIMIT " + maxRows : "");
       Cursor c = db.rawQuery(limitedSql, new String[0]);
-      rs = new SQLDroidResultSet(c);
+      rs = new SQLDroidResultSet(c, new AndroidLogWrapper(android.util.Log.INFO, "scala-sqlite-droid"));
     } else {
       db.execSQL(sql);
       rs = null;
@@ -142,7 +144,7 @@ public class SQLDroidStatement implements Statement {
   public ResultSet executeQuery(String sql) throws SQLException {
     closeResultSet();
     Cursor c = db.rawQuery(sql, null);
-    rs = new SQLDroidResultSet(c);
+    rs = new SQLDroidResultSet(c, new AndroidLogWrapper(android.util.Log.INFO, "scala-sqlite-droid"));
     return rs;
   }
 

@@ -36,15 +36,15 @@ class SQLDroidBlobSpec
 
   "getBytes" should {
 
-    "return the complete array when specify the array dimensions" in new SQLDroidBlobScope {
+    "returns the complete array when specify the array dimensions" in new SQLDroidBlobScope {
       sqlDroid.getBytes(1, array.length) shouldEqual array
     }
 
-    "return an array with one element when specify length 1" in new SQLDroidBlobScope {
+    "returns an array with one element when specify length 1" in new SQLDroidBlobScope {
       sqlDroid.getBytes(2, 1) shouldEqual Array[Byte](array(1))
     }
 
-    "return the complete array when the pos plus length is greater than the array length" in new SQLDroidBlobScope {
+    "returns the complete array when the pos plus length is greater than the array length" in new SQLDroidBlobScope {
       sqlDroid.getBytes(1, array.length + 1) shouldEqual array
     }
 
@@ -60,19 +60,19 @@ class SQLDroidBlobSpec
 
   "getBinaryStream" should {
 
-    "return an InputStream for a valid byte Array" in new SQLDroidBlobScope {
+    "returns an InputStream for a valid byte Array" in new SQLDroidBlobScope {
       toByteArray(sqlDroid.getBinaryStream) shouldEqual array
     }
 
-    "return an InputStream when specify the array dimensions" in new SQLDroidBlobScope {
+    "returns an InputStream when specify the array dimensions" in new SQLDroidBlobScope {
       toByteArray(sqlDroid.getBinaryStream(1, array.length)) shouldEqual array
     }
 
-    "return an array with one element when specify length 1" in new SQLDroidBlobScope {
+    "returns an array with one element when specify length 1" in new SQLDroidBlobScope {
       toByteArray(sqlDroid.getBinaryStream(2, 1)) shouldEqual Array[Byte](array(1))
     }
 
-    "return the complete array when the pos plus length is greater than the array length" in new SQLDroidBlobScope {
+    "returns the complete array when the pos plus length is greater than the array length" in new SQLDroidBlobScope {
       toByteArray(sqlDroid.getBinaryStream(1, array.length + 1)) shouldEqual array
     }
 
@@ -88,11 +88,11 @@ class SQLDroidBlobSpec
 
   "length" should {
 
-    "return the array size" in new SQLDroidBlobScope {
+    "returns the array size" in new SQLDroidBlobScope {
       sqlDroid.length shouldEqual array.length
     }
 
-    "return 0 for an empty array" in new SQLDroidBlobScope {
+    "returns 0 for an empty array" in new SQLDroidBlobScope {
       emptySqlDroid.length shouldEqual 0
     }
 
