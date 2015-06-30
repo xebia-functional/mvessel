@@ -9,6 +9,7 @@ import java.util.Calendar
 
 import android.database.Cursor
 import com.fortysevendeg.android.sqlite._
+import com.fortysevendeg.android.sqlite.data.{SQLDroidBlob, SQLDroidClob}
 import com.fortysevendeg.android.sqlite.util.DateUtils
 
 import scala.util.{Failure, Success, Try}

@@ -13,12 +13,11 @@ package object sqlite {
 
   implicit class CursorOps(cursor: Cursor) {
 
-    private[this] val method: Option[Method] = {
+    private[this] val method: Option[Method] =
       Try(classOf[Cursor].getMethod("getType", classOf[Int])) match {
         case Success(m) => Some(m)
         case _ => None
       }
-    }
 
     def getTypeSafe(index: Int): Int =
       method map (_.invoke(cursor, index.asInstanceOf[Integer]).asInstanceOf[Int]) getOrElse Types.OTHER

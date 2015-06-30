@@ -1,7 +1,7 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.data
 
 import java.io._
-import java.sql.{SQLException, SQLFeatureNotSupportedException, Clob}
+import java.sql.{Clob, SQLException, SQLFeatureNotSupportedException}
 
 class SQLDroidClob(string: String) extends Clob {
   
