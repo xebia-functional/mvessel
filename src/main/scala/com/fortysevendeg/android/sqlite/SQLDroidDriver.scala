@@ -6,7 +6,7 @@ import java.util.logging.Logger
 import SQLDroidDriver._
 import org.sqldroid.SQLDroidConnection
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Try}
 
 class SQLDroidDriver extends Driver {
 
@@ -36,6 +36,10 @@ object SQLDroidDriver {
     case Failure(e) => e.printStackTrace()
     case _ =>
   }
+
+  val driverName = BuildInfo.name
+
+  val driverVersion = BuildInfo.version
   
   val databaseFlags = "DatabaseFlags"
   
