@@ -11,6 +11,7 @@ import android.database.Cursor
 import com.fortysevendeg.android.sqlite._
 import com.fortysevendeg.android.sqlite.data.{SQLDroidBlob, SQLDroidClob}
 import com.fortysevendeg.android.sqlite.util.DateUtils
+import com.fortysevendeg.android.sqlite.util.CursorUtils._
 
 import scala.util.{Failure, Success, Try}
 import scala.{Array => SArray}

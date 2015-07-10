@@ -2,7 +2,7 @@ package com.fortysevendeg.android.sqlite.metadata
 
 import java.sql.{Connection, ResultSet, SQLException, Statement}
 
-class PrimaryKey(name: Option[String], columns: Seq[String])
+class PrimaryKey(val name: Option[String], val columns: Seq[String])
 
 object PrimaryKey {
 
