@@ -1,6 +1,6 @@
 import sbt.Keys._
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 organization := "com.fortysevendeg"
 
