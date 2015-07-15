@@ -383,9 +383,9 @@ class SQLDroidDatabaseMetaData(connection: Connection)
     table: String
     ): ResultSet = versionColumnsStatement.executeQuery()
 
-  override def getCatalogSeparator: String = "."
+  override val getCatalogSeparator: String = "."
 
-  override def getCatalogTerm: String = "catalog"
+  override val getCatalogTerm: String = "catalog"
 
   override def getDatabaseMajorVersion: Int = connection match {
     case c: SQLDroidConnection => c.getDb.database.getVersion
