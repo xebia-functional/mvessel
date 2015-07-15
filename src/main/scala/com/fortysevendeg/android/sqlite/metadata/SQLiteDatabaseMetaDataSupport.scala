@@ -37,17 +37,17 @@ trait SQLiteDatabaseMetaDataSupport
 
   override def nullsAreSortedLow: Boolean = !nullsAreSortedHigh
 
-  override def othersDeletesAreVisible(`type`: Int): Boolean = false
+  override def othersDeletesAreVisible(intType: Int): Boolean = false
 
-  override def othersInsertsAreVisible(`type`: Int): Boolean = false
+  override def othersInsertsAreVisible(intType: Int): Boolean = false
 
-  override def othersUpdatesAreVisible(`type`: Int): Boolean = false
+  override def othersUpdatesAreVisible(intType: Int): Boolean = false
 
-  override def ownDeletesAreVisible(`type`: Int): Boolean = false
+  override def ownDeletesAreVisible(intType: Int): Boolean = false
 
-  override def ownInsertsAreVisible(`type`: Int): Boolean = false
+  override def ownInsertsAreVisible(intType: Int): Boolean = false
 
-  override def ownUpdatesAreVisible(`type`: Int): Boolean = false
+  override def ownUpdatesAreVisible(intType: Int): Boolean = false
 
   override def storesLowerCaseIdentifiers(): Boolean = false
 
@@ -151,14 +151,14 @@ trait SQLiteDatabaseMetaDataSupport
 
   override def supportsPositionedUpdate(): Boolean = false
 
-  override def supportsResultSetConcurrency(`type`: Int, concurrency: Int): Boolean =
-    `type` == ResultSet.TYPE_FORWARD_ONLY && concurrency == ResultSet.CONCUR_READ_ONLY
+  override def supportsResultSetConcurrency(intType: Int, concurrency: Int): Boolean =
+    intType == ResultSet.TYPE_FORWARD_ONLY && concurrency == ResultSet.CONCUR_READ_ONLY
 
   override def supportsResultSetHoldability(holdability: Int): Boolean =
     holdability == ResultSet.CLOSE_CURSORS_AT_COMMIT
 
-  override def supportsResultSetType(`type`: Int): Boolean =
-    `type` == ResultSet.TYPE_FORWARD_ONLY
+  override def supportsResultSetType(intType: Int): Boolean =
+    intType == ResultSet.TYPE_FORWARD_ONLY
 
   override def supportsSavepoints(): Boolean = false
 
@@ -201,7 +201,7 @@ trait SQLiteDatabaseMetaDataSupport
 
   override def supportsUnionAll(): Boolean = true
 
-  override def updatesAreDetected(`type`: Int): Boolean = false
+  override def updatesAreDetected(intType: Int): Boolean = false
 
   override def usesLocalFilePerTable(): Boolean = false
 
