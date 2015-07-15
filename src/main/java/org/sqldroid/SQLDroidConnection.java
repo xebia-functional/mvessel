@@ -2,6 +2,7 @@ package org.sqldroid;
 
 import android.util.Log;
 import com.fortysevendeg.android.sqlite.SQLDroidDatabase;
+import com.fortysevendeg.android.sqlite.metadata.SQLDroidDatabaseMetaData;
 
 import java.lang.reflect.Constructor;
 import java.sql.Array;
