@@ -2,7 +2,7 @@ package com.fortysevendeg.android.sqlite.metadata
 
 import java.sql._
 
-import android.database.{Cursor, MatrixCursor, MergeCursor}
+import android.database.{MatrixCursor, MergeCursor}
 import com.fortysevendeg.android.sqlite.metadata.SQLDroidDatabaseMetaData._
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet
 import com.fortysevendeg.android.sqlite.util.CursorUtils._
@@ -11,7 +11,7 @@ import org.sqldroid.SQLDroidConnection
 
 import scala.util.{Failure, Success, Try}
 
-class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
+class SQLDroidDatabaseMetaData(connection: Connection)
   extends DatabaseMetaData
   with SQLiteDatabaseMetaDataSupport
   with WrapperNotSupported {
@@ -35,6 +35,8 @@ class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
   lazy val tablePrivilegesStatement = connection.prepareStatement(tablePrivileges)
 
   lazy val tableTypesStatement = connection.prepareStatement(tableTypes)
+
+  lazy val typeInfoStatement = connection.prepareStatement(typeInfo)
 
   lazy val udtsStatement = connection.prepareStatement(udts)
 
@@ -72,55 +74,6 @@ class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
     tableNamePattern: String,
     columnNamePattern: String
     ): ResultSet = {
-    /*    
-     get the list of tables matching the pattern (getTables)
-     create a Matrix Cursor for each of the tables
-     create a merge cursor from all the Matrix Cursors
-     and return the columname and type from:
-      "PRAGMA table_info(tablename)"
-     which returns data like this:
-        sqlite> PRAGMA lastyear.table_info(gross_sales); 
-        cid|name|type|notnull|dflt_value|pk 
-        0|year|INTEGER|0|'2006'|0 
-        1|month|TEXT|0||0 
-        2|monthlygross|REAL|0||0 
-        3|sortcol|INTEGER|0||0 
-        sqlite>
-    
-     and then make the cursor have these columns
-        TABLE_CAT String => table catalog (may be null)
-        TABLE_SCHEM String => table schema (may be null)
-        TABLE_NAME String => table name
-        COLUMN_NAME String => column name
-        DATA_TYPE int => SQL type from java.sql.Types
-        TYPE_NAME String => Data source dependent type name, for a UDT the type name is fully qualified
-        COLUMN_SIZE int => column size.
-        BUFFER_LENGTH is not used.
-        DECIMAL_DIGITS int => the number of fractional digits. Null is returned for data types where DECIMAL_DIGITS is not applicable.
-        NUM_PREC_RADIX int => Radix (typically either 10 or 2)
-        NULLABLE int => is NULL allowed.
-        columnNoNulls - might not allow NULL values
-        columnNullable - definitely allows NULL values
-        columnNullableUnknown - nullability unknown
-        REMARKS String => comment describing column (may be null)
-        COLUMN_DEF String => default value for the column, which should be interpreted as a string when the value is enclosed in single quotes (may be null)
-        SQL_DATA_TYPE int => unused
-        SQL_DATETIME_SUB int => unused
-        CHAR_OCTET_LENGTH int => for char types the maximum number of bytes in the column
-        ORDINAL_POSITION int => index of column in table (starting at 1)
-        IS_NULLABLE String => ISO rules are used to determine the nullability for a column.
-        YES --- if the parameter can include NULLs
-        NO --- if the parameter cannot include NULLs
-        empty string --- if the nullability for the parameter is unknown
-        SCOPE_CATLOG String => catalog of table that is the scope of a reference attribute (null if DATA_TYPE isn't REF)
-        SCOPE_SCHEMA String => schema of table that is the scope of a reference attribute (null if the DATA_TYPE isn't REF)
-        SCOPE_TABLE String => table name that this the scope of a reference attribure (null if the DATA_TYPE isn't REF)
-        SOURCE_DATA_TYPE short => source type of a distinct type or user-generated Ref type, SQL type from java.sql.Types (null if DATA_TYPE isn't DISTINCT or user-generated REF)
-        IS_AUTOINCREMENT String => Indicates whether this column is auto incremented
-        YES --- if the column is auto incremented
-        NO --- if the column is not auto incremented
-        empty string --- if it cannot be determined whether the column is auto incremented parameter is unknown
-     */
     val columnNames = scala.Array(
       "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "COLUMN_NAME", "DATA_TYPE",
       "TYPE_NAME", "COLUMN_SIZE", "BUFFER_LENGTH", "DECIMAL_DIGITS", "NUM_PREC_RADIX",
@@ -129,40 +82,42 @@ class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
       "SCOPE_TABLE", "SOURCE_DATA_TYPE", "IS_AUTOINCREMENT")
     val types = scala.Array(tableType, viewType)
     val resultSet = getTables(catalog, schemaPattern, tableNamePattern, types)
+    val tableNamePos = if(resultSet.isClosed) -1 else resultSet.findColumn("TABLE_NAME")
     val cursorList = resultSet.process { rs =>
-      val tableName = rs.getString(3)
+      val tableName = rs.getString(tableNamePos)
       val matrixCursor = new MatrixCursor(columnNames)
-      val tableInfoCursor = connection.getDb.rawQuery(pragmaTable(rs.getString(3)))
-      tableInfoCursor match {
-        case cursor: Cursor =>
-          cursor.process { c =>
-            val a = c.getString(1)
-            val fieldType = c.getString(2)
-            val sqlType = fieldType.toUpperCase match {
-              case "TEXT" => java.sql.Types.VARCHAR
-              case "CHAR" => java.sql.Types.VARCHAR
-              case "NUMERIC" => java.sql.Types.NUMERIC
-              case "INT" => java.sql.Types.INTEGER
-              case "REAL" => java.sql.Types.REAL
-              case "BLOB" => java.sql.Types.BLOB
-              case _ => java.sql.Types.NULL
-            }
-            val nullable = c.getInt(3) match {
-              case 0 => 0
-              case 1 => 1
-              case _ => 2
-            }
+      val statement = connection.createStatement()
+      val tableInfoResultSet = statement.executeQuery(pragmaTable(tableName))
+      val columnNamePos = tableInfoResultSet.findColumn("NAME")
+      val columnTypePos = tableInfoResultSet.findColumn("TYPE")
+      tableInfoResultSet.process { rs =>
+        val columnName = rs.getString(columnNamePos)
+        val fieldType = rs.getString(columnTypePos)
+        val sqlType = fieldType.toUpperCase match {
+          case "TEXT" => java.sql.Types.VARCHAR
+          case "CHAR" => java.sql.Types.VARCHAR
+          case "NUMERIC" => java.sql.Types.NUMERIC
+          case "INTEGER" => java.sql.Types.INTEGER
+          case "REAL" => java.sql.Types.REAL
+          case "BLOB" => java.sql.Types.BLOB
+          case _ => java.sql.Types.NULL
+        }
+        val nullable = rs.getInt(4) match {
+          case 0 => 0
+          case 1 => 1
+          case _ => 2
+        }
 
-            val columnValues = scala.Array[AnyRef](
-              javaNull, javaNull, tableName, a, new Integer(sqlType),
-              fieldType, javaNull, javaNull, javaNull, new Integer(10),
-              new Integer(nullable), javaNull, javaNull, javaNull, javaNull,
-              new Integer(-1), new Integer(-1), "", javaNull, javaNull,
-              javaNull, javaNull, "")
+        val columnValues = scala.Array[AnyRef](
+          javaNull, javaNull, tableName, columnName, new Integer(sqlType),
+          fieldType, javaNull, javaNull, javaNull, new Integer(10),
+          new Integer(nullable), javaNull, javaNull, javaNull, javaNull,
+          new Integer(-1), new Integer(-1), "", javaNull, javaNull,
+          javaNull, javaNull, "")
 
-            matrixCursor.addRow(columnValues)
-          }
+        matrixCursor.addRow(columnValues)
       }
+      Try(statement.close())
       matrixCursor
     }
 
@@ -200,36 +155,52 @@ class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
     ): ResultSet = {
     val pk = PrimaryKey(connection, table)
 
-    val tableList = connection.createStatement.executeQuery(sqliteMasterName("table")).process(_.getString(1))
+    val statement = connection.createStatement
+
+    val tableList = statement.executeQuery(sqliteMasterName(tableType)).process(_.getString(1))
 
     val exportedKeySelect = tableList map { table =>
-      Try(connection.createStatement.executeQuery(foreignKeys(table))) match {
+      Try(statement.executeQuery(foreignKeys(table))) match {
         case Success(resultSet) => generateExportedKeySelect(resultSet, table, pk)
         case _ => Seq.empty
       }
     }
+    Try(statement.close())
 
     val selectSeq = exportedKeySelect.flatten[String]
-    val select = if (selectSeq.isEmpty) None else Some(selectSeq.mkString(" UNION ALL "))
-    connection.createStatement.executeQuery(exportedKeys(Option(catalog), Option(schema), table, select, pk))
+    val select = if (selectSeq.isEmpty) None else Some(selectSeq.mkString(unionAll))
+    connection.createStatement.executeQuery(
+      exportedKeys(
+        catalog = Option(catalog),
+        schema = Option(schema),
+        table = table,
+        exportedKeysSelect = select,
+        primaryKey = pk))
   }
 
-  private[this] def generateExportedKeySelect(resultSet: ResultSet, table: String, primaryKey: PrimaryKey): Seq[String] =
+  private[this] def generateExportedKeySelect(resultSet: ResultSet, table: String, primaryKey: PrimaryKey): Seq[String] = {
+    val tablePos = resultSet.findColumn("TABLE")
+    val seqPos = resultSet.findColumn("SEQ")
+    val fkPos = resultSet.findColumn("FROM")
+    val pkPos = resultSet.findColumn("TO")
+    val updatePos = resultSet.findColumn("ON_UPDATE")
+    val deletePos = resultSet.findColumn("ON_DELETE")
     resultSet.process { rs =>
-      val keySeq = rs.getInt(2) + 1
-      val fcn = rs.getString(4)
-      val pkColumn = (Option(rs.getString(5)), primaryKey.columns) match {
+      val keySeq = rs.getInt(seqPos) + 1
+      val fkColumn = rs.getString(fkPos)
+      val pkColumn = (Option(rs.getString(pkPos)), primaryKey.columns) match {
         case (Some(name), _) => name
-        case (_, Seq(head, rest @ _ *)) => head
+        case (_, Seq(head, rest@_ *)) => head
         case _ => "''"
       }
-      val ur = ruleMap(rs.getString(6))
-      val dr = ruleMap(rs.getString(7))
-      Option(rs.getString(3)) match {
-        case Some(t) if t.equalsIgnoreCase(table) => Some(exportedKeysSelect(keySeq, table, fcn, pkColumn, ur, dr, fkn(table)))
+      val ur = ruleMap(rs.getString(updatePos))
+      val dr = ruleMap(rs.getString(deletePos))
+      Option(rs.getString(tablePos)) match {
+        case Some(t) if t.equalsIgnoreCase(table) => Some(exportedKeysSelect(keySeq, table, fkColumn, pkColumn, ur, dr, fkn(table)))
         case _ => None
       }
     }.flatten[String]
+  }
 
   private[this] def fkn(table: String): Option[String] = {
     val rsSql = connection.createStatement().executeQuery(sqliteMasterSql(table))
@@ -245,28 +216,38 @@ class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
     schema: String,
     table: String
     ): ResultSet = {
-    val selectSeq = Try(connection.createStatement.executeQuery(foreignKeys(table))) match {
+    val statement = connection.createStatement
+    val selectSeq = Try(statement.executeQuery(foreignKeys(table))) match {
       case Success(resultSet) => generateImportedKeySelect(resultSet, table)
       case Failure(_) => Seq.empty
     }
+    Try(statement.close())
+
     connection.createStatement.executeQuery(
       importedKeys(
         catalog = Option(catalog),
         schema = Option(schema),
         table = table,
-        importedKeysSelect = if (selectSeq.isEmpty) importedKeysSelectEmpty else selectSeq.mkString(" UNION ALL ")))
+        importedKeysSelect = if (selectSeq.isEmpty) importedKeysSelectEmpty else selectSeq.mkString(unionAll)))
   }
 
-  private[this] def generateImportedKeySelect(resultSet: ResultSet, table: String): Seq[String] =
+  private[this] def generateImportedKeySelect(resultSet: ResultSet, table: String): Seq[String] = {
+    val tablePos = resultSet.findColumn("TABLE")
+    val seqPos = resultSet.findColumn("SEQ")
+    val fkPos = resultSet.findColumn("FROM")
+    val pkPos = resultSet.findColumn("TO")
+    val updatePos = resultSet.findColumn("ON_UPDATE")
+    val deletePos = resultSet.findColumn("ON_DELETE")
     resultSet.process { rs =>
-      val keySeq = rs.getInt(2) + 1
-      val pkTable = rs.getString(3)
-      val fkColumn = rs.getString(4)
-      val pkColumn = Option(rs.getString(5)) orElse PrimaryKey(connection, table).columns.headOption
-      val updateRule = rs.getString(6)
-      val deleteRule = rs.getString(7)
+      val keySeq = rs.getInt(seqPos) + 1
+      val pkTable = rs.getString(tablePos)
+      val fkColumn = rs.getString(fkPos)
+      val pkColumn = Option(rs.getString(pkPos)) orElse PrimaryKey(connection, table).columns.headOption
+      val updateRule = rs.getString(updatePos)
+      val deleteRule = rs.getString(deletePos)
       importedKeysSelect(keySeq, pkTable, fkColumn, pkColumn getOrElse "", updateRule, deleteRule)
     }
+  }
 
   override def getIndexInfo(
     catalog: String,
@@ -279,20 +260,22 @@ class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
     Try {
       statement.executeQuery(pragmaIndexList(table))
     } match {
-      case Success(resultSet) =>
+      case Success(resultSet) if !resultSet.isClosed =>
+        val seqPos = resultSet.findColumn("SEQ")
+        val namePos = resultSet.findColumn("NAME")
         val indexSeq: Seq[(String, Int)] = resultSet.process { rs =>
-          (rs.getString(3), rs.getInt(2))
+          (rs.getString(namePos), rs.getInt(seqPos))
         }.reverse
 
         val indexInfoSeq = indexSeq flatMap { tuple =>
           val (indexName, index) = tuple
           statement.executeQuery(pragmaIndexInfo(indexName)).process { rs =>
-            IndexInfo(indexName, index, rs.getInt(1) + 1, rs.getString(3))
+            IndexInfo(indexName, index, rs.getInt(rs.findColumn("SEQNO")) + 1, rs.getString(rs.findColumn("NAME")))
           }
         }
 
         statement.executeQuery(indexInfo(table, indexInfoSeq))
-      case Failure(e) =>
+      case _ =>
         statement.executeQuery(emptyIndexInfo(table))
     }
   }
@@ -302,16 +285,19 @@ class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
     schema: String,
     table: String
     ): ResultSet = {
-    val matrixCursor = new MatrixCursor(
-      scala.Array("TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "COLUMN_NAME", "KEY_SEQ", "PK_NAME"))
-    Option(table) map (t => connection.getDb.rawQuery(pragmaTable(t))) match {
-      case Some(c: Cursor) =>
-        c.process { c =>
-          if (c.getInt(5) > 0)
-            matrixCursor.addRow(scala.Array[AnyRef](javaNull, javaNull, table, c.getString(1), javaNull))
-        }
+    val matrixCursor = new MatrixCursor(primaryKeysColumns)
+    val statement = connection.createStatement
+    Try(statement.executeQuery(pragmaTable(table))) match {
+      case Success(resultSet) =>
+        val pkPos = resultSet.findColumn("PK")
+        val namePos = resultSet.findColumn("NAME")
+        resultSet.process { rs =>
+        if (rs.getInt(pkPos) > 0)
+          matrixCursor.addRow(scala.Array[AnyRef](javaNull, javaNull, table, rs.getString(namePos), javaNull, javaNull))
+      }
       case _ =>
     }
+    Try(statement.close())
     new SQLDroidResultSet(matrixCursor)
   }
 
@@ -372,33 +358,33 @@ class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
       one time with type = ('table' | 'view' ), etc. but I think these would have to be
       substituted by hand (that is, I don't think a ? option could be used - but I could be wrong about that.
      */
-    val database = connection.getDb
     val tablePattern = Option(tableNamePattern) getOrElse "%"
-    val safeTypes = Option(types) getOrElse scala.Array(tableType)
+    val safeTypes = Option(types) match {
+      case Some(a) if a.length > 0 => a
+      case _ => scala.Array(tableType)
+    }
     safeTypes map { tableType =>
-      database.rawQuery(
-        cursorTableType(tableType),
-        scala.Array(tablePattern, tablePattern.toUpperCase, tablePattern, tablePattern.toUpperCase))
+      cursorTableType(tableType, tablePattern)
     } match {
-      case scala.Array(cursor) => new SQLDroidResultSet(cursor)
-      case array if array.length > 1 => new SQLDroidResultSet(new MergeCursor(array))
-      case _ => javaNull
+      case scala.Array(sql) =>
+        connection.createStatement.executeQuery(sql)
+      case array if array.length > 1 =>
+        connection.createStatement.executeQuery(array.mkString(unionAll))
+      case _ =>
+        javaNull
     }
   }
 
   override def getTableTypes: ResultSet = tableTypesStatement.executeQuery()
 
-  override def getTypeInfo: ResultSet = new SQLDroidResultSet(connection.getDb.rawQuery(typeInfo, new scala.Array[String](0)))
+  override def getTypeInfo: ResultSet = typeInfoStatement.executeQuery()
 
   override def getUDTs(
     catalog: String,
     schemaPattern: String,
     typeNamePattern: String,
     types: scala.Array[Int]
-    ): ResultSet = {
-    udtsStatement.clearParameters()
-    udtsStatement.executeQuery()
-  }
+    ): ResultSet = udtsStatement.executeQuery()
 
   override def getVersionColumns(
     catalog: String,
@@ -410,7 +396,10 @@ class SQLDroidDatabaseMetaData(connection: SQLDroidConnection)
 
   override def getCatalogTerm: String = "catalog"
 
-  override def getDatabaseMajorVersion: Int = connection.getDb.database.getVersion
+  override def getDatabaseMajorVersion: Int = connection match {
+    case c: SQLDroidConnection => c.getDb.database.getVersion
+    case _ => 0
+  }
 
   override def getDatabaseMinorVersion: Int = 0
 
@@ -541,6 +530,10 @@ object SQLDroidDatabaseMetaData {
 
   val viewType = "VIEW"
 
+  val unionAll = " UNION ALL "
+
+  val primaryKeysColumns = scala.Array("TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "COLUMN_NAME", "KEY_SEQ", "PK_NAME")
+
   def ruleMap(rule: String) = rule match {
     case "NO ACTION" => DatabaseMetaData.importedKeyNoAction
     case "CASCADE" => DatabaseMetaData.importedKeyCascade
@@ -549,11 +542,11 @@ object SQLDroidDatabaseMetaData {
     case "SET DEFAULT" => DatabaseMetaData.importedKeySetDefault
   }
 
-  def sqliteMasterSql(table: String) = s"SELECT sql FROM sqlite_master WHERE lower(name) = lower('$table')"
+  def sqliteMasterSql(table: String) = s"SELECT sql FROM sqlite_master WHERE lower(name) = lower('${table.escape}')"
 
-  def foreignKeys(table: String) = s"pragma foreign_key_list('$table')"
+  def foreignKeys(table: String) = s"pragma foreign_key_list('${table.escape}')"
 
-  def sqliteMasterName(`type`: String) = s"SELECT name FROM sqlite_master WHERE type = '${`type`}'"
+  def sqliteMasterName(`type`: String) = s"SELECT name FROM sqlite_master WHERE lower(type) = lower('${`type`.escape}')"
 
   def importedKeys(
     catalog: Option[String],
@@ -618,9 +611,9 @@ object SQLDroidDatabaseMetaData {
     s"""
        | SELECT
        |  $keySeq AS ks,
-       |  lower('$table') AS fkt,
-       |  lower('$fkColumn') AS fkColumn,
-       |  $pkColumn AS pcn,
+       |  lower('${table.escape}') AS fkt,
+       |  lower('${fkColumn.escape}') AS fkColumn,
+       |  '${pkColumn.escape} AS pcn,
        |  $ur AS ur,
        |  $dr AS dr
        |  ${fkn getOrElse ""}
@@ -636,7 +629,7 @@ object SQLDroidDatabaseMetaData {
        | SELECT
        |  ${quoteNull(catalog)} AS PKTABLE_CAT,
        |  ${quoteNull(schema)} AS PKTABLE_SCHEM,
-       |  '$table' AS PKTABLE_NAME,
+       |  '${table.escape}' AS PKTABLE_NAME,
        |  ${safeName(exportedKeysSelect.isDefined, "pcn", "''")} AS PKCOLUMN_NAME,
        |  ${quoteNull(catalog)} AS FKTABLE_CAT,
        |  ${quoteNull(schema)} AS FKTABLE_SCHEM,
@@ -655,21 +648,28 @@ object SQLDroidDatabaseMetaData {
   private[this] def quoteNull(s: Option[String]) = s map (s => s"'${s.escape}'") getOrElse "null"
 
   def emptyIndexInfo(table: String) =
-    indexInfoBody(table, "SELECT null AS un, null AS n, null AS op, null AS cn")
+    indexInfoBody(
+      table = table,
+      select = "SELECT null AS un, null AS n, null AS op, null AS cn",
+      empty = true)
 
   def indexInfo(
     table: String,
     indexInfoSeq: Seq[IndexInfo]) =
-    indexInfoBody(table, selectInfoSeq(indexInfoSeq))
+    indexInfoBody(
+      table = table,
+      select = selectInfoSeq(indexInfoSeq),
+      empty = false)
 
   private[this] def indexInfoBody(
     table: String,
-    select: String) =
+    select: String,
+    empty: Boolean) =
     s"""
        | SELECT
        |  null AS TABLE_CAT,
        |  null AS TABLE_SCHEM,
-       |  '$table' AS TABLE_NAME,
+       |  '${table.escape}' AS TABLE_NAME,
        |  un AS NON_UNIQUE,
        |  null AS INDEX_QUALIFIER,
        |  n AS INDEX_NAME,
@@ -681,20 +681,20 @@ object SQLDroidDatabaseMetaData {
        |  0 AS PAGES,
        |  null AS FILTER_CONDITION
        |  FROM ($select)
-       |  LIMIT 0;""".stripMargin
+       |  ${if (empty) "LIMIT 0" else ""}""".stripMargin
 
   private[this] def selectInfoSeq(indexInfoSeq: Seq[IndexInfo]): String =
     (indexInfoSeq map { i =>
-      s"SELECT ${1 - i.index} AS un, '${i.name}' AS n, ${i.op} AS op, ${i.cn} AS cn"
-    }).mkString(" UNION ALL ")
+      s"SELECT ${1 - i.index} AS un, '${i.name}' AS n, ${i.op} AS op, '${i.cn}' AS cn"
+    }).mkString(unionAll)
 
-  def cursorTableType(tableType: String): String =
+  def cursorTableType(tableType: String, tablePattern: String): String =
     s"""
        | SELECT
        |  null AS TABLE_CAT,
        |  null AS TABLE_SCHEM,
        |  tbl_name AS TABLE_NAME,
-       |  '$tableType' AS TABLE_TYPE,
+       |  '${tableType.escape}' AS TABLE_TYPE,
        |  'No Comment' AS REMARKS,
        |  null AS TYPE_CAT,
        |  null AS TYPE_SCHEM,
@@ -702,16 +702,16 @@ object SQLDroidDatabaseMetaData {
        |  null AS SELF_REFERENCING_COL_NAME,
        |  null AS REF_GENERATION
        | FROM sqlite_master
-       | WHERE tbl_name LIKE ?
+       | WHERE tbl_name LIKE '$tablePattern'
        | AND name NOT LIKE 'sqlite_%'
        | AND name NOT LIKE 'android_metadata'
-       | AND upper(type) = ?" + "
+       | AND upper(type) = '${tableType.toUpperCase}'
        | UNION ALL
        | SELECT
        |  null AS TABLE_CAT,
        |  null AS TABLE_SCHEM,
        |  tbl_name AS TABLE_NAME,
-       |  '$tableType' AS TABLE_TYPE,
+       |  '${tableType.escape}' AS TABLE_TYPE,
        |  'No Comment' AS REMARKS,
        |  null AS TYPE_CAT,
        |  null AS TYPE_SCHEM,
@@ -719,10 +719,9 @@ object SQLDroidDatabaseMetaData {
        |  null AS SELF_REFERENCING_COL_NAME,
        |  null AS REF_GENERATION
        | FROM sqlite_temp_master
-       | WHERE tbl_name LIKE ?
+       | WHERE tbl_name LIKE '$tablePattern'
        | AND name NOT LIKE 'android_metadata'
-       | AND upper(type) = ?
-       | ORDER BY 3""".stripMargin
+       | AND upper(type) = '${tableType.toUpperCase}'""".stripMargin
 
   def pragmaTable(tableName: String) = s"pragma table_info('$tableName')"
 
@@ -739,13 +738,13 @@ object SQLDroidDatabaseMetaData {
     foreignTable: String) =
     s"""
        |SELECT
-       | '$parentCatalog' AS PKTABLE_CAT,
-       | '$parentSchema' AS PKTABLE_SCHEM,
-       | '$parentTable' AS PKTABLE_NAME,
+       | '${parentCatalog.escape}' AS PKTABLE_CAT,
+       | '${parentSchema.escape}' AS PKTABLE_SCHEM,
+       | '${parentTable.escape}' AS PKTABLE_NAME,
        | '' AS PKCOLUMN_NAME,
-       | '$foreignCatalog' AS FKTABLE_CAT,
-       | '$foreignSchema' AS FKTABLE_SCHEM,
-       | '$foreignTable' AS FKTABLE_NAME,
+       | '${foreignCatalog.escape}' AS FKTABLE_CAT,
+       | '${foreignSchema.escape}' AS FKTABLE_SCHEM,
+       | '${foreignTable.escape}' AS FKTABLE_NAME,
        | '' AS FKCOLUMN_NAME,
        | -1 AS KEY_SEQ,
        | 3 AS UPDATE_RULE,
@@ -870,7 +869,8 @@ object SQLDroidDatabaseMetaData {
   lazy val typeInfo =
     s"""SELECT 
       | tn AS TYPE_NAME,
-      | dt AS DATA_TYPE, 0 AS PRECISION,
+      | dt AS DATA_TYPE,
+      | 0 AS PRECISION,
       | null AS LITERAL_PREFIX,
       | null AS LITERAL_SUFFIX,
       | null AS CREATE_PARAMS,
@@ -884,8 +884,9 @@ object SQLDroidDatabaseMetaData {
       | 0 AS MAXIMUM_SCALE,
       | 0 AS SQL_DATA_TYPE,
       | 0 AS SQL_DATETIME_SUB,
-      | 10 AS NUM_PREC_RADIX from (
-      | SELECT
+      | 10 AS NUM_PREC_RADIX
+      | FROM (
+      |  SELECT
       |   'BLOB' AS tn,
       |   ${Types.BLOB} AS dt
       |  UNION
@@ -904,7 +905,8 @@ object SQLDroidDatabaseMetaData {
       |  SELECT
       |   'INTEGER' AS tn,
       |   ${Types.INTEGER} AS dt
-      | ) ORDER BY TYPE_NAME""".stripMargin
+      | )
+      | ORDER BY TYPE_NAME""".stripMargin
 
   lazy val udts =
     """SELECT
