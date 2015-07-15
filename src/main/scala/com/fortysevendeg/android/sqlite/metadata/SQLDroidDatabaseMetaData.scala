@@ -42,6 +42,8 @@ class SQLDroidDatabaseMetaData(connection: Connection)
 
   lazy val versionColumnsStatement = connection.prepareStatement(versionColumns)
 
+  implicit val c: Connection = connection
+
   override def getConnection: Connection = connection
 
   override def getAttributes(
@@ -81,44 +83,52 @@ class SQLDroidDatabaseMetaData(connection: Connection)
       "CHAR_OCTET_LENGTH", "ORDINAL_POSITION", "IS_NULLABLE", "SCOPE_CATLOG", "SCOPE_SCHEMA",
       "SCOPE_TABLE", "SOURCE_DATA_TYPE", "IS_AUTOINCREMENT")
     val types = scala.Array(tableType, viewType)
-    val resultSet = getTables(catalog, schemaPattern, tableNamePattern, types)
-    val tableNamePos = if(resultSet.isClosed) -1 else resultSet.findColumn("TABLE_NAME")
-    val cursorList = resultSet.process { rs =>
-      val tableName = rs.getString(tableNamePos)
-      val matrixCursor = new MatrixCursor(columnNames)
-      val statement = connection.createStatement()
-      val tableInfoResultSet = statement.executeQuery(pragmaTable(tableName))
-      val columnNamePos = tableInfoResultSet.findColumn("NAME")
-      val columnTypePos = tableInfoResultSet.findColumn("TYPE")
-      tableInfoResultSet.process { rs =>
-        val columnName = rs.getString(columnNamePos)
-        val fieldType = rs.getString(columnTypePos)
-        val sqlType = fieldType.toUpperCase match {
-          case "TEXT" => java.sql.Types.VARCHAR
-          case "CHAR" => java.sql.Types.VARCHAR
-          case "NUMERIC" => java.sql.Types.NUMERIC
-          case "INTEGER" => java.sql.Types.INTEGER
-          case "REAL" => java.sql.Types.REAL
-          case "BLOB" => java.sql.Types.BLOB
-          case _ => java.sql.Types.NULL
-        }
-        val nullable = rs.getInt(4) match {
-          case 0 => 0
-          case 1 => 1
-          case _ => 2
-        }
 
-        val columnValues = scala.Array[AnyRef](
-          javaNull, javaNull, tableName, columnName, new Integer(sqlType),
-          fieldType, javaNull, javaNull, javaNull, new Integer(10),
-          new Integer(nullable), javaNull, javaNull, javaNull, javaNull,
-          new Integer(-1), new Integer(-1), "", javaNull, javaNull,
-          javaNull, javaNull, "")
+    val tableList = getTables(catalog, schemaPattern, tableNamePattern, types).process(_.getString("TABLE_NAME"))
 
-        matrixCursor.addRow(columnValues)
+    def fieldTypeToSqlType(fieldType: String): Int = {
+      fieldType.toUpperCase match {
+        case "TEXT" => java.sql.Types.VARCHAR
+        case "CHAR" => java.sql.Types.VARCHAR
+        case "NUMERIC" => java.sql.Types.NUMERIC
+        case "INTEGER" => java.sql.Types.INTEGER
+        case "REAL" => java.sql.Types.REAL
+        case "BLOB" => java.sql.Types.BLOB
+        case _ => java.sql.Types.NULL
       }
-      Try(statement.close())
-      matrixCursor
+    }
+
+    def nullableToInt(nullable: Int): Int = {
+      nullable match {
+        case 0 => 0
+        case 1 => 1
+        case _ => 2
+      }
+    }
+
+    val cursorList = WithStatement { statement =>
+      tableList map { tableName =>
+        val matrixCursor = new MatrixCursor(columnNames)
+
+        statement.executeQuery(pragmaTable(tableName)).process { rs =>
+          val columnName = rs.getString("NAME")
+          val fieldType = rs.getString("TYPE")
+          val sqlType = fieldTypeToSqlType(fieldType)
+          val nullable = nullableToInt(rs.getInt("NOTNULL"))
+
+          val columnValues = scala.Array[AnyRef](
+            javaNull, javaNull, tableName, columnName, new Integer(sqlType),
+            fieldType, javaNull, javaNull, javaNull, new Integer(10),
+            new Integer(nullable), javaNull, javaNull, javaNull, javaNull,
+            new Integer(-1), new Integer(-1), "", javaNull, javaNull,
+            javaNull, javaNull, "")
+
+          matrixCursor.addRow(columnValues)
+        }
+
+
+        matrixCursor
+      }
     }
 
     cursorList match {
@@ -141,7 +151,7 @@ class SQLDroidDatabaseMetaData(connection: Connection)
     case (false, true) =>
       getImportedKeys(foreignCatalog, foreignSchema, foreignTable)
     case (true, true) =>
-      connection.createStatement().executeQuery(crossReference(parentCatalog, parentSchema, parentTable, foreignCatalog, foreignSchema, foreignTable))
+      statementResultSet(crossReference(parentCatalog, parentSchema, parentTable, foreignCatalog, foreignSchema, foreignTable))
     case _ =>
       javaNull
   }
@@ -155,21 +165,20 @@ class SQLDroidDatabaseMetaData(connection: Connection)
     ): ResultSet = {
     val pk = PrimaryKey(connection, table)
 
-    val statement = connection.createStatement
+    val exportedKeySelect = WithStatement { statement =>
+      val tableList = statement.executeQuery(sqliteMasterName(tableType)).process(_.getString(1))
 
-    val tableList = statement.executeQuery(sqliteMasterName(tableType)).process(_.getString(1))
-
-    val exportedKeySelect = tableList map { table =>
-      Try(statement.executeQuery(foreignKeys(table))) match {
-        case Success(resultSet) => generateExportedKeySelect(resultSet, table, pk)
-        case _ => Seq.empty
+      tableList map { table =>
+        Try(statement.executeQuery(foreignKeys(table))) match {
+          case Success(resultSet) => generateExportedKeySelect(resultSet, table, pk)
+          case _ => Seq.empty
+        }
       }
     }
-    Try(statement.close())
 
     val selectSeq = exportedKeySelect.flatten[String]
     val select = if (selectSeq.isEmpty) None else Some(selectSeq.mkString(unionAll))
-    connection.createStatement.executeQuery(
+    statementResultSet(
       exportedKeys(
         catalog = Option(catalog),
         schema = Option(schema),
@@ -203,12 +212,13 @@ class SQLDroidDatabaseMetaData(connection: Connection)
   }
 
   private[this] def fkn(table: String): Option[String] = {
-    val rsSql = connection.createStatement().executeQuery(sqliteMasterSql(table))
-    if (rsSql.next())
-      PrimaryKey.namedPattern.findFirstMatchIn(rsSql.getString(1)) map { m =>
-        Some(s", '${m.group(1).toLowerCase}' AS fkn")
-      } getOrElse Some(", '' as fkn")
-    else None
+    WithStatement { statement =>
+      statement.executeQuery(sqliteMasterSql(table)).processOne(rs =>
+        PrimaryKey.namedPattern.findFirstMatchIn(rs.getString(1)) map { m =>
+          s", '${m.group(1).toLowerCase}' AS fkn"
+        } getOrElse ", '' as fkn"
+      )
+    }
   }
 
   override def getImportedKeys(
@@ -216,14 +226,15 @@ class SQLDroidDatabaseMetaData(connection: Connection)
     schema: String,
     table: String
     ): ResultSet = {
-    val statement = connection.createStatement
-    val selectSeq = Try(statement.executeQuery(foreignKeys(table))) match {
-      case Success(resultSet) => generateImportedKeySelect(resultSet, table)
-      case Failure(_) => Seq.empty
-    }
-    Try(statement.close())
 
-    connection.createStatement.executeQuery(
+    val selectSeq = WithStatement { statement =>
+      Try(statement.executeQuery(foreignKeys(table))) match {
+        case Success(resultSet) => generateImportedKeySelect(resultSet, table)
+        case Failure(_) => Seq.empty
+      }
+    }
+
+    statementResultSet(
       importedKeys(
         catalog = Option(catalog),
         schema = Option(schema),
@@ -256,28 +267,28 @@ class SQLDroidDatabaseMetaData(connection: Connection)
     unique: Boolean,
     approximate: Boolean
     ): ResultSet = {
-    val statement = connection.createStatement
-    Try {
-      statement.executeQuery(pragmaIndexList(table))
-    } match {
-      case Success(resultSet) if !resultSet.isClosed =>
-        val seqPos = resultSet.findColumn("SEQ")
-        val namePos = resultSet.findColumn("NAME")
-        val indexSeq: Seq[(String, Int)] = resultSet.process { rs =>
-          (rs.getString(namePos), rs.getInt(seqPos))
-        }.reverse
+    val sql = WithStatement { statement =>
+      Try(statement.executeQuery(pragmaIndexList(table))) match {
+        case Success(resultSet) if !resultSet.isClosed =>
+          val seqPos = resultSet.findColumn("SEQ")
+          val namePos = resultSet.findColumn("NAME")
+          val indexSeq: Seq[(String, Int)] = resultSet.process { rs =>
+            (rs.getString(namePos), rs.getInt(seqPos))
+          }.reverse
 
-        val indexInfoSeq = indexSeq flatMap { tuple =>
-          val (indexName, index) = tuple
-          statement.executeQuery(pragmaIndexInfo(indexName)).process { rs =>
-            IndexInfo(indexName, index, rs.getInt(rs.findColumn("SEQNO")) + 1, rs.getString(rs.findColumn("NAME")))
+          val indexInfoSeq = indexSeq flatMap { tuple =>
+            val (indexName, index) = tuple
+            statement.executeQuery(pragmaIndexInfo(indexName)).process { rs =>
+              IndexInfo(indexName, index, rs.getInt(rs.findColumn("SEQNO")) + 1, rs.getString(rs.findColumn("NAME")))
+            }
           }
-        }
 
-        statement.executeQuery(indexInfo(table, indexInfoSeq))
-      case _ =>
-        statement.executeQuery(emptyIndexInfo(table))
+          indexInfo(table, indexInfoSeq)
+        case _ =>
+          emptyIndexInfo(table)
+      }
     }
+    statementResultSet(sql)
   }
 
   override def getPrimaryKeys(
@@ -286,18 +297,18 @@ class SQLDroidDatabaseMetaData(connection: Connection)
     table: String
     ): ResultSet = {
     val matrixCursor = new MatrixCursor(primaryKeysColumns)
-    val statement = connection.createStatement
-    Try(statement.executeQuery(pragmaTable(table))) match {
-      case Success(resultSet) =>
-        val pkPos = resultSet.findColumn("PK")
-        val namePos = resultSet.findColumn("NAME")
-        resultSet.process { rs =>
-        if (rs.getInt(pkPos) > 0)
-          matrixCursor.addRow(scala.Array[AnyRef](javaNull, javaNull, table, rs.getString(namePos), javaNull, javaNull))
+    WithStatement { statement =>
+      Try(statement.executeQuery(pragmaTable(table))) match {
+        case Success(resultSet) =>
+          val pkPos = resultSet.findColumn("PK")
+          val namePos = resultSet.findColumn("NAME")
+          resultSet.process { rs =>
+            if (rs.getInt(pkPos) > 0)
+              matrixCursor.addRow(scala.Array[AnyRef](javaNull, javaNull, table, rs.getString(namePos), javaNull, javaNull))
+          }
+        case _ =>
       }
-      case _ =>
     }
-    Try(statement.close())
     new SQLDroidResultSet(matrixCursor)
   }
 
@@ -338,26 +349,6 @@ class SQLDroidDatabaseMetaData(connection: Connection)
     tableNamePattern: String,
     types: scala.Array[String]
     ): ResultSet = {
-    /*
-      .tables command from here:
-        http://www.sqlite.org/sqlite.html
-
-      SELECT name FROM sqlite_master
-      WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%'
-      UNION ALL
-      SELECT name FROM sqlite_temp_master
-      WHERE type IN ('table','view')
-      ORDER BY 1
-
-      Documentation for getTables() mandates a certain format for the returned result set.
-      To make the return here compatible with the standard, the following statement is
-      executed.  Note that the only returned value of any consequence is still the table name
-      but now it's the third column in the result set and all the other columns are present
-      The type, which can be 'view', 'table' (maybe also 'index') is returned as the type.
-      The sort will be wrong if multiple types are selected.  The solution would be to select
-      one time with type = ('table' | 'view' ), etc. but I think these would have to be
-      substituted by hand (that is, I don't think a ? option could be used - but I could be wrong about that.
-     */
     val tablePattern = Option(tableNamePattern) getOrElse "%"
     val safeTypes = Option(types) match {
       case Some(a) if a.length > 0 => a
@@ -367,9 +358,9 @@ class SQLDroidDatabaseMetaData(connection: Connection)
       cursorTableType(tableType, tablePattern)
     } match {
       case scala.Array(sql) =>
-        connection.createStatement.executeQuery(sql)
+        statementResultSet(sql)
       case array if array.length > 1 =>
-        connection.createStatement.executeQuery(array.mkString(unionAll))
+        statementResultSet(array.mkString(unionAll))
       case _ =>
         javaNull
     }
@@ -401,89 +392,89 @@ class SQLDroidDatabaseMetaData(connection: Connection)
     case _ => 0
   }
 
-  override def getDatabaseMinorVersion: Int = 0
+  override val getDatabaseMinorVersion: Int = 0
 
-  override def getDatabaseProductName: String = "SQLite for Android"
+  override val getDatabaseProductName: String = "SQLite for Android"
 
-  override def getDatabaseProductVersion: String = ""
+  override val getDatabaseProductVersion: String = ""
 
-  override def getDefaultTransactionIsolation: Int = Connection.TRANSACTION_SERIALIZABLE
+  override val getDefaultTransactionIsolation: Int = Connection.TRANSACTION_SERIALIZABLE
 
-  override def getDriverMajorVersion: Int = 1
+  override val getDriverMajorVersion: Int = 1
 
-  override def getDriverMinorVersion: Int = 1
+  override val getDriverMinorVersion: Int = 1
 
-  override def getDriverName: String = SQLDroidDriver.driverName
+  override val getDriverName: String = SQLDroidDriver.driverName
 
-  override def getDriverVersion: String = SQLDroidDriver.driverVersion
+  override val getDriverVersion: String = SQLDroidDriver.driverVersion
 
-  override def getExtraNameCharacters: String = ""
+  override val getExtraNameCharacters: String = ""
 
-  override def getIdentifierQuoteString: String = " "
+  override val getIdentifierQuoteString: String = " "
 
-  override def getJDBCMajorVersion: Int = 2
+  override val getJDBCMajorVersion: Int = 2
 
-  override def getJDBCMinorVersion: Int = 1
+  override val getJDBCMinorVersion: Int = 1
 
-  override def getMaxBinaryLiteralLength: Int = 0
+  override val getMaxBinaryLiteralLength: Int = 0
 
-  override def getMaxCatalogNameLength: Int = 0
+  override val getMaxCatalogNameLength: Int = 0
 
-  override def getMaxCharLiteralLength: Int = 0
+  override val getMaxCharLiteralLength: Int = 0
 
-  override def getMaxColumnNameLength: Int = 0
+  override val getMaxColumnNameLength: Int = 0
 
-  override def getMaxColumnsInGroupBy: Int = 0
+  override val getMaxColumnsInGroupBy: Int = 0
 
-  override def getMaxColumnsInIndex: Int = 0
+  override val getMaxColumnsInIndex: Int = 0
 
-  override def getMaxColumnsInOrderBy: Int = 0
+  override val getMaxColumnsInOrderBy: Int = 0
 
-  override def getMaxColumnsInSelect: Int = 0
+  override val getMaxColumnsInSelect: Int = 0
 
-  override def getMaxColumnsInTable: Int = 0
+  override val getMaxColumnsInTable: Int = 0
 
-  override def getMaxConnections: Int = 0
+  override val getMaxConnections: Int = 0
 
-  override def getMaxCursorNameLength: Int = 0
+  override val getMaxCursorNameLength: Int = 0
 
-  override def getMaxIndexLength: Int = 0
+  override val getMaxIndexLength: Int = 0
 
-  override def getMaxProcedureNameLength: Int = 0
+  override val getMaxProcedureNameLength: Int = 0
 
-  override def getMaxRowSize: Int = 0
+  override val getMaxRowSize: Int = 0
 
-  override def getMaxSchemaNameLength: Int = 0
+  override val getMaxSchemaNameLength: Int = 0
 
-  override def getMaxStatementLength: Int = 0
+  override val getMaxStatementLength: Int = 0
 
-  override def getMaxStatements: Int = 0
+  override val getMaxStatements: Int = 0
 
-  override def getMaxTableNameLength: Int = 0
+  override val getMaxTableNameLength: Int = 0
 
-  override def getMaxTablesInSelect: Int = 0
+  override val getMaxTablesInSelect: Int = 0
 
-  override def getMaxUserNameLength: Int = 0
+  override val getMaxUserNameLength: Int = 0
 
-  override def getNumericFunctions: String = ""
+  override val getNumericFunctions: String = ""
 
-  override def getResultSetHoldability: Int = ResultSet.CLOSE_CURSORS_AT_COMMIT
+  override val getResultSetHoldability: Int = ResultSet.CLOSE_CURSORS_AT_COMMIT
 
-  override def getSchemaTerm: String = "schema"
+  override val getSchemaTerm: String = "schema"
 
-  override def getSearchStringEscape: String = ""
+  override val getSearchStringEscape: String = ""
 
-  override def getSQLKeywords: String = ""
+  override val getSQLKeywords: String = ""
 
-  override def getSQLStateType: Int = DatabaseMetaData.sqlStateSQL99
+  override val getSQLStateType: Int = DatabaseMetaData.sqlStateSQL99
 
-  override def getStringFunctions: String = ""
+  override val getStringFunctions: String = ""
 
-  override def getSystemFunctions: String = ""
+  override val getSystemFunctions: String = ""
 
-  override def getTimeDateFunctions: String = ""
+  override val getTimeDateFunctions: String = ""
 
-  override def getUserName: String = ""
+  override val getUserName: String = ""
 
   override def isReadOnly: Boolean = connection.isReadOnly
 
@@ -520,6 +511,11 @@ class SQLDroidDatabaseMetaData(connection: Connection)
   override def getSchemas: ResultSet = throw new UnsupportedOperationException
 
   override def getURL: String = throw new UnsupportedOperationException
+
+  private[this] def statementResultSet(sql: String): ResultSet = {
+    val statement = connection.createStatement()
+    new StatementResultSetWrapper(statement, statement.executeQuery(sql))
+  }
 }
 
 object SQLDroidDatabaseMetaData {

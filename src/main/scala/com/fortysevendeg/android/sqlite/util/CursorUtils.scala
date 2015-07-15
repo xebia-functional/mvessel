@@ -1,9 +1,7 @@
 package com.fortysevendeg.android.sqlite.util
 
 import java.lang.reflect.Method
-import java.sql.{PreparedStatement, ResultSet, Types}
-
-import com.fortysevendeg.android.sqlite
+import java.sql.{Connection, Statement, ResultSet, Types}
 
 import android.database.Cursor
 
@@ -40,14 +38,14 @@ object CursorUtils {
   private def processCursor[T, C](c: C)(process: C => T, until: Option[Int] = None)(implicit cursorProcessor: CursorProcessor[C]) = {
     def untilTrue(size: Int) = until map (_ > size) getOrElse true
     @tailrec
-    def loop(seq: Seq[T], c: C): Seq[T] = {
-      if (untilTrue(seq.size) && cursorProcessor.move(c)) loop(seq :+ process(c), c)
+    def loop(seq: Seq[T]): Seq[T] = {
+      if (untilTrue(seq.size) && cursorProcessor.move(c)) loop(seq :+ process(c))
       else {
         cursorProcessor.close(c)
         seq
       }
     }
-    Try(loop(Seq.empty, c)) match {
+    Try(loop(Seq.empty)) match {
       case Success(t) => t
       case Failure(e) =>
         if (!cursorProcessor.isClosed(c)) cursorProcessor.close(c)
@@ -68,11 +66,35 @@ object CursorUtils {
 
     def process[T](process: Cursor => T, until: Option[Int] = None) = processCursor(cursor)(process, until)
 
+    def processOne[T](process: Cursor => T) = processCursor(cursor)(process, 1.some).headOption
+
   }
 
   implicit class ResultSetOps(resultSet: ResultSet) {
 
     def process[T](process: ResultSet => T, until: Option[Int] = None) = processCursor(resultSet)(process, until)
+
+    def processOne[T](process: ResultSet => T) = processCursor(resultSet)(process, 1.some).headOption
+
+  }
+
+  object WithStatement {
+
+    def apply[T](f: Statement => T)(implicit connection: Connection): T = {
+      val statement = connection.createStatement()
+      Try(f(statement)) match {
+        case Success(t) =>
+          closeStatement(statement)
+          t
+        case Failure(e) =>
+          closeStatement(statement)
+          throw e
+      }
+    }
+
+    private[this] def closeStatement(statement: Statement) {
+      Try(statement.close())
+    }
 
   }
 
