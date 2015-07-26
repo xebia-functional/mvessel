@@ -44,12 +44,7 @@ class SQLDroidDriver extends Driver {
     readLongParam("retry", params) map (_.toInt)
 
   private[this] def readLongParam(name: String, params: Map[String, String]): Option[Long] =
-    params.get(name) flatMap { value =>
-      Try(value.toInt) match {
-        case Success(i) => Some(i)
-        case _ => None
-      }
-    }
+    params.get(name) flatMap (value => Try(value.toLong).toOption)
 
   val flags =
     android.database.sqlite.SQLiteDatabase.CREATE_IF_NECESSARY |
@@ -70,10 +65,7 @@ class SQLDroidDriver extends Driver {
     }
 
   private[this] def parseInt(value: String, defaultValue: Int) =
-    Try(value.toInt) match {
-      case Success(i) => i
-      case _ => defaultValue
-    }
+    Try(value.toInt).toOption getOrElse defaultValue
 }
 
 object SQLDroidDriver {

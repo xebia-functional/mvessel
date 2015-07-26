@@ -38,7 +38,7 @@ trait SQLDroidDatabaseMetaDataSpecification
 
     sqlDroidDatabase.database returns sqlLiteDatabase
 
-    connection.getDb returns sqlDroidDatabase
+    connection.sqliteDatabase returns Some(sqlDroidDatabase)
 
     val sqlDroid = new SQLDroidDatabaseMetaData(connection)
 

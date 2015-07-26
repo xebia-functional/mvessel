@@ -9,6 +9,8 @@ trait ConnectionStringParserSpecification
 
   val name = "/data/data/com.fortysevendeg.android"
 
+  val memoryName = ":memory"
+
   val oneParamMap = Map("param1" -> "value1")
 
   val twoParamMap = oneParamMap ++ Map("param2" -> "value2")
@@ -25,7 +27,7 @@ trait ConnectionStringParserSpecification
 
   val urlWithInvalidPrefix = s"jdbc:oracle:$name"
 
-  val urlInMemory = "jdbc:sqlite::memory"
+  val urlInMemory = s"jdbc:sqlite:$memoryName"
 
   trait ConnectionStringParserScope
     extends Scope
