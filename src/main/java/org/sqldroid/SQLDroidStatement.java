@@ -1,7 +1,8 @@
 package org.sqldroid;
 
 import android.database.Cursor;
-import com.fortysevendeg.android.sqlite.AndroidLogWrapper;
+import com.fortysevendeg.android.sqlite.SQLDroidConnection;
+import com.fortysevendeg.android.sqlite.logging.AndroidLogWrapper;
 import com.fortysevendeg.android.sqlite.SQLDroidDatabase;
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet;
 

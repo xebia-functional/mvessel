@@ -4,7 +4,6 @@ import java.sql.{SQLFeatureNotSupportedException, DriverPropertyInfo, Connection
 import java.util.Properties
 import java.util.logging.Logger
 import SQLDroidDriver._
-import org.sqldroid.SQLDroidConnection
 
 import scala.util.{Failure, Try}
 
@@ -25,7 +24,8 @@ class SQLDroidDriver extends Driver {
     throw new SQLFeatureNotSupportedException
 
   override def connect(connectionUrl: String, properties: Properties): Connection =
-    new SQLDroidConnection(connectionUrl, properties)
+    // TODO - Create a parser for connectionUrl and pass directly the arguments needed
+    new SQLDroidConnection("")
 }
 
 object SQLDroidDriver {

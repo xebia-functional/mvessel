@@ -10,6 +10,7 @@ import java.util.Calendar
 import android.database.Cursor
 import com.fortysevendeg.android.sqlite._
 import com.fortysevendeg.android.sqlite.data.{SQLDroidBlob, SQLDroidClob}
+import com.fortysevendeg.android.sqlite.logging.{AndroidLogWrapper, LogWrapper}
 import com.fortysevendeg.android.sqlite.util.DateUtils
 import com.fortysevendeg.android.sqlite.util.CursorUtils._
 

@@ -1,5 +1,6 @@
 package com.fortysevendeg.android.sqlite
 
+import java.io.Closeable
 import java.lang.reflect.Method
 
 import android.database.sqlite.SQLiteDatabase
@@ -8,7 +9,12 @@ import com.fortysevendeg.android.sqlite.SQLDroidDatabase._
 
 import scala.util.{Failure, Success, Try}
 
-class SQLDroidDatabase(val name: String, timeout: Long, retry: Long, flags: Int) {
+class SQLDroidDatabase(
+  val name: String,
+  timeout: Long,
+  retry: Long,
+  flags: Int
+  ) extends Closeable {
 
   val database = executeWithRetry(retry, timeout)(openDatabase(name, flags))
 
@@ -52,13 +58,13 @@ object SQLDroidDatabase {
 
   sealed trait TransactionState
 
-  case object TransactionSuccessful  extends TransactionState
+  case object TransactionSuccessful extends TransactionState
 
-  case object StartsTransaction      extends TransactionState
+  case object StartsTransaction extends TransactionState
 
-  case object FinishTransaction      extends TransactionState
+  case object FinishTransaction extends TransactionState
 
-  case object Close                  extends TransactionState
+  case object Close extends TransactionState
 
   def isLockedException(exception: SQLException): Boolean =
     lockedExceptionClass exists (_.isAssignableFrom(exception.getClass))

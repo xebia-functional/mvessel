@@ -3,7 +3,7 @@ package com.fortysevendeg.android.sqlite.util
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import com.fortysevendeg.android.sqlite.LogWrapper
+import com.fortysevendeg.android.sqlite.logging.LogWrapper
 
 import scala.util.{Failure, Success, Try}
 

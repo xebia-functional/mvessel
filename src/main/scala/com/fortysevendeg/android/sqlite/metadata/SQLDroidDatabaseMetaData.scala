@@ -7,7 +7,6 @@ import com.fortysevendeg.android.sqlite.metadata.SQLDroidDatabaseMetaData._
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet
 import com.fortysevendeg.android.sqlite.util.CursorUtils._
 import com.fortysevendeg.android.sqlite.{SQLDroidDriver, WrapperNotSupported, _}
-import org.sqldroid.SQLDroidConnection
 
 import scala.util.{Failure, Success, Try}
 

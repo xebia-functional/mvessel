@@ -3,7 +3,8 @@ package com.fortysevendeg.android.sqlite.resultset
 import java.sql.{ResultSetMetaData, Types}
 
 import android.database.Cursor
-import com.fortysevendeg.android.sqlite.{AndroidLogWrapper, LogWrapper, WrapperNotSupported}
+import com.fortysevendeg.android.sqlite.logging.{AndroidLogWrapper, LogWrapper}
+import com.fortysevendeg.android.sqlite.WrapperNotSupported
 import com.fortysevendeg.android.sqlite.util.CursorUtils._
 
 class SQLDroidResultSetMetaData(
