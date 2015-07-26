@@ -6,6 +6,8 @@ import java.util.Properties
 import java.util.logging.Logger
 import javax.sql.DataSource
 
+import com.fortysevendeg.android.sqlite.logging.{AndroidLogWrapper, LogWrapper}
+
 import scala.util.{Failure, Success, Try}
 
 class SQLDroidDataSource(

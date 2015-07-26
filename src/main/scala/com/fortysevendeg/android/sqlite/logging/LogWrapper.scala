@@ -1,6 +1,8 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.logging
 
-import Printer._
+import com.fortysevendeg.android.sqlite.logging.Printer._
+
+import scala.util.{Failure, Try}
 
 trait LogWrapper {
 
@@ -14,7 +16,17 @@ trait LogWrapper {
 
   def e(message: String, maybeThrowable: Option[Throwable] = None)
 
-  def notImplemented[T](result: T): T
+  def notImplemented[T](result: T): T = {
+    val message = "Method not implemented" :: (stackTraces map (s => s" at ${methodName(s)}(${fileName(s)})")).toList
+    w(message.mkString("\n"))
+    result
+  }
+
+  def logOnError[T](f: => T, msg: String = "") =
+    Try(f) match {
+      case Failure(ex) => e(msg, Some(ex))
+      case _ =>
+    }
 
 }
 
@@ -41,12 +53,6 @@ class AndroidLogWrapper(
         case Some(t) => android.util.Log.e(tag, message, t)
         case _ => android.util.Log.e(tag, message)
       }
-
-  override def notImplemented[T](result: T): T = {
-    val message = "Method not implemented" :: (stackTraces map (s => s" at ${methodName(s)}(${fileName(s)})")).toList
-    w(message.mkString("\n"))
-    result
-  }
 
 }
 

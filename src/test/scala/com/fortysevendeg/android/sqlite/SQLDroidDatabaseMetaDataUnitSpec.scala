@@ -7,7 +7,6 @@ import com.fortysevendeg.android.sqlite.metadata.SQLDroidDatabaseMetaData
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import org.sqldroid.SQLDroidConnection
 
 import scala.util.Random
 
@@ -39,7 +38,7 @@ trait SQLDroidDatabaseMetaDataSpecification
 
     sqlDroidDatabase.database returns sqlLiteDatabase
 
-    connection.getDb returns sqlDroidDatabase
+    connection.sqliteDatabase returns Some(sqlDroidDatabase)
 
     val sqlDroid = new SQLDroidDatabaseMetaData(connection)
 

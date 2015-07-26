@@ -7,7 +7,6 @@ import com.fortysevendeg.android.sqlite.metadata.SQLDroidDatabaseMetaData._
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet
 import com.fortysevendeg.android.sqlite.util.CursorUtils._
 import com.fortysevendeg.android.sqlite.{SQLDroidDriver, WrapperNotSupported, _}
-import org.sqldroid.SQLDroidConnection
 
 import scala.util.{Failure, Success, Try}
 
@@ -388,7 +387,7 @@ class SQLDroidDatabaseMetaData(connection: Connection)
   override val getCatalogTerm: String = "catalog"
 
   override def getDatabaseMajorVersion: Int = connection match {
-    case c: SQLDroidConnection => c.getDb.database.getVersion
+    case c: SQLDroidConnection => c.sqliteDatabase map (_.database.getVersion) getOrElse 0
     case _ => 0
   }
 
