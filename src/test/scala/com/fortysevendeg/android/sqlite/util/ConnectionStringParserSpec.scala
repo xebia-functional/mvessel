@@ -75,7 +75,7 @@ class ConnectionStringParserSpec
     "return a memory name and an empty map params when passing a memory url" in
       new ConnectionStringParserScope {
         parseConnectionString(urlInMemory) must beSome[ConnectionValues].which { c =>
-          c shouldEqual ConnectionValues(":memory", Map.empty)
+          c shouldEqual ConnectionValues(memoryName, Map.empty)
         }
       }
 
