@@ -210,3 +210,11 @@ class SQLDroidConnection(
 
   override def setSchema(schema: String): Unit = logWrapper.notImplemented(Unit)
 }
+
+object SQLDroidConnection {
+
+  val defaultTimeout = 0
+
+  val defaultRetryInterval = 50
+
+}
