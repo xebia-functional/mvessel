@@ -1,9 +1,9 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.metadata
 
-import java.sql.{DatabaseMetaData, ResultSet, Connection}
+import java.sql.{Connection, DatabaseMetaData, ResultSet}
 
 import android.database.sqlite.SQLiteDatabase
-import com.fortysevendeg.android.sqlite.metadata.SQLDroidDatabaseMetaData
+import com.fortysevendeg.android.sqlite.{SQLDroidConnection, SQLDroidDatabase, SQLDroidDriver}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope

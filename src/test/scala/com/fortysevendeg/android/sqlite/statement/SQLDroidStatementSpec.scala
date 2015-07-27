@@ -1,12 +1,11 @@
 package com.fortysevendeg.android.sqlite.statement
 
-import java.sql.{ResultSet, SQLException}
+import java.sql.SQLException
 
 import android.database.Cursor
 import com.fortysevendeg.android.sqlite.logging.LogWrapper
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet
-import com.fortysevendeg.android.sqlite.{TestLogWrapper, SQLDroidConnection}
-import com.fortysevendeg.android.sqlite._
+import com.fortysevendeg.android.sqlite.{SQLDroidConnection, TestLogWrapper, _}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope

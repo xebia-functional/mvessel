@@ -4,9 +4,7 @@ import java.sql._
 
 import com.fortysevendeg.android.sqlite.logging.{AndroidLogWrapper, LogWrapper}
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet
-import com.fortysevendeg.android.sqlite.{SQLDroidConnection, SQLDroidDatabase, WrapperNotSupported}
-
-import com.fortysevendeg.android.sqlite._
+import com.fortysevendeg.android.sqlite.{SQLDroidConnection, SQLDroidDatabase, WrapperNotSupported, _}
 
 import scala.collection.mutable
 

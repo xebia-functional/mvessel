@@ -191,6 +191,11 @@ class SQLDroidDatabaseMetaDataSpec
       new WithDatabaseConnection with WithEmptyTable {
         sqlDroid.getExportedKeys("", "", "") must throwA[SQLException]("Invalid table name")
       }
+
+    "throws a SQLException when pass a null in the table name argument" in
+      new WithDatabaseConnection with WithEmptyTable {
+        sqlDroid.getExportedKeys("", "", javaNull) must throwA[SQLException]("Table name can't be null")
+      }
   }
 
   "getImportedKeys" should {
