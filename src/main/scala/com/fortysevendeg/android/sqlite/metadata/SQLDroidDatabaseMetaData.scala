@@ -387,7 +387,7 @@ class SQLDroidDatabaseMetaData(connection: Connection)
   override val getCatalogTerm: String = "catalog"
 
   override def getDatabaseMajorVersion: Int = connection match {
-    case c: SQLDroidConnection => c.sqliteDatabase map (_.database.getVersion) getOrElse 0
+    case c: SQLDroidConnection => c.withOpenDatabase(_.database.getVersion)
     case _ => 0
   }
 

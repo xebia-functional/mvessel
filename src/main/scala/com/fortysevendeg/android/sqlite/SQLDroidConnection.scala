@@ -6,7 +6,10 @@ import java.util.concurrent.Executor
 
 import com.fortysevendeg.android.sqlite.logging.{AndroidLogWrapper, LogWrapper}
 import com.fortysevendeg.android.sqlite.metadata.SQLDroidDatabaseMetaData
-import org.sqldroid.{SQLDroidPreparedStatement, SQLDroidStatement}
+import com.fortysevendeg.android.sqlite.statement.SQLDroidStatement
+import org.sqldroid.SQLDroidPreparedStatement
+
+import scala.util.{Failure, Try, Success}
 
 class SQLDroidConnection(
   databaseName: String,
@@ -24,6 +27,7 @@ class SQLDroidConnection(
 
   protected def defaultAutoCommit(): Boolean = false
 
+  // TODO - Remove when SQLDroidPreparedStatement is migrated
   protected def createPreparedStatement(
     sql: String,
     columnName: Option[String] = None
@@ -40,9 +44,9 @@ class SQLDroidConnection(
 
   val alreadyClosedErrorMessage = "Database connection closed"
 
-  var sqliteDatabase: Option[SQLDroidDatabase] = createDatabase()
+  private[this] var sqliteDatabase: Option[SQLDroidDatabase] = createDatabase()
 
-  var autoCommit: Boolean = defaultAutoCommit()
+  private[this] var autoCommit: Boolean = defaultAutoCommit()
 
   override def close(): Unit = synchronized {
     sqliteDatabase match {
@@ -115,9 +119,14 @@ class SQLDroidConnection(
     super.finalize()
   }
 
-  private[this] def withOpenDatabase[T](f: (SQLDroidDatabase) => T) = sqliteDatabase match {
-    case Some(db) => f(db)
-    case None => throw new SQLException(alreadyClosedErrorMessage)
+  def withOpenDatabase[T](f: (SQLDroidDatabase) => T) = sqliteDatabase match {
+    case Some(db) =>
+      Try(f(db)) match {
+        case Success(r) => r
+        case Failure(e) => throw new SQLException(e)
+      }
+    case None =>
+      throw new SQLException(alreadyClosedErrorMessage)
   }
 
   override def clearWarnings(): Unit = logWrapper.notImplemented(Unit)
