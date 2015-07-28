@@ -1,0 +1,77 @@
+package com.fortysevendeg.android.sqlite.statement
+
+import org.specs2.mutable.Specification
+import org.specs2.specification.Scope
+
+trait StatementInfoSpecification
+  extends Specification {
+
+  val selectSql = "SeLeCt * FROM table;"
+
+  val multiLineSelectSql =
+    """SeLeCt * FROM table
+       WHERE name = ''
+       AND age = 10;
+    """
+
+  val limit = 10
+
+  val selectWithLimitSql = s"SeLeCt * FROM table LIMIT $limit;"
+
+  trait StatementInfoScope
+    extends Scope {
+
+    val statementInfo = new StatementInfo {}
+
+  }
+
+}
+
+class StatementInfoSpec
+  extends StatementInfoSpecification {
+
+  "isSelect" should {
+
+    "return true for a select statement" in new StatementInfoScope {
+      statementInfo.isSelect(selectSql) must beTrue
+    }
+
+    "return true for a select statement in lower case" in new StatementInfoScope {
+      statementInfo.isSelect(selectSql.toLowerCase) must beTrue
+    }
+
+    "return true for a select statement in upper case" in new StatementInfoScope {
+      statementInfo.isSelect(selectSql.toUpperCase) must beTrue
+    }
+
+    "return true for a multi-line select statement" in new StatementInfoScope {
+      statementInfo.isSelect(multiLineSelectSql) must beTrue
+    }
+
+  }
+
+  "readLimit" should {
+
+    "return the right value for a statement with a LIMIT clause" in new StatementInfoScope {
+      statementInfo.readLimit(selectWithLimitSql) must beSome[Int].which(_ == limit)
+    }
+
+    "return None for a statement without a LIMIT clause" in new StatementInfoScope {
+      statementInfo.readLimit(selectSql) must beNone
+    }
+
+  }
+
+  "toLimitedSql" should {
+
+    "return the same statement for a statement with a LIMIT clause" in new StatementInfoScope {
+      statementInfo.toLimitedSql(selectWithLimitSql, 0) shouldEqual selectWithLimitSql
+    }
+
+    "return a statement with the LIMIT clause" in new StatementInfoScope {
+      statementInfo.toLimitedSql(selectSql, limit) shouldEqual selectWithLimitSql
+    }
+
+  }
+
+}

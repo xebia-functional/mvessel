@@ -3,6 +3,7 @@ package com.fortysevendeg.android.sqlite.statement
 import java.sql.SQLException
 
 import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
 import com.fortysevendeg.android.sqlite.logging.LogWrapper
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet
 import com.fortysevendeg.android.sqlite.{SQLDroidConnection, TestLogWrapper, _}
@@ -21,6 +22,12 @@ trait SQLDroidStatementSpecification
   trait SQLDroidStatementScope extends Scope {
 
     val database = mock[SQLDroidDatabase]
+
+    val sqliteDatabase = mock[SQLiteDatabase]
+
+    database.database returns sqliteDatabase
+
+    sqliteDatabase.isOpen returns true
 
     val connection: SQLDroidConnection = new SQLDroidConnection(databaseName = "databaseName", logWrapper = new TestLogWrapper) {
       override protected def createDatabase(): Option[SQLDroidDatabase] = Some(database)
@@ -86,7 +93,7 @@ class SQLDroidStatementSpec
     "clear the SQL batch" in new WithoutColumnGenerated {
       sqlDroid.addBatch(selectSql)
       sqlDroid.clearBatch()
-      sqlDroid.getBatchList shouldEqual Seq()
+      sqlDroid.getBatchList shouldEqual Seq.empty
     }
   }
 

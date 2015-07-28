@@ -5,6 +5,7 @@ import java.sql._
 import com.fortysevendeg.android.sqlite.logging.{AndroidLogWrapper, LogWrapper}
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet
 import com.fortysevendeg.android.sqlite.{SQLDroidConnection, SQLDroidDatabase, WrapperNotSupported, _}
+import StatementInfo._
 
 import scala.collection.mutable
 
@@ -12,8 +13,6 @@ class SQLDroidStatement(
   sqlDroidConnection: SQLDroidConnection,
   columnGenerated: Option[String] = None,
   logWrapper: LogWrapper = new AndroidLogWrapper()) extends Statement with WrapperNotSupported {
-
-  val selectRegex = "(?m)(?s)\\s*(SELECT|PRAGMA|EXPLAIN QUERY PLAN).*".r
 
   val connectionClosedErrorMessage = "Connection is closed"
 
@@ -44,13 +43,13 @@ class SQLDroidStatement(
     closeResultSet()
   }
 
-  override def isClosed: Boolean = connection.isEmpty
+  override def isClosed: Boolean = connection map (_.isClosed) getOrElse true
 
   override def execute(sql: String): Boolean = withOpenConnection { db =>
-    resultSet = selectRegex.pattern.matcher(sql).matches() match {
+    resultSet = isSelect(sql) match {
       case true =>
         updateCount = None
-        val limitedSql = maxRows map (m => s"$sql LIMIT $m") getOrElse sql
+        val limitedSql = maxRows map (m => toLimitedSql(sql, m)) getOrElse sql
         Some(new SQLDroidResultSet(db.rawQuery(limitedSql)))
       case false =>
         db.execSQL(sql)
@@ -88,7 +87,7 @@ class SQLDroidStatement(
 
   override def getConnection: Connection =
     connection match {
-      case Some(c) => c
+      case Some(c) if !c.isClosed => c
       case _ => throw new SQLException(connectionClosedErrorMessage)
     }
 
@@ -181,7 +180,7 @@ class SQLDroidStatement(
 
   private[this] def withOpenConnection[T](f: (SQLDroidDatabase) => T) =
     connection match {
-      case Some(c) =>
+      case Some(c) if !c.isClosed =>
         closeResultSet()
         c.withOpenDatabase[T](f)
       case _ =>
