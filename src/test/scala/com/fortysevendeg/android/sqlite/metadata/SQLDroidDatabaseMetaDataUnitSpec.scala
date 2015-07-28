@@ -1,9 +1,9 @@
-package com.fortysevendeg.android.sqlite
+package com.fortysevendeg.android.sqlite.metadata
 
-import java.sql.{DatabaseMetaData, ResultSet, Connection}
+import java.sql.{Connection, DatabaseMetaData, ResultSet}
 
 import android.database.sqlite.SQLiteDatabase
-import com.fortysevendeg.android.sqlite.metadata.SQLDroidDatabaseMetaData
+import com.fortysevendeg.android.sqlite.{SQLDroidConnection, SQLDroidDatabase, SQLDroidDriver}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
@@ -26,7 +26,7 @@ trait SQLDroidDatabaseMetaDataSpecification
   trait WithMockedSQLDroidConnection
     extends Scope {
 
-    val dbVersion = Random.nextInt(10)
+    val dbVersion = Random.nextInt(10) + 1
 
     val connection = mock[SQLDroidConnection]
 
@@ -38,7 +38,9 @@ trait SQLDroidDatabaseMetaDataSpecification
 
     sqlDroidDatabase.database returns sqlLiteDatabase
 
-    connection.sqliteDatabase returns Some(sqlDroidDatabase)
+    val f = (db : SQLDroidDatabase) => db.database.getVersion
+
+    connection.withOpenDatabase(f) returns dbVersion
 
     val sqlDroid = new SQLDroidDatabaseMetaData(connection)
 
@@ -86,14 +88,14 @@ class SQLDroidDatabaseMetaDataUnitSpec
   "getDatabaseProductName" should {
     "return a non empty string" in
       new WithMockedConnection {
-        sqlDroid.getDatabaseProductName nonEmpty
+        sqlDroid.getDatabaseProductName.isEmpty must beFalse
       }
   }
 
   "getDatabaseProductVersion" should {
     "return an empty string" in
       new WithMockedConnection {
-        sqlDroid.getDatabaseProductVersion isEmpty
+        sqlDroid.getDatabaseProductVersion.isEmpty must beTrue
       }
   }
 
@@ -145,7 +147,7 @@ class SQLDroidDatabaseMetaDataUnitSpec
 
   "getExtraNameCharacters" should {
     "return an empty string" in new WithMockedConnection {
-      sqlDroid.getExtraNameCharacters isEmpty
+      sqlDroid.getExtraNameCharacters.isEmpty must beTrue
     }
   }
 
@@ -307,13 +309,13 @@ class SQLDroidDatabaseMetaDataUnitSpec
 
   "getSearchStringEscape" should {
     "return empty string" in new WithMockedConnection {
-      sqlDroid.getSearchStringEscape isEmpty
+      sqlDroid.getSearchStringEscape.isEmpty must beTrue
     }
   }
 
   "getSQLKeywords" should {
     "return empty string" in new WithMockedConnection {
-      sqlDroid.getSQLKeywords isEmpty
+      sqlDroid.getSQLKeywords.isEmpty must beTrue
     }
   }
 
@@ -325,25 +327,25 @@ class SQLDroidDatabaseMetaDataUnitSpec
 
   "getStringFunctions" should {
     "return empty string" in new WithMockedConnection {
-      sqlDroid.getStringFunctions isEmpty
+      sqlDroid.getStringFunctions.isEmpty must beTrue
     }
   }
 
   "getSystemFunctions" should {
     "return empty string" in new WithMockedConnection {
-      sqlDroid.getSystemFunctions isEmpty
+      sqlDroid.getSystemFunctions.isEmpty must beTrue
     }
   }
 
   "getTimeDateFunctions" should {
     "return empty string" in new WithMockedConnection {
-      sqlDroid.getTimeDateFunctions isEmpty
+      sqlDroid.getTimeDateFunctions.isEmpty must beTrue
     }
   }
 
   "getUserName" should {
     "return empty string" in new WithMockedConnection {
-      sqlDroid.getUserName isEmpty
+      sqlDroid.getUserName.isEmpty must beTrue
     }
   }
 

@@ -29,13 +29,13 @@ trait SQLiteDatabaseMetaDataSupport
 
   override def nullPlusNonNullIsNull(): Boolean = true
 
-  override def nullsAreSortedAtEnd: Boolean = !nullsAreSortedAtStart
+  override def nullsAreSortedAtEnd: Boolean = false
 
   override def nullsAreSortedAtStart: Boolean = true
 
   override def nullsAreSortedHigh: Boolean = true
 
-  override def nullsAreSortedLow: Boolean = !nullsAreSortedHigh
+  override def nullsAreSortedLow: Boolean = false
 
   override def othersDeletesAreVisible(intType: Int): Boolean = false
 

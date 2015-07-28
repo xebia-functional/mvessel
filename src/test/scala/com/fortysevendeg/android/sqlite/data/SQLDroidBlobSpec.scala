@@ -1,5 +1,7 @@
 package com.fortysevendeg.android.sqlite.data
 
+import com.fortysevendeg.android.sqlite._
+
 import java.io.InputStream
 import java.sql.{Blob, SQLException, SQLFeatureNotSupportedException}
 
@@ -21,6 +23,8 @@ trait SQLDroidBlobSpecification
     val sqlDroid = new SQLDroidBlob(array)
 
     val emptySqlDroid = new SQLDroidBlob(emptyArray)
+
+    val nullSqlDroid = new SQLDroidBlob(javaNull)
 
     val mockBlob = mock[Blob]
 
@@ -142,6 +146,22 @@ class SQLDroidBlobSpec
 
     "throws a SQLFeatureNotSupportedException" in new SQLDroidBlobScope {
       {sqlDroid.free();true} must throwA[SQLFeatureNotSupportedException]
+    }
+
+  }
+
+  "toString" should {
+
+    "return a 'Empty Blob' message when the array is null" in new SQLDroidBlobScope {
+      nullSqlDroid.toString must beMatching("(?i).*Empty Blob.*")
+    }
+
+    "return a 'Blob length 0' message when the array is empty" in new SQLDroidBlobScope {
+      emptySqlDroid.toString must beMatching("(?i).*Blob length 0.*")
+    }
+
+    "return a 'Blob length x' message with the size of the array" in new SQLDroidBlobScope {
+      sqlDroid.toString must beMatching(s"(?i).*Blob length ${array.length}.*")
     }
 
   }

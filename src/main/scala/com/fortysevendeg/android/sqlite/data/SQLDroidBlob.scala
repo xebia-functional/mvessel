@@ -50,10 +50,14 @@ class SQLDroidBlob(byteArray: Array[Byte]) extends Blob {
     Option(this.byteArray) match {
       case Some(b) =>
         val prefix = "Blob length %d".format(b.length)
-        val toPrint = if (b.length > 10) b.slice(0, 10) else b
-        val hexString = toPrint map ("0x" + Integer.toHexString(_)) mkString " "
-        val charString = toPrint map (b => "(" + Character.toString(b.toChar)) mkString " "
-        s"$prefix $hexString $charString"
+        b.length match {
+          case 0 => prefix
+          case l =>
+            val toPrint = if (l > 10) b.slice(0, 10) else b
+            val hexString = toPrint map ("0x" + Integer.toHexString(_)) mkString ""
+            val charString = toPrint map (b => "(" + Character.toString(b.toChar)) mkString ""
+            s"$prefix $hexString $charString"
+        }
       case None => "Empty Blob"
     }
   }
