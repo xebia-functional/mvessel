@@ -23,15 +23,15 @@ class SQLDroidStatement(
 
   val selectLastRowId = "SELECT last_insert_rowid()"
 
-  private[this] val batchList = new mutable.MutableList[String]
+  protected val batchList = new mutable.MutableList[String]
 
-  private[this] var connection: Option[SQLDroidConnection] = Option(sqlDroidConnection)
+  protected var connection: Option[SQLDroidConnection] = Option(sqlDroidConnection)
 
-  private[this] var maxRows: Option[Int] = None
+  protected var maxRows: Option[Int] = None
 
-  private[this] var resultSet: Option[ResultSet] = None
+  protected var resultSet: Option[ResultSet] = None
 
-  private[this] var updateCount: Option[Int] = None
+  protected var updateCount: Option[Int] = None
 
   def getBatchList: Seq[String] = batchList.toList
 
@@ -172,14 +172,14 @@ class SQLDroidStatement(
 
   override def closeOnCompletion(): Unit = logWrapper.notImplemented(Unit)
 
-  private[this] def closeResultSet() = {
+  protected def closeResultSet() = {
     resultSet foreach { rs =>
       if (!rs.isClosed) rs.close()
     }
     resultSet = None
   }
 
-  private[this] def withOpenConnection[T](f: (SQLDroidDatabase) => T) =
+  protected def withOpenConnection[T](f: (SQLDroidDatabase) => T) =
     connection match {
       case Some(c) =>
         closeResultSet()
