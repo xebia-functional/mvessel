@@ -183,12 +183,12 @@ class SQLDroidResultSetEditableSpec
 
 
     "throws an SQLFeatureNotSupportedException in updateBinaryStream(columnIndex: Int, x: InputStream, length: Long)" in new WithCursorMocked {
-      sqlDroid.updateBinaryStream(0, new ByteArrayInputStream(scala.Array[Byte](), 0, 0), 0.toLong) must throwA[SQLFeatureNotSupportedException]
+      sqlDroid.updateBinaryStream(0, new ByteArrayInputStream(scala.Array[Byte](), 0, 0), 0l) must throwA[SQLFeatureNotSupportedException]
     }
 
 
     "throws an SQLFeatureNotSupportedException in updateBinaryStream(columnLabel: String, x: InputStream, length: Long)" in new WithCursorMocked {
-      sqlDroid.updateBinaryStream("", new ByteArrayInputStream(scala.Array[Byte](), 0, 0), 0.toLong) must throwA[SQLFeatureNotSupportedException]
+      sqlDroid.updateBinaryStream("", new ByteArrayInputStream(scala.Array[Byte](), 0, 0), 0l) must throwA[SQLFeatureNotSupportedException]
     }
 
 
@@ -238,12 +238,12 @@ class SQLDroidResultSetEditableSpec
 
 
     "throws an SQLFeatureNotSupportedException in updateCharacterStream(columnIndex: Int, x: Reader, length: Long)" in new WithCursorMocked {
-      sqlDroid.updateCharacterStream(0, new StringReader(""), 0.toLong) must throwA[SQLFeatureNotSupportedException]
+      sqlDroid.updateCharacterStream(0, new StringReader(""), 0l) must throwA[SQLFeatureNotSupportedException]
     }
 
 
     "throws an SQLFeatureNotSupportedException in updateCharacterStream(columnLabel: String, reader: Reader, length: Long)" in new WithCursorMocked {
-      sqlDroid.updateCharacterStream("", new StringReader(""), 0.toLong) must throwA[SQLFeatureNotSupportedException]
+      sqlDroid.updateCharacterStream("", new StringReader(""), 0l) must throwA[SQLFeatureNotSupportedException]
     }
 
 
@@ -368,12 +368,12 @@ class SQLDroidResultSetEditableSpec
 
 
     "throws an SQLFeatureNotSupportedException in updateAsciiStream(columnIndex: Int, x: InputStream, length: Long)" in new WithCursorMocked {
-      sqlDroid.updateAsciiStream(0, new ByteArrayInputStream(scala.Array[Byte](), 0, 0), 0.toLong) must throwA[SQLFeatureNotSupportedException]
+      sqlDroid.updateAsciiStream(0, new ByteArrayInputStream(scala.Array[Byte](), 0, 0), 0l) must throwA[SQLFeatureNotSupportedException]
     }
 
 
     "throws an SQLFeatureNotSupportedException in updateAsciiStream(columnLabel: String, x: InputStream, length: Long)" in new WithCursorMocked {
-      sqlDroid.updateAsciiStream("", new ByteArrayInputStream(scala.Array[Byte](), 0, 0), 0.toLong) must throwA[SQLFeatureNotSupportedException]
+      sqlDroid.updateAsciiStream("", new ByteArrayInputStream(scala.Array[Byte](), 0, 0), 0l) must throwA[SQLFeatureNotSupportedException]
     }
 
 
