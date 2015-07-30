@@ -73,15 +73,15 @@ class StatementInfoSpec
     }
 
     "return false for a insert statement" in new StatementInfoScope {
-      statementInfo.isSelect(insertSql) must beTrue
+      statementInfo.isSelect(insertSql) must beFalse
     }
 
     "return false for a update statement" in new StatementInfoScope {
-      statementInfo.isSelect(updateSql) must beTrue
+      statementInfo.isSelect(updateSql) must beFalse
     }
 
     "return false for a delete statement" in new StatementInfoScope {
-      statementInfo.isSelect(deleteSql) must beTrue
+      statementInfo.isSelect(deleteSql) must beFalse
     }
 
   }
@@ -113,59 +113,59 @@ class StatementInfoSpec
   "isChange" should {
 
     "return true for a insert statement" in new StatementInfoScope {
-      statementInfo.isSelect(insertSql) must beTrue
+      statementInfo.isChange(insertSql) must beTrue
     }
 
     "return true for a insert statement with columns specification" in new StatementInfoScope {
-      statementInfo.isSelect(insertColumnsSql) must beTrue
+      statementInfo.isChange(insertColumnsSql) must beTrue
     }
 
     "return true for a insert statement in lower case" in new StatementInfoScope {
-      statementInfo.isSelect(insertSql.toLowerCase) must beTrue
+      statementInfo.isChange(insertSql.toLowerCase) must beTrue
     }
 
     "return true for a insert statement in upper case" in new StatementInfoScope {
-      statementInfo.isSelect(insertSql.toUpperCase) must beTrue
+      statementInfo.isChange(insertSql.toUpperCase) must beTrue
     }
 
     "return true for a multi-line insert statement" in new StatementInfoScope {
-      statementInfo.isSelect(multiLineInsertSql) must beTrue
+      statementInfo.isChange(multiLineInsertSql) must beTrue
     }
 
     "return true for a update statement" in new StatementInfoScope {
-      statementInfo.isSelect(updateSql) must beTrue
+      statementInfo.isChange(updateSql) must beTrue
     }
 
     "return true for a update statement in lower case" in new StatementInfoScope {
-      statementInfo.isSelect(updateSql.toLowerCase) must beTrue
+      statementInfo.isChange(updateSql.toLowerCase) must beTrue
     }
 
     "return true for a update statement in upper case" in new StatementInfoScope {
-      statementInfo.isSelect(updateSql.toUpperCase) must beTrue
+      statementInfo.isChange(updateSql.toUpperCase) must beTrue
     }
 
     "return true for a multi-line update statement" in new StatementInfoScope {
-      statementInfo.isSelect(multiLineUpdateSql) must beTrue
+      statementInfo.isChange(multiLineUpdateSql) must beTrue
     }
 
     "return true for a delete statement" in new StatementInfoScope {
-      statementInfo.isSelect(deleteSql) must beTrue
+      statementInfo.isChange(deleteSql) must beTrue
     }
 
     "return true for a delete statement in lower case" in new StatementInfoScope {
-      statementInfo.isSelect(deleteSql.toLowerCase) must beTrue
+      statementInfo.isChange(deleteSql.toLowerCase) must beTrue
     }
 
     "return true for a delete statement in upper case" in new StatementInfoScope {
-      statementInfo.isSelect(deleteSql.toUpperCase) must beTrue
+      statementInfo.isChange(deleteSql.toUpperCase) must beTrue
     }
 
     "return true for a multi-line delete statement" in new StatementInfoScope {
-      statementInfo.isSelect(multiLineDeleteSql) must beTrue
+      statementInfo.isChange(multiLineDeleteSql) must beTrue
     }
 
     "return false for a select statement" in new StatementInfoScope {
-      statementInfo.isSelect(selectSql) must beFalse
+      statementInfo.isChange(selectSql) must beFalse
     }
 
   }

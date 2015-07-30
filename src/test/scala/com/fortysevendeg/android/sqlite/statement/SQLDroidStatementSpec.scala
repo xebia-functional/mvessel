@@ -153,7 +153,7 @@ class SQLDroidStatementSpec
     }
 
     "return an array with the results of changedRowCount and the sum when the bacth has elements" in new WithoutColumnGenerated {
-      val batch = Seq(selectSql, selectSql, selectSql)
+      val batch = Seq(insertSql, insertSql, insertSql)
       val changedRowCounts = Seq(20, 30, 40)
 
       database.changedRowCount() returns(

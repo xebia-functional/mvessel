@@ -28,7 +28,9 @@ class SQLDroidPreparedStatement(
 
   val inputStreamNullErrorMessage = "InputStream cannot be null"
 
-  val invalidInputStreamLengthErrorMessage = "Invalid length: %d"
+  val invalidInputStreamLengthErrorMessage = (s: Int) => s"Invalid length: $s"
+  
+  val executingSQLErrorMessage = (s: String) => s"Error executing statement $s"
 
   override def executeQuery(sql: String): ResultSet =
     throw new SQLException(notInPreparedErrorMessage)
@@ -82,7 +84,7 @@ class SQLDroidPreparedStatement(
           if (isChange(sql)) db.changedRowCount()
           else Statement.SUCCESS_NO_INFO
         case Failure(e) =>
-          logWrapper.e(s"Error executing statement $sql", Some(e))
+          logWrapper.e(executingSQLErrorMessage(sql), Some(e))
           Statement.EXECUTE_FAILED
       }
     }
@@ -98,7 +100,7 @@ class SQLDroidPreparedStatement(
       case (Some(is), l) if l > 0 =>
         setBytes(parameterIndex, inputStreamToByteArray(is))
       case (_, l) if length <= 0 =>
-        throw new SQLException(invalidInputStreamLengthErrorMessage.format(length))
+        throw new SQLException(invalidInputStreamLengthErrorMessage(length))
       case _ =>
         throw new SQLException(inputStreamNullErrorMessage)
     }

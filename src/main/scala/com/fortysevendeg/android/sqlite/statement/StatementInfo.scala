@@ -2,11 +2,11 @@ package com.fortysevendeg.android.sqlite.statement
 
 trait StatementInfo {
 
-  val selectRegex = "(?m)(?s)(?i)\\s*(SELECT|PRAGMA|EXPLAIN QUERY PLAN).*\\s+".r
+  val selectRegex = "(?m)(?s)(?i)\\s*(SELECT|PRAGMA|EXPLAIN QUERY PLAN).*".r
 
   val limitRegex = "(?m)(?s)(?i)\\s*.*LIMIT\\s+(\\d+).*".r
 
-  val changeRegex = "(?m)(?s)(?i)\\s*(INSERT|UPDATE|DELETE).*\\s+".r
+  val changeRegex = "(?m)(?s)(?i)\\s*(INSERT|UPDATE|DELETE).*".r
 
   def isSelect(sql: String): Boolean = selectRegex.pattern.matcher(sql).matches()
 

@@ -1,10 +1,8 @@
 package com.fortysevendeg.android.sqlite.statement
 
-import java.lang
 import java.sql.SQLException
 import com.fortysevendeg.android.sqlite._
 import TypeTransformers._
-import MapUtils._
 
 import scala.collection.mutable
 
@@ -18,25 +16,25 @@ trait StatementArguments {
 
 class PreparedStatementArguments extends StatementArguments {
 
-  private[this] var arguments: NonEmptyList[mutable.Map[Int, AnyRef]] = NonEmptyList(mutable.Map.empty)
+  private[this] var argumentsList: NonEmptyList[mutable.Map[Int, AnyRef]] = NonEmptyList(mutable.Map.empty)
 
   // Prepared statements count from 1
   private[this] var maxIndex: Int = 1
 
   def map[U](f: scala.Array[AnyRef] => U): Seq[U] =
-    arguments map (map => f(toArray(map, maxIndex - 1)))
+    argumentsList map (argumentsMap => f(toArray(argumentsMap, maxIndex - 1)))
 
   def addNewEntry(): Unit =
-    arguments = NonEmptyList(head = mutable.Map.empty, tail = arguments.tail :+ arguments.head)
+    argumentsList = NonEmptyList(head = mutable.Map.empty, tail = argumentsList.tail :+ argumentsList.head)
 
   def clearArguments(): Unit = {
-    arguments = NonEmptyList(mutable.Map.empty)
+    argumentsList = NonEmptyList(mutable.Map.empty)
     maxIndex = 1
   }
 
   override def toStringArray: Array[String] = toArray map (_.toString)
 
-  override def toArray: Array[AnyRef] = arguments.head.toArray
+  override def toArray: Array[AnyRef] = argumentsList.head.toArray
 
   // In android only byte[], String, Long and Double are supported in bindArgs.
 
@@ -94,7 +92,7 @@ class PreparedStatementArguments extends StatementArguments {
     setArgument(position, arg.toLong)
 
   private[this] def addToHead(position: Int, arg: AnyRef) = {
-    arguments.head += (position -> arg)
+    argumentsList.head += (position -> arg)
     if (position > maxIndex) maxIndex = position
   }
 
@@ -118,22 +116,6 @@ class PreparedStatementArguments extends StatementArguments {
 case class NonEmptyList[+A](head: A, tail: Seq[A] = Seq.empty) {
 
   def map[U](f: (A) => U): Seq[U] = tail :+ head map f
-
-}
-
-object MapUtils {
-
-  implicit class MapArray(map: mutable.Map[Int, AnyRef]) {
-
-    def toArray(maxIndex: Int): scala.Array[AnyRef] =
-      (0 to maxIndex map {
-        map get _ match {
-          case Some(v) => v
-          case None => javaNull
-        }
-      }).toArray
-
-  }
 
 }
 
