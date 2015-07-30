@@ -6,21 +6,29 @@ import java.net.URL
 import java.sql._
 import java.util.Calendar
 
-import com.fortysevendeg.android.sqlite.SQLDroidConnection
+import com.fortysevendeg.android.sqlite.{SQLDroidConnection, _}
 import com.fortysevendeg.android.sqlite.logging.{AndroidLogWrapper, LogWrapper}
-import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet
+import com.fortysevendeg.android.sqlite.util.StreamUtils._
+import StatementInfo._
+
+import scala.util.{Failure, Success, Try}
 
 class SQLDroidPreparedStatement(
-  sql: String,
+  val sql: String,
   sqlDroidConnection: SQLDroidConnection,
-  columnGenerated: Option[String] = None,
+  val columnGenerated: Option[String] = None,
+  arguments: PreparedStatementArguments = new PreparedStatementArguments,
   logWrapper: LogWrapper = new AndroidLogWrapper())
   extends SQLDroidStatement(sqlDroidConnection, columnGenerated, logWrapper)
   with PreparedStatement {
 
   val notInPreparedErrorMessage = "This method cannot be called on a PreparedStatement"
 
-  var arguments = new PreparedStatementArguments
+  val maximumSizeErrorMessage = "Byte maximum exceeded"
+
+  val inputStreamNullErrorMessage = "InputStream cannot be null"
+
+  val invalidInputStreamLengthErrorMessage = "Invalid length: %d"
 
   override def executeQuery(sql: String): ResultSet =
     throw new SQLException(notInPreparedErrorMessage)
@@ -52,125 +60,210 @@ class SQLDroidPreparedStatement(
   override def addBatch(sql: String): Unit =
     throw new SQLException(notInPreparedErrorMessage)
 
-  override def addBatch(): Unit = arguments.addNewEntry()
+  override def addBatch(): Unit =
+    arguments.addNewEntry()
 
-  override def clearParameters(): Unit = arguments.clearArguments()
+  override def clearParameters(): Unit =
+    arguments.clearArguments()
 
-  override def execute(): Boolean = withOpenConnection { db =>
-    resultSet = selectRegex.pattern.matcher(sql).matches() match {
-      case true =>
-        updateCount = None
-        val limitedSql = maxRows map (m => s"$sql LIMIT $m") getOrElse sql
-        Some(new SQLDroidResultSet(db.rawQuery(limitedSql)))
-      case false =>
-        db.execSQL(sql)
-        updateCount = Option(db.changedRowCount())
-        None
+  override def execute(): Boolean =
+    executeWithArgs(sql, Some(arguments))
+
+  override def executeQuery(): ResultSet =
+    executeQueryWithArgs(sql, Some(arguments))
+
+  override def executeUpdate(): Int =
+    executeUpdateWithArgs(sql, Some(arguments))
+
+  override def executeBatch(): scala.Array[Int] = withOpenConnection { db =>
+    val updateArray = arguments map { array =>
+      Try(db.execSQL(sql, array)) match {
+        case Success(_) =>
+          if (isChange(sql)) db.changedRowCount()
+          else Statement.SUCCESS_NO_INFO
+        case Failure(e) =>
+          logWrapper.e(s"Error executing statement $sql", Some(e))
+          Statement.EXECUTE_FAILED
+      }
     }
-    resultSet.isDefined
+    updateCount = updateArray filter (_ > 0) reduceOption (_ + _)
+    updateArray.toArray
   }
 
-  override def executeQuery(): ResultSet = ???
+  override def setBinaryStream(parameterIndex: Int, x: InputStream): Unit =
+    setBinaryStream(parameterIndex, x, Integer.MAX_VALUE)
 
-  override def executeUpdate(): Int = ???
+  override def setBinaryStream(parameterIndex: Int, x: InputStream, length: Int): Unit =
+    (Option(x), length) match {
+      case (Some(is), l) if l > 0 =>
+        setBytes(parameterIndex, inputStreamToByteArray(is))
+      case (_, l) if length <= 0 =>
+        throw new SQLException(invalidInputStreamLengthErrorMessage.format(length))
+      case _ =>
+        throw new SQLException(inputStreamNullErrorMessage)
+    }
 
-  override def getMetaData: ResultSetMetaData = ???
+  override def setBinaryStream(parameterIndex: Int, x: InputStream, length: Long): Unit =
+    Try(length.toInt) match {
+      case Success(i) =>
+        setBinaryStream(parameterIndex, x, i)
+      case Failure(e) =>
+        throw new SQLException(maximumSizeErrorMessage, e)
+    }
 
-  override def getParameterMetaData: ParameterMetaData = ???
+  override def setBlob(parameterIndex: Int, inputStream: InputStream): Unit =
+    setBinaryStream(parameterIndex, inputStream)
 
-  override def setArray(parameterIndex: Int, x: Array): Unit = ???
+  override def setBlob(parameterIndex: Int, inputStream: InputStream, length: Long): Unit =
+    setBinaryStream(parameterIndex, inputStream, length)
 
-  override def setAsciiStream(parameterIndex: Int, x: InputStream): Unit = ???
+  override def setBlob(parameterIndex: Int, x: Blob): Unit =
+    Try(x.length().toInt) match {
+      case Success(i) =>
+        arguments.setArgument(parameterIndex, x.getBytes(1, i))
+      case Failure(e) =>
+        throw new SQLException(maximumSizeErrorMessage, e)
+    }
 
-  override def setAsciiStream(parameterIndex: Int, x: InputStream, length: Int): Unit = ???
+  override def setBoolean(parameterIndex: Int, x: Boolean): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setAsciiStream(parameterIndex: Int, x: InputStream, length: Long): Unit = ???
+  override def setByte(parameterIndex: Int, x: Byte): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setBigDecimal(parameterIndex: Int, x: BigDecimal): Unit = ???
+  override def setBytes(parameterIndex: Int, x: scala.Array[Byte]): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setBinaryStream(parameterIndex: Int, x: InputStream): Unit = ???
+  override def setClob(parameterIndex: Int, reader: Reader): Unit =
+    setString(parameterIndex, readerToString(reader))
 
-  override def setBinaryStream(parameterIndex: Int, x: InputStream, length: Int): Unit = ???
+  override def setClob(parameterIndex: Int, reader: Reader, length: Long): Unit =
+    Try(length.toInt) match {
+      case Success(i) =>
+        setString(parameterIndex, readerToString(reader).substring(1, i))
+      case Failure(e) =>
+        throw new SQLException(maximumSizeErrorMessage, e)
+    }
 
-  override def setBinaryStream(parameterIndex: Int, x: InputStream, length: Long): Unit = ???
+  override def setClob(parameterIndex: Int, x: Clob): Unit =
+    Try(x.length().toInt) match {
+      case Success(i) =>
+        setString(parameterIndex, x.getSubString(1l, i))
+      case Failure(e) =>
+        throw new SQLException(maximumSizeErrorMessage, e)
+    }
 
-  override def setBlob(parameterIndex: Int, inputStream: InputStream): Unit = ???
+  override def setDate(parameterIndex: Int, x: Date): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setBlob(parameterIndex: Int, inputStream: InputStream, length: Long): Unit = ???
+  override def setDate(parameterIndex: Int, x: Date, cal: Calendar): Unit =
+    logWrapper.notImplemented(arguments.setArgument(parameterIndex, x))
 
-  override def setBlob(parameterIndex: Int, x: Blob): Unit = ???
+  override def setDouble(parameterIndex: Int, x: Double): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setBoolean(parameterIndex: Int, x: Boolean): Unit = ???
+  override def setFloat(parameterIndex: Int, x: Float): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setByte(parameterIndex: Int, x: Byte): Unit = ???
+  override def setInt(parameterIndex: Int, x: Int): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setBytes(parameterIndex: Int, x: scala.Array[Byte]): Unit = ???
+  override def setLong(parameterIndex: Int, x: Long): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setCharacterStream(parameterIndex: Int, reader: Reader): Unit = ???
+  override def setNull(parameterIndex: Int, sqlType: Int): Unit =
+    arguments.removeArgument(parameterIndex)
 
-  override def setCharacterStream(parameterIndex: Int, reader: Reader, length: Int): Unit = ???
+  override def setNull(parameterIndex: Int, sqlType: Int, typeName: String): Unit =
+    arguments.removeArgument(parameterIndex)
 
-  override def setCharacterStream(parameterIndex: Int, reader: Reader, length: Long): Unit = ???
+  override def setObject(parameterIndex: Int, x: scala.Any): Unit =
+    arguments.setObjectArgument(parameterIndex, x)
 
-  override def setClob(parameterIndex: Int, reader: Reader): Unit = ???
+  override def setObject(parameterIndex: Int, x: scala.Any, targetSqlType: Int): Unit =
+    arguments.setObjectArgument(parameterIndex, x)
 
-  override def setClob(parameterIndex: Int, reader: Reader, length: Long): Unit = ???
+  override def setObject(parameterIndex: Int, x: scala.Any, targetSqlType: Int, scaleOrLength: Int): Unit =
+    arguments.setObjectArgument(parameterIndex, x)
 
-  override def setClob(parameterIndex: Int, x: Clob): Unit = ???
+  override def setShort(parameterIndex: Int, x: Short): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setDate(parameterIndex: Int, x: Date): Unit = ???
+  override def setString(parameterIndex: Int, x: String): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setDate(parameterIndex: Int, x: Date, cal: Calendar): Unit = ???
+  override def setTime(parameterIndex: Int, x: Time): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setDouble(parameterIndex: Int, x: Double): Unit = ???
+  override def setTime(parameterIndex: Int, x: Time, cal: Calendar): Unit =
+    logWrapper.notImplemented(arguments.setArgument(parameterIndex, x))
 
-  override def setFloat(parameterIndex: Int, x: Float): Unit = ???
+  override def setTimestamp(parameterIndex: Int, x: Timestamp): Unit =
+    arguments.setArgument(parameterIndex, x)
 
-  override def setInt(parameterIndex: Int, x: Int): Unit = ???
+  override def setTimestamp(parameterIndex: Int, x: Timestamp, cal: Calendar): Unit =
+    logWrapper.notImplemented(arguments.setArgument(parameterIndex, x))
 
-  override def setLong(parameterIndex: Int, x: Long): Unit = ???
+  override def getMetaData: ResultSetMetaData =
+    logWrapper.notImplemented(javaNull)
 
-  override def setNCharacterStream(parameterIndex: Int, value: Reader): Unit = ???
+  override def getParameterMetaData: ParameterMetaData =
+    logWrapper.notImplemented(javaNull)
 
-  override def setNCharacterStream(parameterIndex: Int, value: Reader, length: Long): Unit = ???
+  override def setArray(parameterIndex: Int, x: Array): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setNClob(parameterIndex: Int, reader: Reader): Unit = ???
+  override def setAsciiStream(parameterIndex: Int, x: InputStream): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setNClob(parameterIndex: Int, reader: Reader, length: Long): Unit = ???
+  override def setAsciiStream(parameterIndex: Int, x: InputStream, length: Int): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setNClob(parameterIndex: Int, value: NClob): Unit = ???
+  override def setAsciiStream(parameterIndex: Int, x: InputStream, length: Long): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setNString(parameterIndex: Int, value: String): Unit = ???
+  override def setBigDecimal(parameterIndex: Int, x: BigDecimal): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setNull(parameterIndex: Int, sqlType: Int): Unit = ???
+  override def setCharacterStream(parameterIndex: Int, reader: Reader): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setNull(parameterIndex: Int, sqlType: Int, typeName: String): Unit = ???
+  override def setCharacterStream(parameterIndex: Int, reader: Reader, length: Int): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setObject(parameterIndex: Int, x: scala.Any): Unit = ???
+  override def setCharacterStream(parameterIndex: Int, reader: Reader, length: Long): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setObject(parameterIndex: Int, x: scala.Any, targetSqlType: Int): Unit = ???
+  override def setNCharacterStream(parameterIndex: Int, value: Reader): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setObject(parameterIndex: Int, x: scala.Any, targetSqlType: Int, scaleOrLength: Int): Unit = ???
+  override def setNCharacterStream(parameterIndex: Int, value: Reader, length: Long): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setRef(parameterIndex: Int, x: Ref): Unit = ???
+  override def setNClob(parameterIndex: Int, reader: Reader): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setRowId(parameterIndex: Int, x: RowId): Unit = ???
+  override def setNClob(parameterIndex: Int, reader: Reader, length: Long): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setSQLXML(parameterIndex: Int, xmlObject: SQLXML): Unit = ???
+  override def setNClob(parameterIndex: Int, value: NClob): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setShort(parameterIndex: Int, x: Short): Unit = ???
+  override def setNString(parameterIndex: Int, value: String): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setString(parameterIndex: Int, x: String): Unit = ???
+  override def setRef(parameterIndex: Int, x: Ref): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setTime(parameterIndex: Int, x: Time): Unit = ???
+  override def setRowId(parameterIndex: Int, x: RowId): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setTime(parameterIndex: Int, x: Time, cal: Calendar): Unit = ???
+  override def setSQLXML(parameterIndex: Int, xmlObject: SQLXML): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setTimestamp(parameterIndex: Int, x: Timestamp): Unit = ???
+  override def setURL(parameterIndex: Int, x: URL): Unit =
+    logWrapper.notImplemented(Unit)
 
-  override def setTimestamp(parameterIndex: Int, x: Timestamp, cal: Calendar): Unit = ???
-
-  override def setURL(parameterIndex: Int, x: URL): Unit = ???
-
-  override def setUnicodeStream(parameterIndex: Int, x: InputStream, length: Int): Unit = ???
+  override def setUnicodeStream(parameterIndex: Int, x: InputStream, length: Int): Unit =
+    logWrapper.notImplemented(Unit)
 }

@@ -6,8 +6,7 @@ import java.util.concurrent.Executor
 
 import com.fortysevendeg.android.sqlite.logging.{AndroidLogWrapper, LogWrapper}
 import com.fortysevendeg.android.sqlite.metadata.SQLDroidDatabaseMetaData
-import com.fortysevendeg.android.sqlite.statement.SQLDroidStatement
-import org.sqldroid.SQLDroidPreparedStatement
+import com.fortysevendeg.android.sqlite.statement.{SQLDroidPreparedStatement, SQLDroidStatement}
 
 import scala.util.{Failure, Try, Success}
 
@@ -19,20 +18,16 @@ class SQLDroidConnection(
   val logWrapper: LogWrapper = new AndroidLogWrapper()
   ) extends Connection with WrapperNotSupported {
 
-  // TODO - Method for compatibility with java classes. Remove after migration of this classes
-  def getDb(): SQLDroidDatabase = sqliteDatabase getOrElse javaNull
-
   protected def createDatabase(): Option[SQLDroidDatabase] =
     Some(new SQLDroidDatabase(databaseName, timeout, retryInterval, flags))
 
   protected def defaultAutoCommit(): Boolean = false
 
-  // TODO - Remove when SQLDroidPreparedStatement is migrated
-  protected def createPreparedStatement(
+  private[this] def createPreparedStatement(
     sql: String,
     columnName: Option[String] = None
     ) = columnName match {
-    case Some(c) => new SQLDroidPreparedStatement(sql, this, c)
+    case Some(c) => new SQLDroidPreparedStatement(sql, this, Some(c))
     case _ => new SQLDroidPreparedStatement(sql, this)
   }
 

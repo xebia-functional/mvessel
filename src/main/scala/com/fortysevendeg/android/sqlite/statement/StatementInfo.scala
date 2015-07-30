@@ -2,9 +2,11 @@ package com.fortysevendeg.android.sqlite.statement
 
 trait StatementInfo {
 
-  val selectRegex = "(?m)(?s)(?i)\\s*(SELECT|PRAGMA|EXPLAIN QUERY PLAN).*".r
+  val selectRegex = "(?m)(?s)(?i)\\s*(SELECT|PRAGMA|EXPLAIN QUERY PLAN).*\\s+".r
 
   val limitRegex = "(?m)(?s)(?i)\\s*.*LIMIT\\s+(\\d+).*".r
+
+  val changeRegex = "(?m)(?s)(?i)\\s*(INSERT|UPDATE|DELETE).*\\s+".r
 
   def isSelect(sql: String): Boolean = selectRegex.pattern.matcher(sql).matches()
 
@@ -18,6 +20,8 @@ trait StatementInfo {
         val newSql = if (pos > 0) sql.substring(0, pos) else sql
         s"$newSql LIMIT $defaultLimit;"
     }
+
+  def isChange(sql: String): Boolean = changeRegex.pattern.matcher(sql).matches()
 
 }
 
