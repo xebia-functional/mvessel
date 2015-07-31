@@ -18,6 +18,30 @@ trait StatementInfoSpecification
 
   val selectWithLimitSql = s"SeLeCt * FROM table LIMIT $limit;"
 
+  val insertSql = "InSeRt INTO table VALUES(1, 'name', 10);"
+
+  val insertColumnsSql = "InSeRt INTO table(id, name, age) VALUES(1, '', 10);"
+
+  val updateSql = "UpDaTe table SET name = '', age = 10 WHERE id = 1;"
+
+  val deleteSql = "DeLeTe FROM table WHERE id = 1;"
+
+  val multiLineInsertSql =
+    """InSeRt INTO table
+       VALUES(1, 'name', 10);
+    """
+
+  val multiLineUpdateSql =
+    """UpDaTe table
+       SET name = '', age = 10
+       WHERE id = 1;
+    """
+
+  val multiLineDeleteSql =
+    """DeLeTe FROM table
+       WHERE id = 1;
+    """
+
   trait StatementInfoScope
     extends Scope {
 
@@ -48,6 +72,18 @@ class StatementInfoSpec
       statementInfo.isSelect(multiLineSelectSql) must beTrue
     }
 
+    "return false for a insert statement" in new StatementInfoScope {
+      statementInfo.isSelect(insertSql) must beFalse
+    }
+
+    "return false for a update statement" in new StatementInfoScope {
+      statementInfo.isSelect(updateSql) must beFalse
+    }
+
+    "return false for a delete statement" in new StatementInfoScope {
+      statementInfo.isSelect(deleteSql) must beFalse
+    }
+
   }
 
   "readLimit" should {
@@ -70,6 +106,66 @@ class StatementInfoSpec
 
     "return a statement with the LIMIT clause" in new StatementInfoScope {
       statementInfo.toLimitedSql(selectSql, limit) shouldEqual selectWithLimitSql
+    }
+
+  }
+
+  "isChange" should {
+
+    "return true for a insert statement" in new StatementInfoScope {
+      statementInfo.isChange(insertSql) must beTrue
+    }
+
+    "return true for a insert statement with columns specification" in new StatementInfoScope {
+      statementInfo.isChange(insertColumnsSql) must beTrue
+    }
+
+    "return true for a insert statement in lower case" in new StatementInfoScope {
+      statementInfo.isChange(insertSql.toLowerCase) must beTrue
+    }
+
+    "return true for a insert statement in upper case" in new StatementInfoScope {
+      statementInfo.isChange(insertSql.toUpperCase) must beTrue
+    }
+
+    "return true for a multi-line insert statement" in new StatementInfoScope {
+      statementInfo.isChange(multiLineInsertSql) must beTrue
+    }
+
+    "return true for a update statement" in new StatementInfoScope {
+      statementInfo.isChange(updateSql) must beTrue
+    }
+
+    "return true for a update statement in lower case" in new StatementInfoScope {
+      statementInfo.isChange(updateSql.toLowerCase) must beTrue
+    }
+
+    "return true for a update statement in upper case" in new StatementInfoScope {
+      statementInfo.isChange(updateSql.toUpperCase) must beTrue
+    }
+
+    "return true for a multi-line update statement" in new StatementInfoScope {
+      statementInfo.isChange(multiLineUpdateSql) must beTrue
+    }
+
+    "return true for a delete statement" in new StatementInfoScope {
+      statementInfo.isChange(deleteSql) must beTrue
+    }
+
+    "return true for a delete statement in lower case" in new StatementInfoScope {
+      statementInfo.isChange(deleteSql.toLowerCase) must beTrue
+    }
+
+    "return true for a delete statement in upper case" in new StatementInfoScope {
+      statementInfo.isChange(deleteSql.toUpperCase) must beTrue
+    }
+
+    "return true for a multi-line delete statement" in new StatementInfoScope {
+      statementInfo.isChange(multiLineDeleteSql) must beTrue
+    }
+
+    "return false for a select statement" in new StatementInfoScope {
+      statementInfo.isChange(selectSql) must beFalse
     }
 
   }

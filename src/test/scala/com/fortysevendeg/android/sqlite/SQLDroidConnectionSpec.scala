@@ -1,15 +1,15 @@
 package com.fortysevendeg.android.sqlite
 
-import java.sql.{Savepoint, DatabaseMetaData, Statement, SQLException}
+import java.sql._
 import java.util.Properties
 import java.util.concurrent.Executor
 
 import android.database.sqlite.SQLiteDatabase
 import com.fortysevendeg.android.sqlite.logging.LogWrapper
+import com.fortysevendeg.android.sqlite.statement.SQLDroidPreparedStatement
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import org.sqldroid.SQLDroidPreparedStatement
 
 import scala.util.Random
 
@@ -42,71 +42,30 @@ trait SQLDroidConnectionSpecification
 
   trait WithSomeConnection extends SQLDroidConnectionScope {
 
-    var lastPreparedSql: String = ""
-
-    var lastPreparedColumn: Option[String] = None
-
     val sqlDroid: SQLDroidConnection = new SQLDroidConnection(databaseName = databaseName, logWrapper = new TestLogWrapper) {
 
       override protected def createDatabase(): Option[SQLDroidDatabase] = Some(database)
 
-      override protected def createPreparedStatement(sql: String, columnName: Option[String]): SQLDroidPreparedStatement = {
-
-        lastPreparedSql = sql
-
-        lastPreparedColumn = columnName
-
-        javaNull
-
-      }
     }
 
   }
 
   trait WithSomeConnectionAutoCommit extends SQLDroidConnectionScope {
 
-    var lastPreparedSql: String = ""
-
-    var lastPreparedColumn: Option[String] = None
-
     val sqlDroid: SQLDroidConnection = new SQLDroidConnection(databaseName = databaseName, logWrapper = new TestLogWrapper) {
 
       override protected def createDatabase(): Option[SQLDroidDatabase] = Some(database)
 
       override protected def defaultAutoCommit(): Boolean = true
-
-      override protected def createPreparedStatement(sql: String, columnName: Option[String]): SQLDroidPreparedStatement = {
-
-        lastPreparedSql = sql
-
-        lastPreparedColumn = columnName
-
-        javaNull
-
-      }
     }
 
   }
 
   trait WithNoneConnection extends SQLDroidConnectionScope {
 
-    var lastPreparedSql: String = ""
-
-    var lastPreparedColumn: Option[String] = None
-
     val sqlDroid: SQLDroidConnection = new SQLDroidConnection(databaseName = databaseName, logWrapper = new TestLogWrapper) {
 
       override protected def createDatabase(): Option[SQLDroidDatabase] = None
-
-      override protected def createPreparedStatement(sql: String, columnName: Option[String]): SQLDroidPreparedStatement = {
-
-        lastPreparedSql = sql
-
-        lastPreparedColumn = columnName
-
-        javaNull
-
-      }
 
     }
 
@@ -238,76 +197,101 @@ class SQLDroidConnectionSpec
 
   "prepareStatement" should {
 
-    "call to createPreparedStatement with the passed sql" in new WithNoneConnection {
+    "creates a SQLDroidPreparedStatement with the passed sql" in new WithNoneConnection {
       val value = Random.nextString(10)
-      sqlDroid.prepareStatement(value)
-      lastPreparedSql shouldEqual value
-      lastPreparedColumn must beNone
+      sqlDroid.prepareStatement(value) must beLike[PreparedStatement] {
+        case st: SQLDroidPreparedStatement =>
+          st.sql shouldEqual value
+          st.columnGenerated must beNone
+      }
     }
 
-    "call to createPreparedStatement with the passed sql when passing resultSet type and concurrency" in
+    "creates a SQLDroidPreparedStatement with the passed sql when passing resultSet type and concurrency" in
       new WithNoneConnection {
         val value = Random.nextString(10)
-        sqlDroid.prepareStatement(value, resultSetType, resultSetConcurrency)
-        lastPreparedSql shouldEqual value
-        lastPreparedColumn must beNone
+        sqlDroid.prepareStatement(
+          sql = value,
+          resultSetType = resultSetType,
+          resultSetConcurrency = resultSetConcurrency) must beLikeA[PreparedStatement] {
+          case st: SQLDroidPreparedStatement =>
+            st.sql shouldEqual value
+            st.columnGenerated must beNone
+        }
       }
 
-    "call to createPreparedStatement with the passed sql when passing resultSet type, concurrency and holddability" in
+    "creates a SQLDroidPreparedStatement with the passed sql when passing resultSet type, concurrency and holdability" in
       new WithNoneConnection {
         val value = Random.nextString(10)
-        sqlDroid.prepareStatement(value, resultSetType, resultSetConcurrency, resultSetHoldability)
-        lastPreparedSql shouldEqual value
-        lastPreparedColumn must beNone
+        sqlDroid.prepareStatement(
+          sql = value,
+          resultSetType = resultSetType,
+          resultSetConcurrency = resultSetConcurrency,
+          resultSetHoldability = resultSetHoldability) must beLikeA[PreparedStatement] {
+          case st: SQLDroidPreparedStatement =>
+            st.sql shouldEqual value
+            st.columnGenerated must beNone
+        }
       }
 
-    "call to createPreparedStatement with the passed sql when passing autoGeneratedKeys value" in
+    "creates a SQLDroidPreparedStatement with the passed sql when passing autoGeneratedKeys value" in
       new WithNoneConnection {
         val value = Random.nextString(10)
-        sqlDroid.prepareStatement(value, 1)
-        lastPreparedSql shouldEqual value
-        lastPreparedColumn must beNone
+        sqlDroid.prepareStatement(value, 1) must beLikeA[PreparedStatement] {
+          case st: SQLDroidPreparedStatement =>
+            st.sql shouldEqual value
+            st.columnGenerated must beNone
+        }
       }
 
-    "call to createPreparedStatement with the passed sql when passing a column int array" in
+    "creates a SQLDroidPreparedStatement with the passed sql when passing a column int array" in
       new WithNoneConnection {
         val value = Random.nextString(10)
-        sqlDroid.prepareStatement(value, scala.Array[Int]())
-        lastPreparedSql shouldEqual value
-        lastPreparedColumn must beNone
+        sqlDroid.prepareStatement(value, scala.Array[Int]()) must
+          beLikeA[PreparedStatement] {
+            case st: SQLDroidPreparedStatement =>
+              st.sql shouldEqual value
+              st.columnGenerated must beNone
+        }
       }
 
-    "call to createPreparedStatement with the passed sql when the column array is empty" in
+    "creates a SQLDroidPreparedStatement with the passed sql when the column array is empty" in
       new WithNoneConnection {
         val value = Random.nextString(10)
-        sqlDroid.prepareStatement(value, scala.Array[String]())
-        lastPreparedSql shouldEqual value
-        lastPreparedColumn must beNone
+        sqlDroid.prepareStatement(value, scala.Array[String]()) must
+          beLikeA[PreparedStatement] {
+            case st: SQLDroidPreparedStatement =>
+              st.sql shouldEqual value
+              st.columnGenerated must beNone
+        }
       }
 
-    "call to createPreparedStatement with the passed sql and column name when the column array has only one element" in
+    "creates a SQLDroidPreparedStatement with the passed sql and column name when the column array has only one element" in
       new WithNoneConnection {
         val value = Random.nextString(10)
         val column = Random.nextString(10)
-        sqlDroid.prepareStatement(value, scala.Array[String](column))
-        lastPreparedSql shouldEqual value
-        lastPreparedColumn must beSome[String].which(_ shouldEqual column)
+        sqlDroid.prepareStatement(value, scala.Array[String](column)) must
+          beLikeA[PreparedStatement] {
+            case st: SQLDroidPreparedStatement =>
+              st.sql shouldEqual value
+              st.columnGenerated must beSome[String].which(_ == column)
+        }
       }
 
-    "call to createPreparedStatement with the passed sql when the column array is null" in
+    "creates a SQLDroidPreparedStatement with the passed sql when the column array is null" in
       new WithNoneConnection {
         val value = Random.nextString(10)
-        sqlDroid.prepareStatement(value, javaNull.asInstanceOf[scala.Array[String]])
-        lastPreparedSql shouldEqual value
-        lastPreparedColumn must beNone
+        sqlDroid.prepareStatement(value, javaNull.asInstanceOf[scala.Array[String]]) must
+          beLikeA[PreparedStatement] {
+            case st: SQLDroidPreparedStatement =>
+              st.sql shouldEqual value
+              st.columnGenerated must beNone
+        }
       }
 
-    "do nothing when the column array has more than one element" in
+    "return null when the column array has more than one element" in
       new WithNoneConnection {
         val value = Random.nextString(10)
-        sqlDroid.prepareStatement(value, scala.Array[String]("1", "2"))
-        lastPreparedSql shouldEqual ""
-        lastPreparedColumn must beNone
+        Option(sqlDroid.prepareStatement(value, scala.Array[String]("1", "2"))) must beNone
       }
 
   }

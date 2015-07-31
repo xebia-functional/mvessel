@@ -6,6 +6,8 @@ trait StatementInfo {
 
   val limitRegex = "(?m)(?s)(?i)\\s*.*LIMIT\\s+(\\d+).*".r
 
+  val changeRegex = "(?m)(?s)(?i)\\s*(INSERT|UPDATE|DELETE).*".r
+
   def isSelect(sql: String): Boolean = selectRegex.pattern.matcher(sql).matches()
 
   def readLimit(sql: String): Option[Int] = limitRegex.findFirstMatchIn(sql) map (_.group(1).toInt)
@@ -18,6 +20,8 @@ trait StatementInfo {
         val newSql = if (pos > 0) sql.substring(0, pos) else sql
         s"$newSql LIMIT $defaultLimit;"
     }
+
+  def isChange(sql: String): Boolean = changeRegex.pattern.matcher(sql).matches()
 
 }
 

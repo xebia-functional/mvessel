@@ -2,17 +2,21 @@ package com.fortysevendeg.android.sqlite.statement
 
 import java.sql._
 
+import android.database.Cursor
 import com.fortysevendeg.android.sqlite.logging.{AndroidLogWrapper, LogWrapper}
 import com.fortysevendeg.android.sqlite.resultset.SQLDroidResultSet
 import com.fortysevendeg.android.sqlite.{SQLDroidConnection, SQLDroidDatabase, WrapperNotSupported, _}
 import StatementInfo._
 
 import scala.collection.mutable
+import scala.util.{Failure, Success, Try}
 
 class SQLDroidStatement(
   sqlDroidConnection: SQLDroidConnection,
   columnGenerated: Option[String] = None,
-  logWrapper: LogWrapper = new AndroidLogWrapper()) extends Statement with WrapperNotSupported {
+  logWrapper: LogWrapper = new AndroidLogWrapper())
+  extends Statement
+  with WrapperNotSupported {
 
   val connectionClosedErrorMessage = "Connection is closed"
 
@@ -22,15 +26,17 @@ class SQLDroidStatement(
 
   val selectLastRowId = "SELECT last_insert_rowid()"
 
-  private[this] val batchList = new mutable.MutableList[String]
+  val defaultUpdateCount = -1
 
-  private[this] var connection: Option[SQLDroidConnection] = Option(sqlDroidConnection)
+  protected val batchList = new mutable.MutableList[String]
 
-  private[this] var maxRows: Option[Int] = None
+  protected var connection: Option[SQLDroidConnection] = Option(sqlDroidConnection)
 
-  private[this] var resultSet: Option[ResultSet] = None
+  protected var maxRows: Option[Int] = None
 
-  private[this] var updateCount: Option[Int] = None
+  protected var resultSet: Option[ResultSet] = None
+
+  protected var updateCount: Option[Int] = None
 
   def getBatchList: Seq[String] = batchList.toList
 
@@ -45,45 +51,55 @@ class SQLDroidStatement(
 
   override def isClosed: Boolean = connection map (_.isClosed) getOrElse true
 
-  override def execute(sql: String): Boolean = withOpenConnection { db =>
+  protected def executeWithArgs(
+    sql: String,
+    arguments: Option[StatementArguments] = None): Boolean = withOpenConnection { db =>
     resultSet = isSelect(sql) match {
       case true =>
         updateCount = None
         val limitedSql = maxRows map (m => toLimitedSql(sql, m)) getOrElse sql
-        Some(new SQLDroidResultSet(db.rawQuery(limitedSql)))
+        Some(new SQLDroidResultSet(rawQuery(db, limitedSql, arguments)))
       case false =>
-        db.execSQL(sql)
+        execSQL(db, sql, arguments)
         updateCount = Option(db.changedRowCount())
         None
     }
     resultSet.isDefined
   }
 
+  override def execute(sql: String): Boolean = executeWithArgs(sql)
+
   override def executeBatch(): scala.Array[Int] = withOpenConnection { db =>
     val updateArray = batchList map { sql =>
-      db.execSQL(sql)
-      db.changedRowCount()
-    }
-    updateCount = updateArray.reduceOption { (elem1, elem2) =>
-      (elem1, elem2) match {
-        case (a, b) if a > 0 && b > 0 => a + b
-        case (a, b) if a > 0 => a
-        case (a, b) if b > 0 => b
-        case _ => 0
+      Try(db.execSQL(sql)) match {
+        case Success(_) if isChange(sql) => db.changedRowCount()
+        case Success(_) => Statement.SUCCESS_NO_INFO
+        case Failure(e) =>
+          logWrapper.e(s"Error executing statement $sql", Some(e))
+          Statement.EXECUTE_FAILED
       }
     }
+    updateCount = updateArray filter (_ > 0) reduceOption (_ + _)
     updateArray.toArray
   }
 
-  override def executeQuery(sql: String): ResultSet =
-    withOpenConnection(newQueryResultSet(_, sql))
+  protected def executeQueryWithArgs(
+    sql: String,
+    arguments: Option[StatementArguments] = None): ResultSet =
+    withOpenConnection(newQueryResultSet(_, sql, arguments))
 
-  override def executeUpdate(sql: String): Int = withOpenConnection { db =>
-    db.execSQL(sql)
+  override def executeQuery(sql: String): ResultSet = executeQueryWithArgs(sql)
+
+  protected def executeUpdateWithArgs(
+    sql: String,
+    arguments: Option[StatementArguments] = None): Int = withOpenConnection { db =>
+    execSQL(db, sql, arguments)
     val count = db.changedRowCount()
     updateCount = Some(count)
     count
   }
+
+  override def executeUpdate(sql: String): Int = executeUpdateWithArgs(sql)
 
   override def getConnection: Connection =
     connection match {
@@ -112,7 +128,7 @@ class SQLDroidStatement(
   }
 
   override def getUpdateCount: Int = {
-    val count = updateCount getOrElse -1
+    val count = updateCount getOrElse defaultUpdateCount
     updateCount = None
     count
   }
@@ -171,14 +187,14 @@ class SQLDroidStatement(
 
   override def closeOnCompletion(): Unit = logWrapper.notImplemented(Unit)
 
-  private[this] def closeResultSet() = {
+  protected def closeResultSet() = {
     resultSet foreach { rs =>
       if (!rs.isClosed) rs.close()
     }
     resultSet = None
   }
 
-  private[this] def withOpenConnection[T](f: (SQLDroidDatabase) => T) =
+  protected def withOpenConnection[T](f: (SQLDroidDatabase) => T) =
     connection match {
       case Some(c) if !c.isClosed =>
         closeResultSet()
@@ -187,9 +203,30 @@ class SQLDroidStatement(
         throw new SQLException(connectionClosedErrorMessage)
     }
 
-  private[this] def newQueryResultSet(db: SQLDroidDatabase, sql: String): ResultSet = {
-    val rs = new SQLDroidResultSet(db.rawQuery(sql))
+  private[this] def newQueryResultSet(
+    db: SQLDroidDatabase,
+    sql: String,
+    arguments: Option[StatementArguments] = None): ResultSet = {
+    val rs = new SQLDroidResultSet(rawQuery(db, sql, arguments))
     resultSet = Some(rs)
     rs
   }
+
+  private[this] def rawQuery(
+    db: SQLDroidDatabase,
+    sql: String,
+    arguments: Option[StatementArguments] = None): Cursor =
+    arguments match {
+      case Some(a) => db.rawQuery(sql, a.toStringArray)
+      case _ => db.rawQuery(sql)
+    }
+
+  private[this] def execSQL(
+    db: SQLDroidDatabase,
+    sql: String,
+    arguments: Option[StatementArguments] = None): Unit =
+    arguments match {
+      case Some(a) => db.execSQL(sql, a.toArray)
+      case _ => db.execSQL(sql)
+    }
 }
