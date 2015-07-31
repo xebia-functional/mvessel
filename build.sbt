@@ -8,7 +8,7 @@ organizationName := "47 Degrees"
 
 organizationHomepage := Some(new URL("http://47deg.com"))
 
-name := "scala-sqlite-droid"
+name := "mvessel"
 
 version := "0.1-SNAPSHOT"
 
