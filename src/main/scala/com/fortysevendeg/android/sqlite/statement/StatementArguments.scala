@@ -21,8 +21,12 @@ class PreparedStatementArguments extends StatementArguments {
   // Prepared statements count from 1
   private[this] var maxIndex: Int = 1
 
+  val invalidArgumentIndexErrorMessage = (i: Int) => s"Invalid parameter index: $i"
+
+  val classNotSupportedErrorMessage = (c: String) => s"Class $c not supported for bind args"
+
   def map[U](f: scala.Array[AnyRef] => U): Seq[U] =
-    argumentsList map (argumentsMap => f(toArray(argumentsMap, maxIndex - 1)))
+    argumentsList map (argumentsMap => f(toArray(argumentsMap, maxIndex)))
 
   def addNewEntry(): Unit =
     argumentsList = NonEmptyList(head = mutable.Map.empty, tail = argumentsList.tail :+ argumentsList.head)
@@ -32,79 +36,105 @@ class PreparedStatementArguments extends StatementArguments {
     maxIndex = 1
   }
 
-  override def toStringArray: Array[String] = toArray map (_.toString)
+  override def toStringArray: Array[String] = toArray map { value =>
+    Option(value) match {
+      case Some(v: String) => v
+      case Some(v) => v.toString
+      case None => javaNull
+    }
+  }
 
-  override def toArray: Array[AnyRef] = argumentsList.head.toArray
+  override def toArray: Array[AnyRef] = toArray(argumentsList.head, maxIndex)
 
   // In android only byte[], String, Long and Double are supported in bindArgs.
 
-  def setObjectArgument(position: Int, arg: Any): Unit = nonEmptyArgument(position, arg) {
+  def setObjectArgument(position: Int, arg: Any): Unit = withValidation(position, arg) {
     case a: scala.Array[Byte] => setArgument(position, a)
     case a: Byte => setArgument(position, a)
     case a: Boolean => setArgument(position, a)
     case a: Double => setArgument(position, a)
     case a: Short => setArgument(position, a)
     case a: Float => setArgument(position, a)
+    case a: Long => setArgument(position, a)
     case a: String => setArgument(position, a)
     case a: java.sql.Date => setArgument(position, a)
     case a: java.sql.Time => setArgument(position, a)
     case a: java.sql.Timestamp => setArgument(position, a)
-    case _ => throw new SQLException()
+    case `javaNull` => setNullArgument(position)
+    case _ => throw new SQLException(classNotSupportedErrorMessage(arg.getClass.getName))
   }
 
-  def removeArgument(position: Int): Unit = {}
-
   def setArgument(position: Int, arg: scala.Array[Byte]): Unit =
-    nonEmptyArgument(position, arg)(addToHead(position, _))
+    withValidation(position, arg)(addToHead(position, _))
 
   def setArgument(position: Int, arg: Double): Unit =
-    nonEmptyArgument(position, arg) { d =>
+    withValidation(position, arg) { d =>
       addToHead(position, java.lang.Double.valueOf(d))
     }
 
   def setArgument(position: Int, arg: Long): Unit =
-    nonEmptyArgument(position, arg) { l =>
+    withValidation(position, arg) { l =>
       addToHead(position, java.lang.Long.valueOf(l))
     }
 
   def setArgument(position: Int, arg: String): Unit =
-    nonEmptyArgument(position, arg)(addToHead(position, _))
+    withValidation(position, arg)(addToHead(position, _))
 
   def setArgument(position: Int, arg: Byte): Unit =
-    setArgument(position, arg.toLong)
+    withValidation(position, arg) { a =>
+      setArgument(position, a.toLong)
+    }
 
   def setArgument(position: Int, arg: Boolean): Unit =
-    setArgument(position, arg.toLong)
+    withValidation(position, arg) { a =>
+      setArgument(position, a.toLong)
+    }
 
   def setArgument(position: Int, arg: Short): Unit =
-    setArgument(position, arg.toLong)
+    withValidation(position, arg) { a =>
+      setArgument(position, a.toLong)
+    }
 
   def setArgument(position: Int, arg: Float): Unit =
-    setArgument(position, arg.toDouble)
+    withValidation(position, arg) { a =>
+      setArgument(position, a.toDouble)
+    }
 
   def setArgument(position: Int, arg: java.sql.Date): Unit =
-    setArgument(position, arg.toLong)
+    withValidation(position, arg) { a =>
+      setArgument(position, a.toLong)
+    }
 
   def setArgument(position: Int, arg: java.sql.Time): Unit =
-    setArgument(position, arg.toLong)
+    withValidation(position, arg) { a =>
+      setArgument(position, a.toLong)
+    }
 
   def setArgument(position: Int, arg: java.sql.Timestamp): Unit =
-    setArgument(position, arg.toLong)
+    withValidation(position, arg) { a =>
+      setArgument(position, a.toLong)
+    }
 
   private[this] def addToHead(position: Int, arg: AnyRef) = {
     argumentsList.head += (position -> arg)
     if (position > maxIndex) maxIndex = position
   }
 
-  private[this] def nonEmptyArgument[T](position: Int, arg: T)(f: T => Unit) = Option(arg) match {
-    case Some(a) => f(a)
-    case None => removeArgument(position)
+  private[this] def setNullArgument(position: Int): Unit = {
+    argumentsList.head.remove(position)
+    if (position > maxIndex) maxIndex = position
+  }
+
+  private[this] def withValidation[T](position: Int, arg: T)(f: T => Unit) = (position, Option(arg)) match {
+    case (p, _) if p <= 0 => throw new SQLException(invalidArgumentIndexErrorMessage(p))
+    case (_, Some(a)) => f(a)
+    case (_, None) => setNullArgument(position)
   }
 
   private[this] def toArray(
     map: mutable.Map[Int, AnyRef],
     maxIndex: Int): scala.Array[AnyRef] =
-    (0 to maxIndex map {
+    (1 to maxIndex map {
       map get _ match {
         case Some(v) => v
         case None => javaNull

@@ -26,10 +26,8 @@ class SQLDroidPreparedStatement(
 
   val maximumSizeErrorMessage = "Byte maximum exceeded"
 
-  val inputStreamNullErrorMessage = "InputStream cannot be null"
+  val invalidLengthErrorMessage = (s: Long) => s"Invalid length: $s"
 
-  val invalidInputStreamLengthErrorMessage = (s: Int) => s"Invalid length: $s"
-  
   val executingSQLErrorMessage = (s: String) => s"Error executing statement $s"
 
   override def executeQuery(sql: String): ResultSet =
@@ -96,21 +94,13 @@ class SQLDroidPreparedStatement(
     setBinaryStream(parameterIndex, x, Integer.MAX_VALUE)
 
   override def setBinaryStream(parameterIndex: Int, x: InputStream, length: Int): Unit =
-    (Option(x), length) match {
-      case (Some(is), l) if l > 0 =>
-        setBytes(parameterIndex, inputStreamToByteArray(is))
-      case (_, l) if length <= 0 =>
-        throw new SQLException(invalidInputStreamLengthErrorMessage(length))
-      case _ =>
-        throw new SQLException(inputStreamNullErrorMessage)
+    ifNonEmptyAndValidLength(parameterIndex, x, length) { (arg, l) =>
+      setBytes(parameterIndex, inputStreamToByteArray(arg, length))
     }
 
   override def setBinaryStream(parameterIndex: Int, x: InputStream, length: Long): Unit =
-    Try(length.toInt) match {
-      case Success(i) =>
-        setBinaryStream(parameterIndex, x, i)
-      case Failure(e) =>
-        throw new SQLException(maximumSizeErrorMessage, e)
+    ifNonEmptyAndValidLength(parameterIndex, x, length) { (arg, l) =>
+      setBytes(parameterIndex, inputStreamToByteArray(arg, l))
     }
 
   override def setBlob(parameterIndex: Int, inputStream: InputStream): Unit =
@@ -120,11 +110,13 @@ class SQLDroidPreparedStatement(
     setBinaryStream(parameterIndex, inputStream, length)
 
   override def setBlob(parameterIndex: Int, x: Blob): Unit =
-    Try(x.length().toInt) match {
-      case Success(i) =>
-        arguments.setArgument(parameterIndex, x.getBytes(1, i))
-      case Failure(e) =>
-        throw new SQLException(maximumSizeErrorMessage, e)
+    ifNonEmpty(parameterIndex, x) { arg =>
+      validateLength(arg.length()) match {
+        case Some(msg) =>
+          throw new SQLException(msg)
+        case None =>
+          arguments.setArgument(parameterIndex, x.getBytes(1, arg.length().toInt))
+      }
     }
 
   override def setBoolean(parameterIndex: Int, x: Boolean): Unit =
@@ -136,23 +128,24 @@ class SQLDroidPreparedStatement(
   override def setBytes(parameterIndex: Int, x: scala.Array[Byte]): Unit =
     arguments.setArgument(parameterIndex, x)
 
-  override def setClob(parameterIndex: Int, reader: Reader): Unit =
-    setString(parameterIndex, readerToString(reader))
+  override def setClob(parameterIndex: Int, x: Reader): Unit =
+    ifNonEmpty(parameterIndex, x) { arg =>
+      setString(parameterIndex, readerToString(arg))
+    }
 
-  override def setClob(parameterIndex: Int, reader: Reader, length: Long): Unit =
-    Try(length.toInt) match {
-      case Success(i) =>
-        setString(parameterIndex, readerToString(reader).substring(1, i))
-      case Failure(e) =>
-        throw new SQLException(maximumSizeErrorMessage, e)
+  override def setClob(parameterIndex: Int, x: Reader, length: Long): Unit =
+    ifNonEmptyAndValidLength(parameterIndex, x, length) { (arg, l) =>
+      setString(parameterIndex, readerToString(arg, l))
     }
 
   override def setClob(parameterIndex: Int, x: Clob): Unit =
-    Try(x.length().toInt) match {
-      case Success(i) =>
-        setString(parameterIndex, x.getSubString(1l, i))
-      case Failure(e) =>
-        throw new SQLException(maximumSizeErrorMessage, e)
+    ifNonEmpty(parameterIndex, x) { arg =>
+      validateLength(arg.length()) match {
+        case Some(msg) =>
+          throw new SQLException(msg)
+        case None =>
+          setString(parameterIndex, x.getSubString(1l, arg.length().toInt))
+      }
     }
 
   override def setDate(parameterIndex: Int, x: Date): Unit =
@@ -174,10 +167,10 @@ class SQLDroidPreparedStatement(
     arguments.setArgument(parameterIndex, x)
 
   override def setNull(parameterIndex: Int, sqlType: Int): Unit =
-    arguments.removeArgument(parameterIndex)
+    arguments.setObjectArgument(parameterIndex, javaNull)
 
   override def setNull(parameterIndex: Int, sqlType: Int, typeName: String): Unit =
-    arguments.removeArgument(parameterIndex)
+    arguments.setObjectArgument(parameterIndex, javaNull)
 
   override def setObject(parameterIndex: Int, x: scala.Any): Unit =
     arguments.setObjectArgument(parameterIndex, x)
@@ -268,4 +261,29 @@ class SQLDroidPreparedStatement(
 
   override def setUnicodeStream(parameterIndex: Int, x: InputStream, length: Int): Unit =
     logWrapper.notImplemented(Unit)
+
+  private[this] def ifNonEmpty[T](parameterIndex: Int, arg: T)(f: T => Unit) =
+    Option(arg) match {
+      case Some(a) => f(a)
+      case None => arguments.setObjectArgument(parameterIndex, javaNull)
+    }
+
+  private[this] def ifNonEmptyAndValidLength[T](parameterIndex: Int, arg: T, length: Long)(f: (T, Int) => Unit) =
+    ifNonEmpty(parameterIndex, arg) { a =>
+      validateLength(length) match {
+        case Some(msg) => throw new SQLException(msg)
+        case _ => f(a, length.toInt)
+      }
+    }
+
+  private[this] def validateLength(length: Long): Option[String] = {
+    length match {
+      case i if i < 0 =>
+        Some(invalidLengthErrorMessage(i))
+      case i if i > Int.MaxValue =>
+        Some(maximumSizeErrorMessage)
+      case _ =>
+        None
+    }
+  }
 }
