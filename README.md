@@ -4,6 +4,4 @@
 
 [![Codacy Badge](https://www.codacy.com/project/badge/3e561d02afd44b8287ab0e84fc66daaf)](https://www.codacy.com/app/47deg/scala-sqlite-droid)
 
-# SQLDroid in Scala
-
-JDBC driver for Android implemented in Scala and based on https://github.com/SQLDroid/SQLDroid
+JDBC SQLite driver implemented in Scala and based on https://github.com/SQLDroid/SQLDroid

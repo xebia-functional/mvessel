@@ -8,7 +8,7 @@ organizationName := "47 Degrees"
 
 organizationHomepage := Some(new URL("http://47deg.com"))
 
-name := "scala-sqlite-droid"
+name := "mvessel"
 
 version := "0.1-SNAPSHOT"
 
@@ -47,5 +47,5 @@ lazy val root = (project in file(".")).
   enablePlugins(BuildInfoPlugin).
   settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "com.fortysevendeg.android.sqlite"
+    buildInfoPackage := "com.fortysevendeg.mvessel"
   )
