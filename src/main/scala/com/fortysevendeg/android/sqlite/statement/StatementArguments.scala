@@ -29,7 +29,7 @@ class PreparedStatementArguments extends StatementArguments {
     argumentsList map (argumentsMap => f(toArray(argumentsMap, maxIndex)))
 
   def addNewEntry(): Unit =
-    argumentsList = NonEmptyList(head = mutable.Map.empty, tail = argumentsList.tail :+ argumentsList.head)
+    argumentsList = NonEmptyList(first = mutable.Map.empty, tail = argumentsList.tail :+ argumentsList.first)
 
   def clearArguments(): Unit = {
     argumentsList = NonEmptyList(mutable.Map.empty)
@@ -44,7 +44,7 @@ class PreparedStatementArguments extends StatementArguments {
     }
   }
 
-  override def toArray: Array[AnyRef] = toArray(argumentsList.head, maxIndex)
+  override def toArray: Array[AnyRef] = toArray(argumentsList.first, maxIndex)
 
   // In android only byte[], String, Long and Double are supported in bindArgs.
 
@@ -116,12 +116,12 @@ class PreparedStatementArguments extends StatementArguments {
     }
 
   private[this] def addToHead(position: Int, arg: AnyRef) = {
-    argumentsList.head += (position -> arg)
+    argumentsList.first += (position -> arg)
     if (position > maxIndex) maxIndex = position
   }
 
   private[this] def setNullArgument(position: Int): Unit = {
-    argumentsList.head.remove(position)
+    argumentsList.first.remove(position)
     if (position > maxIndex) maxIndex = position
   }
 
@@ -143,9 +143,9 @@ class PreparedStatementArguments extends StatementArguments {
 
 }
 
-case class NonEmptyList[+A](head: A, tail: Seq[A] = Seq.empty) {
+case class NonEmptyList[+A](first: A, tail: Seq[A] = Seq.empty) {
 
-  def map[U](f: (A) => U): Seq[U] = tail :+ head map f
+  def map[U](f: (A) => U): Seq[U] = tail :+ first map f
 
 }
 

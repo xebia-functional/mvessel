@@ -78,9 +78,10 @@ class SQLDroidPreparedStatement(
   override def executeBatch(): scala.Array[Int] = withOpenConnection { db =>
     val updateArray = arguments map { array =>
       Try(db.execSQL(sql, array)) match {
+        case Success(_) if isChange(sql) =>
+          db.changedRowCount()
         case Success(_) =>
-          if (isChange(sql)) db.changedRowCount()
-          else Statement.SUCCESS_NO_INFO
+          Statement.SUCCESS_NO_INFO
         case Failure(e) =>
           logWrapper.e(executingSQLErrorMessage(sql), Some(e))
           Statement.EXECUTE_FAILED

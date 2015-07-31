@@ -11,10 +11,7 @@ trait StatementArgumentsSpecification
   extends Specification
   with Mockito {
 
-  trait StatementArgumentsScope
-    extends Scope {
-
-  }
+  trait StatementArgumentsScope extends Scope
 
   trait WithStatementArgument
     extends StatementArgumentsScope {

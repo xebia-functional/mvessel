@@ -40,8 +40,6 @@ trait SQLDroidPreparedStatementSpecification
 
   trait WithoutConnection extends SQLDroidPreparedStatementScope {
 
-    val columnGenerated = None
-
     override val connection = javaNull
 
     val sqlDroid = new SQLDroidPreparedStatement(
