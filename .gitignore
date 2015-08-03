@@ -1,9 +1,6 @@
-/target
-/root/target
-/core/target
-/mock-android/target
+target/
 /.idea
 /.idea_modules
-/project/project
-/project/target
+project/project
+project/target
 /proguard-sbt.txt
