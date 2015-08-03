@@ -19,12 +19,11 @@ object Settings {
   )
 
   lazy val basicSettings = Seq(
-    scalaVersion := "2.11.7",
+    scalaVersion := V.scala,
     resolvers ++= commonResolvers,
     logLevel := Level.Info,
     scalacOptions in Compile ++= Seq("-deprecation", "-unchecked", "-feature"),
-    javacOptions in Compile ++= Seq("-target", "1.7", "-source", "1.7"),
-    javacOptions in Compile += "-deprecation",
+    javacOptions in Compile ++= Seq("-target", V.java, "-source", V.java, "-deprecation"),
     javaOptions in Test ++= Seq("-XX:MaxPermSize=128m", "-Xms512m", "-Xmx512m")
   )
 
@@ -35,14 +34,14 @@ object Settings {
 
   lazy val coreSettings = basicSettings ++ orgSettings ++ Seq(
     name := "mvessel-core",
-    version := "0.1-SNAPSHOT",
+    version := V.project,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fortysevendeg.mvessel",
     fork in Test := true)
 
   lazy val androidSettings = basicSettings ++ orgSettings ++ Seq(
     name := "mvessel-android",
-    version := "0.1-SNAPSHOT",
+    version := V.project,
     fork in Test := true)
 
   lazy val mockAndroidSettings = basicSettings ++ orgSettings
