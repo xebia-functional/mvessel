@@ -2,7 +2,7 @@ package com.fortysevendeg.mvessel.util
 
 object ConnectionStringParser {
 
-  val urlRegex = "jdbc:sqlite:(:?[\\/\\.\\-_A-Za-z0-9]+)(\\?([A-Za-z0-9]+=[A-Za-z0-9]+)((\\&([A-Za-z0-9]+=[A-Za-z0-9]+))*)?)?".r
+  val urlRegex = "jdbc:sqlite:(:?[\\/\\.\\-_A-Za-z0-9]+:?)(\\?([A-Za-z0-9]+=[A-Za-z0-9]+)((\\&([A-Za-z0-9]+=[A-Za-z0-9]+))*)?)?".r
 
   case class ConnectionValues(name: String, params: Map[String, String])
 

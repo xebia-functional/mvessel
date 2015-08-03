@@ -1,4 +1,7 @@
 /target
+/root/target
+/core/target
+/mock-android/target
 /.idea
 /.idea_modules
 /project/project

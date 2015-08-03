@@ -26,6 +26,20 @@ import java.util.Map;
 
 public class SQLiteDatabase extends SQLiteClosable {
 
+    public static final int CONFLICT_ROLLBACK = 1;
+    public static final int CONFLICT_ABORT = 2;
+    public static final int CONFLICT_FAIL = 3;
+    public static final int CONFLICT_IGNORE = 4;
+    public static final int CONFLICT_REPLACE = 5;
+    public static final int CONFLICT_NONE = 0;
+    public static final int SQLITE_MAX_LIKE_PATTERN_LENGTH = 50000;
+    public static final int OPEN_READWRITE = 0;
+    public static final int OPEN_READONLY = 1;
+    public static final int NO_LOCALIZED_COLLATORS = 16;
+    public static final int CREATE_IF_NECESSARY = 268435456;
+    public static final int ENABLE_WRITE_AHEAD_LOGGING = 536870912;
+    public static final int MAX_SQL_CACHE_SIZE = 100;
+
     public enum ConflictAlgorithm {
         ROLLBACK("ROLLBACK"),
         ABORT("ABORT"),

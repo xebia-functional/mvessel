@@ -9,7 +9,7 @@ trait ConnectionStringParserSpecification
 
   val name = "/data/data/com.fortysevendeg.android"
 
-  val memoryName = ":memory"
+  val memoryName = ":memory:"
 
   val oneParamMap = Map("param1" -> "value1")
 

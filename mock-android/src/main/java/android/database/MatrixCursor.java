@@ -16,8 +16,6 @@
 
 package android.database;
 
-import java.util.ArrayList;
-
 /**
  * A mutable cursor implementation backed by an array of {@code Object}s. Use
  * {@link #newRow()} to add rows. Automatically expands internal capacity

@@ -1,8 +1,7 @@
-package com.fortysevendeg.mvessel.integration
+package com.fortysevendeg.mvessel
 
-import java.sql.{Connection, DriverManager, SQLException}
+import java.sql.{Connection => SQLConnection, DriverManager, SQLException}
 
-import com.fortysevendeg.mvessel._
 import com.fortysevendeg.mvessel.metadata.DatabaseMetaData
 import com.fortysevendeg.mvessel.util.CursorUtils._
 import org.specs2.mock.Mockito
@@ -17,9 +16,13 @@ trait DatabaseMetaDataSpecification
 
   sequential
 
-  var connection: Option[Connection] = None
+  var connection: Option[SQLConnection] = None
 
-  def before = connection = Some(DriverManager.getConnection("jdbc:sqlite::memory:"))
+  def before = connection = {
+    // register the driver
+    Class.forName("org.sqlite.JDBC")
+    Some(DriverManager.getConnection("jdbc:sqlite::memory:"))
+  }
 
   def after = {
     connection foreach (_.close())
