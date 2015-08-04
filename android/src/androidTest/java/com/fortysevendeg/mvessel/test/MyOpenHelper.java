@@ -1,4 +1,4 @@
-package com.example.test;
+package com.fortysevendeg.mvessel.test;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
