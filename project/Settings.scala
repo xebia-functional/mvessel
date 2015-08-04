@@ -33,15 +33,10 @@ object Settings {
     organizationHomepage := Some(new URL("http://47deg.com")))
 
   lazy val coreSettings = basicSettings ++ orgSettings ++ Seq(
-    name := "mvessel-core",
+    name := "mvessel",
     version := V.project,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fortysevendeg.mvessel",
-    fork in Test := true)
-
-  lazy val androidSettings = basicSettings ++ orgSettings ++ Seq(
-    name := "mvessel-android",
-    version := V.project,
     fork in Test := true)
 
   lazy val mockAndroidSettings = basicSettings ++ orgSettings
@@ -51,10 +46,6 @@ object Settings {
     specs2Mock % "it,test",
     sqliteJdbc % "it",
     android % "provided")
-
-  lazy val androidLibraries = Seq(
-    specs2Core % "test",
-    specs2Mock % "test")
 
   lazy val mockAndroidLibraries = Seq(
     android % "provided")

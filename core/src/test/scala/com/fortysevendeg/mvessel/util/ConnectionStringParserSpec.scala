@@ -7,7 +7,7 @@ import ConnectionStringParser._
 trait ConnectionStringParserSpecification
   extends Specification {
 
-  val name = "/data/data/com.fortysevendeg.android"
+  val name = "/data/data/es.fedefernandez.android.orm/databases/slick.db"
 
   val memoryName = ":memory:"
 

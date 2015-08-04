@@ -1,6 +1,6 @@
 target/
-/.idea
-/.idea_modules
-project/project
-project/target
+.idea/
+.idea_modules/
+project/project/
+project/target/
 /proguard-sbt.txt

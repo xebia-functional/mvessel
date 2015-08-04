@@ -19,17 +19,19 @@ class Database(
 
   def openDatabase(name: String, flags: Int) = SQLiteDatabase.openDatabase(name, javaNull, flags)
 
-  def rawQuery(sql: String): Cursor = rawQuery(sql, Array.empty)
+  def rawQuery(sql: String): Cursor = rawQuery(sql, javaNull)
 
   def rawQuery(sql: String, selectionArgs: Array[String]): Cursor =
     executeWithRetry(retry, timeout)(database.rawQuery(sql, selectionArgs))
 
-  def execSQL(sql: String): Unit = execSQL(sql, Array.empty)
+  def execSQL(sql: String): Unit = execSQL(sql, javaNull)
 
   def execSQL(sql: String, bindArgs: Array[AnyRef]): Unit =
     executeWithRetry(retry, timeout) {
-      if (bindArgs.isEmpty) database.execSQL(sql)
-      else database.execSQL(sql, bindArgs)
+      Option(bindArgs) match {
+        case Some(array) if !array.isEmpty => database.execSQL(sql, array)
+        case _ => database.execSQL(sql)
+      }
     }
 
   def changedRowCount(): Int = callToChangedRowCount(database) getOrElse 0
@@ -78,10 +80,7 @@ object Database {
    * Added in API level 11
    */
   private[this] val lockedExceptionClass: Option[Class[_]] =
-    Try(Class.forName(
-      "android.database.sqlite.SQLiteDatabaseLockedException",
-      false,
-      getClass.getClassLoader)).toOption
+    Try(Class.forName("android.database.sqlite.SQLiteDatabaseLockedException")).toOption
 
   private[this] def executeWithRetry[T](elapsed: Long, retry: Long, timeout: Long)(f: => T): T =
     Try(f) match {
