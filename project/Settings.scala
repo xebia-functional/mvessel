@@ -39,12 +39,24 @@ object Settings {
     buildInfoPackage := "com.fortysevendeg.mvessel",
     fork in Test := true)
 
+  lazy val utilSettings = basicSettings ++ orgSettings ++ Seq(
+    name := "mvessel-util",
+    version := V.project,
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "com.fortysevendeg.mvessel",
+    fork in Test := true)
+
   lazy val mockAndroidSettings = basicSettings ++ orgSettings
 
   lazy val coreLibraries = Seq(
     specs2Core % "it,test",
     specs2Mock % "it,test",
     sqliteJdbc % "it",
+    android % "provided")
+
+  lazy val utilLibraries = Seq(
+    specs2Core % "test",
+    specs2Mock % "test",
     android % "provided")
 
   lazy val mockAndroidLibraries = Seq(

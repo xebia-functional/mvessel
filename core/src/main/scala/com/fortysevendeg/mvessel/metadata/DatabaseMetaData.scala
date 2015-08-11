@@ -3,10 +3,11 @@ package com.fortysevendeg.mvessel.metadata
 import java.sql.{Connection => SQLConnection, DatabaseMetaData => SQLDatabaseMetadata, ResultSet => SQLResultSet, RowIdLifetime, Types}
 
 import android.database.{MatrixCursor, MergeCursor}
-import com.fortysevendeg.mvessel._
+import com.fortysevendeg.mvessel.{Driver, Connection, WrapperNotSupported, _}
 import com.fortysevendeg.mvessel.metadata.DatabaseMetaData._
 import com.fortysevendeg.mvessel.resultset.ResultSet
-import com.fortysevendeg.mvessel.util.CursorUtils._
+import com.fortysevendeg.mvessel.util.StructureControlOps._
+import com.fortysevendeg.mvessel.util.DatabaseUtils._
 
 import scala.util.{Failure, Success, Try}
 

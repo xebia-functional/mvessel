@@ -4,9 +4,8 @@ import java.sql.{ResultSetMetaData => SQLResultSetMetaData, Types}
 
 import android.database.Cursor
 import com.fortysevendeg.mvessel.logging.{AndroidLogWrapper, LogWrapper}
-import com.fortysevendeg.mvessel.util.CursorUtils
-import CursorUtils._
 import com.fortysevendeg.mvessel.WrapperNotSupported
+import com.fortysevendeg.mvessel.util.ReflectionOps._
 
 class ResultSetMetaData(
   cursor: Cursor,
@@ -33,7 +32,7 @@ class ResultSetMetaData(
       case (None, _) =>
         Types.NULL
       case (Some(c), maybeInt) =>
-        val nativeType = cursor.getTypeSafe(column - 1)
+        val nativeType = getTypeSafe(cursor, column - 1)
         maybeInt map cursor.moveToPosition
         fromNativeType(nativeType)
     }

@@ -6,7 +6,9 @@ import java.util.logging.Logger
 
 import com.fortysevendeg.mvessel.Connection._
 import com.fortysevendeg.mvessel.Driver._
-import com.fortysevendeg.mvessel.util.ConnectionStringParser._
+import com.fortysevendeg.mvessel.util.ConnectionStringParser
+import ConnectionStringParser._
+import com.fortysevendeg.mvessel.util.DatabaseUtils.WrapSQLException
 
 import scala.util.{Failure, Try}
 
@@ -27,15 +29,12 @@ class Driver extends SQLDriver {
     throw new SQLFeatureNotSupportedException
 
   override def connect(connectionUrl: String, properties: Properties): Connection =
-    parseConnectionString(connectionUrl) match {
-      case Some(values) =>
-        new Connection(
-          databaseName = values.name,
-          timeout = readTimeOut(values.params) getOrElse defaultTimeout,
-          retryInterval = readRetry(values.params) getOrElse defaultRetryInterval,
-          flags = readFlags(properties))
-      case _ =>
-        throw new SQLException(s"Can't parse $connectionUrl")
+    WrapSQLException(parseConnectionString(connectionUrl), s"Can't parse $connectionUrl") { values =>
+      new Connection(
+        databaseName = values.name,
+        timeout = readTimeOut(values.params) getOrElse defaultTimeout,
+        retryInterval = readRetry(values.params) getOrElse defaultRetryInterval,
+        flags = readFlags(properties))
     }
 
   private[this] def readTimeOut(params: Map[String, String]): Option[Long] =

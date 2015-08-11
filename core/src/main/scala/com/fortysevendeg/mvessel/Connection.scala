@@ -7,8 +7,7 @@ import java.util.concurrent.Executor
 import com.fortysevendeg.mvessel.logging.{AndroidLogWrapper, LogWrapper}
 import com.fortysevendeg.mvessel.metadata.DatabaseMetaData
 import com.fortysevendeg.mvessel.statement.{PreparedStatement, Statement}
-
-import scala.util.{Failure, Success, Try}
+import com.fortysevendeg.mvessel.util.DatabaseUtils._
 
 class Connection(
   databaseName: String,
@@ -115,15 +114,7 @@ class Connection(
     super.finalize()
   }
 
-  def withOpenDatabase[T](f: (Database) => T) = sqliteDatabase match {
-    case Some(db) =>
-      Try(f(db)) match {
-        case Success(r) => r
-        case Failure(e) => throw new SQLException(e)
-      }
-    case None =>
-      throw new SQLException(alreadyClosedErrorMessage)
-  }
+  def withOpenDatabase[T](f: (Database) => T) = WrapSQLException(sqliteDatabase, alreadyClosedErrorMessage)(f)
 
   override def clearWarnings(): Unit = logWrapper.notImplemented(Unit)
 

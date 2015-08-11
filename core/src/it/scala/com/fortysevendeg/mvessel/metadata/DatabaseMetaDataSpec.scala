@@ -3,8 +3,8 @@ package com.fortysevendeg.mvessel.metadata
 import java.sql.SQLException
 
 import com.fortysevendeg.mvessel._
-import com.fortysevendeg.mvessel.util.CursorUtils._
 import org.specs2.specification.Scope
+import com.fortysevendeg.mvessel.util.StructureControlOps._
 
 trait DatabaseMetaDataSpecification
   extends DatabaseSupport {
