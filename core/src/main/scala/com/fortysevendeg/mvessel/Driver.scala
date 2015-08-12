@@ -71,7 +71,7 @@ class Driver
 
 object Driver {
 
-  def registerDriver() =
+  def register() =
     Try(java.sql.DriverManager.registerDriver(new Driver)) match {
       case Failure(e) => throw new SQLException(e)
       case _ =>
