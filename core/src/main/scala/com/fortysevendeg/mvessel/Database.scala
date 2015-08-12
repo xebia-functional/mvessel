@@ -1,11 +1,11 @@
 package com.fortysevendeg.mvessel
 
 import java.io.Closeable
-import java.lang.reflect.Method
 
 import android.database.sqlite.SQLiteDatabase
 import android.database.{Cursor, SQLException}
 import Database._
+import com.fortysevendeg.mvessel.util.ReflectionOps._
 
 import scala.util.{Failure, Success, Try}
 
@@ -73,14 +73,7 @@ object Database {
   def executeWithRetry[T](retry: Long, timeout: Long)(f: => T): T =
     executeWithRetry(0, retry, timeout)(f)
 
-  def callToChangedRowCount(database: SQLiteDatabase): Option[Int] =
-    changedRowCountMethod map (_.invoke(database).asInstanceOf[Int])
-
-  /**
-   * Added in API level 11
-   */
-  private[this] val lockedExceptionClass: Option[Class[_]] =
-    Try(Class.forName("android.database.sqlite.SQLiteDatabaseLockedException")).toOption
+  def callToChangedRowCount(database: SQLiteDatabase): Option[Int] = lastChangeCount(database)
 
   private[this] def executeWithRetry[T](elapsed: Long, retry: Long, timeout: Long)(f: => T): T =
     Try(f) match {
@@ -89,17 +82,6 @@ object Database {
         Thread.sleep(retry)
         executeWithRetry(elapsed + retry, retry, timeout)(f)
       case Failure(e) => throw e
-    }
-
-  /**
-   * The count of changed rows on Android it's a call to a package-private method
-   */
-  private[this] val changedRowCountMethod: Option[Method] =
-    Try(classOf[SQLiteDatabase].getDeclaredMethod("lastChangeCount")) match {
-      case Success(m) =>
-        m.setAccessible(true)
-        Some(m)
-      case _ => None
     }
 
 }

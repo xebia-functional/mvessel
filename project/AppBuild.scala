@@ -6,7 +6,8 @@ import Settings._
 object AppBuild extends Build {
 
   lazy val root = (project in file("."))
-    .aggregate(core)
+    .settings(basicSettings: _*)
+    .aggregate(core, util)
 
   lazy val core = (project in file("core"))
     .enablePlugins(BuildInfoPlugin)
@@ -14,7 +15,14 @@ object AppBuild extends Build {
     .settings(coreSettings: _*)
     .settings(Defaults.itSettings : _*)
     .settings(libraryDependencies ++= coreLibraries)
-    .dependsOn(mockAndroid % "test->test;it->test")
+    .dependsOn(
+      util,
+      mockAndroid % "test->test;it->test")
+
+  lazy val util = (project in file("util"))
+    .settings(utilSettings: _*)
+    .settings(libraryDependencies ++= utilLibraries)
+    .dependsOn(mockAndroid % "test->test")
 
   lazy val mockAndroid = (project in file("mock-android"))
     .settings(mockAndroidSettings: _*)

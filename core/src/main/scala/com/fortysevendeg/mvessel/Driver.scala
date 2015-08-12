@@ -6,11 +6,14 @@ import java.util.logging.Logger
 
 import com.fortysevendeg.mvessel.Connection._
 import com.fortysevendeg.mvessel.Driver._
-import com.fortysevendeg.mvessel.util.ConnectionStringParser._
+import com.fortysevendeg.mvessel.util.ConnectionStringParser
+import com.fortysevendeg.mvessel.util.DatabaseUtils.WrapSQLException
 
 import scala.util.{Failure, Try}
 
-class Driver extends SQLDriver {
+class Driver
+  extends SQLDriver
+  with ConnectionStringParser {
 
   override def acceptsURL(url: String): Boolean =
     Option(url) exists (_.startsWith(sqlitePrefix))
@@ -27,15 +30,12 @@ class Driver extends SQLDriver {
     throw new SQLFeatureNotSupportedException
 
   override def connect(connectionUrl: String, properties: Properties): Connection =
-    parseConnectionString(connectionUrl) match {
-      case Some(values) =>
-        new Connection(
-          databaseName = values.name,
-          timeout = readTimeOut(values.params) getOrElse defaultTimeout,
-          retryInterval = readRetry(values.params) getOrElse defaultRetryInterval,
-          flags = readFlags(properties))
-      case _ =>
-        throw new SQLException(s"Can't parse $connectionUrl")
+    WrapSQLException(parseConnectionString(connectionUrl), s"Can't parse $connectionUrl") { values =>
+      new Connection(
+        databaseName = values.name,
+        timeout = readTimeOut(values.params) getOrElse defaultTimeout,
+        retryInterval = readRetry(values.params) getOrElse defaultRetryInterval,
+        flags = readFlags(properties))
     }
 
   private[this] def readTimeOut(params: Map[String, String]): Option[Long] =
@@ -71,12 +71,11 @@ class Driver extends SQLDriver {
 
 object Driver {
 
-  Try {
-    java.sql.DriverManager.registerDriver(new Driver)
-  } match {
-    case Failure(e) => e.printStackTrace()
-    case _ =>
-  }
+  def register() =
+    Try(java.sql.DriverManager.registerDriver(new Driver)) match {
+      case Failure(e) => throw new SQLException(e)
+      case _ =>
+    }
 
   val driverName = BuildInfo.name
 

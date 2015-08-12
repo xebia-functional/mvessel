@@ -58,7 +58,7 @@ class AndroidLogWrapper(
 
 object Printer {
 
-  private[this] val basePackage = "com.fortysevendeg.android.sqlite"
+  private[this] val basePackage = "com.fortysevendeg.mvessel"
 
   def stackTraces: Seq[StackTraceElement] = Thread.currentThread.getStackTrace
 
