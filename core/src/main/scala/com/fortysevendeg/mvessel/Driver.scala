@@ -7,12 +7,11 @@ import java.util.logging.Logger
 import com.fortysevendeg.mvessel.Connection._
 import com.fortysevendeg.mvessel.Driver._
 import com.fortysevendeg.mvessel.util.ConnectionStringParser
-import ConnectionStringParser._
 import com.fortysevendeg.mvessel.util.DatabaseUtils.WrapSQLException
 
 import scala.util.{Failure, Try}
 
-class Driver extends SQLDriver {
+class Driver extends SQLDriver with ConnectionStringParser {
 
   override def acceptsURL(url: String): Boolean =
     Option(url) exists (_.startsWith(sqlitePrefix))
@@ -70,12 +69,11 @@ class Driver extends SQLDriver {
 
 object Driver {
 
-  Try {
-    java.sql.DriverManager.registerDriver(new Driver)
-  } match {
-    case Failure(e) => e.printStackTrace()
-    case _ =>
-  }
+  def registerDriver() =
+    Try(java.sql.DriverManager.registerDriver(new Driver)) match {
+      case Failure(e) => throw new SQLException(e)
+      case _ =>
+    }
 
   val driverName = BuildInfo.name
 

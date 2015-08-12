@@ -10,10 +10,10 @@ import com.fortysevendeg.mvessel.statement.{PreparedStatement, Statement}
 import com.fortysevendeg.mvessel.util.DatabaseUtils._
 
 class Connection(
-  databaseName: String,
-  timeout: Long = 0,
-  retryInterval: Int = 50,
-  flags: Int = 0,
+  val databaseName: String,
+  val timeout: Long = 0,
+  val retryInterval: Int = 50,
+  val flags: Int = 0,
   val logWrapper: LogWrapper = new AndroidLogWrapper())
   extends SQLConnection
   with WrapperNotSupported {

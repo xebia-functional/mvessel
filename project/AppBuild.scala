@@ -6,6 +6,7 @@ import Settings._
 object AppBuild extends Build {
 
   lazy val root = (project in file("."))
+    .settings(basicSettings: _*)
     .aggregate(core, util)
 
   lazy val core = (project in file("core"))
