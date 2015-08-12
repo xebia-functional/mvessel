@@ -22,6 +22,7 @@ object AppBuild extends Build {
   lazy val util = (project in file("util"))
     .settings(utilSettings: _*)
     .settings(libraryDependencies ++= utilLibraries)
+    .dependsOn(mockAndroid % "test->test")
 
   lazy val mockAndroid = (project in file("mock-android"))
     .settings(mockAndroidSettings: _*)
