@@ -11,7 +11,9 @@ import com.fortysevendeg.mvessel.util.DatabaseUtils.WrapSQLException
 
 import scala.util.{Failure, Try}
 
-class Driver extends SQLDriver with ConnectionStringParser {
+class Driver
+  extends SQLDriver
+  with ConnectionStringParser {
 
   override def acceptsURL(url: String): Boolean =
     Option(url) exists (_.startsWith(sqlitePrefix))

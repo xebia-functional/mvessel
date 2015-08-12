@@ -12,6 +12,10 @@ trait DriverSpecification
 
   val name = "database.db"
 
+  val minorVersion = 0
+
+  val majorVersion = 1
+
   val validUrl = s"jdbc:sqlite:$name"
 
   val invalidPrefixUrl = s"jdbc:oracle:$name"
@@ -85,16 +89,16 @@ class DriverSpec
 
   "getMinorVersion" should {
 
-    "return 0" in new WithConnectionValues {
-      driver.getMinorVersion shouldEqual 0
+    "return minorVersion" in new WithConnectionValues {
+      driver.getMinorVersion shouldEqual minorVersion
     }
 
   }
 
   "getMajorVersion" should {
 
-    "return 1" in new WithConnectionValues {
-      driver.getMajorVersion shouldEqual 1
+    "return majorVersion" in new WithConnectionValues {
+      driver.getMajorVersion shouldEqual majorVersion
     }
 
   }
