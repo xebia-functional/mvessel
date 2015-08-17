@@ -10,9 +10,6 @@ instrumentTestRunner in Android :=
   "android.support.test.runner.AndroidJUnitRunner"
 
 libraryDependencies ++= Seq(
-  "com.android.support" % "support-v4" % "21.0.2",
-  "com.android.support" % "support-v13" % "21.0.2",
-  "com.android.support" % "cardview-v7" % "21.0.2",
   "com.android.support.test" % "runner" % "0.2",
   "com.android.support.test.espresso" % "espresso-core" % "2.1")
 
