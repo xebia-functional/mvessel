@@ -1,9 +1,5 @@
 package com.fortysevendeg.mvessel.util
 
-import java.sql.ResultSet
-
-import android.database.Cursor
-
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
@@ -14,25 +10,6 @@ trait StructureControlProcessor[T] {
 }
 
 object StructureControlProcessor {
-
-  implicit def `Cursor processor` = new StructureControlProcessor[Cursor] {
-
-    def move(cursor: Cursor): Boolean = cursor.moveToNext()
-
-    def close(cursor: Cursor): Unit = Try(cursor.close())
-
-    def isClosed(cursor: Cursor): Boolean = cursor.isClosed
-  }
-
-  implicit def `ResultSet processor` = new StructureControlProcessor[ResultSet] {
-
-    def move(resultSet: ResultSet): Boolean = resultSet.next()
-
-    def close(resultSet: ResultSet): Unit = Try(resultSet.close())
-
-    def isClosed(resultSet: ResultSet): Boolean = resultSet.isClosed
-
-  }
 
   def processStructureControl[T, C](c: C)(process: C => T, until: Option[Int] = None)(implicit processor: StructureControlProcessor[C]) = {
 

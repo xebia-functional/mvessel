@@ -6,10 +6,10 @@ import java.net.URL
 import java.sql.{PreparedStatement => SQLPreparedStatement, ResultSet => SQLResultSet, Statement => SQLStatement, _}
 import java.util.Calendar
 
-import com.fortysevendeg.mvessel.logging.{AndroidLogWrapper, LogWrapper}
+import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.statement.StatementInfo._
-import com.fortysevendeg.mvessel.util.StreamUtils._
 import com.fortysevendeg.mvessel.{Connection, javaNull}
+import com.fortysevendeg.mvessel.util.StreamUtils._
 
 import scala.util.{Failure, Success, Try}
 
@@ -18,7 +18,7 @@ class PreparedStatement(
   connection: Connection,
   val columnGenerated: Option[String] = None,
   arguments: PreparedStatementArguments = new PreparedStatementArguments,
-  logWrapper: LogWrapper = new AndroidLogWrapper())
+  logWrapper: LogWrapper)
   extends Statement(connection, columnGenerated, logWrapper)
   with SQLPreparedStatement {
 

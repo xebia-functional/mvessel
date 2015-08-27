@@ -1,9 +1,9 @@
 package com.fortysevendeg.mvessel.statement
 
-import java.sql.{SQLException, SQLWarning, Statement => SQLStatement, ResultSet => SQLResultSet}
+import java.sql.{ResultSet => SQLResultSet, SQLException, SQLWarning, Statement => SQLStatement}
 
-import android.database.Cursor
-import com.fortysevendeg.mvessel.logging.{AndroidLogWrapper, LogWrapper}
+import com.fortysevendeg.mvessel.api.CursorProxy
+import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.resultset.ResultSet
 import com.fortysevendeg.mvessel.statement.StatementInfo._
 import com.fortysevendeg.mvessel.{Connection, Database, WrapperNotSupported, javaNull}
@@ -14,7 +14,7 @@ import scala.util.{Failure, Success, Try}
 class Statement(
   sqlConnection: Connection,
   columnGenerated: Option[String] = None,
-  logWrapper: LogWrapper = new AndroidLogWrapper())
+  logWrapper: LogWrapper)
   extends SQLStatement
   with WrapperNotSupported {
 
@@ -58,7 +58,7 @@ class Statement(
       case true =>
         updateCount = None
         val limitedSql = maxRows map (m => toLimitedSql(sql, m)) getOrElse sql
-        Some(new ResultSet(rawQuery(db, limitedSql, arguments)))
+        Some(new ResultSet(rawQuery(db, limitedSql, arguments), logWrapper))
       case false =>
         execSQL(db, sql, arguments)
         updateCount = Option(db.changedRowCount())
@@ -207,7 +207,7 @@ class Statement(
     db: Database,
     sql: String,
     arguments: Option[StatementArguments] = None): SQLResultSet = {
-    val rs = new ResultSet(rawQuery(db, sql, arguments))
+    val rs = new ResultSet(rawQuery(db, sql, arguments), logWrapper)
     resultSet = Some(rs)
     rs
   }
@@ -215,7 +215,7 @@ class Statement(
   private[this] def rawQuery(
     db: Database,
     sql: String,
-    arguments: Option[StatementArguments] = None): Cursor =
+    arguments: Option[StatementArguments] = None): CursorProxy =
     arguments match {
       case Some(a) => db.rawQuery(sql, a.toStringArray)
       case _ => db.rawQuery(sql)

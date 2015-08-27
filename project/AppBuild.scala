@@ -7,17 +7,21 @@ object AppBuild extends Build {
 
   lazy val root = (project in file("."))
     .settings(basicSettings: _*)
-    .aggregate(core, util)
+    .aggregate(androidDriver, core, util)
+
+  lazy val androidDriver = (project in file("android-driver"))
+    .enablePlugins(BuildInfoPlugin)
+    .configs(IntegrationTest)
+    .settings(androidDriverSettings: _*)
+    .settings(Defaults.itSettings : _*)
+    .settings(libraryDependencies ++= androidDriverLibraries)
+    .dependsOn(core, util, mockAndroid % "test->test;it->test")
 
   lazy val core = (project in file("core"))
     .enablePlugins(BuildInfoPlugin)
-    .configs(IntegrationTest)
     .settings(coreSettings: _*)
-    .settings(Defaults.itSettings : _*)
     .settings(libraryDependencies ++= coreLibraries)
-    .dependsOn(
-      util,
-      mockAndroid % "test->test;it->test")
+    .dependsOn(util)
 
   lazy val util = (project in file("util"))
     .settings(utilSettings: _*)

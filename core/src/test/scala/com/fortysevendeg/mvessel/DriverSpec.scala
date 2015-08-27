@@ -1,14 +1,16 @@
 package com.fortysevendeg.mvessel
 
-import java.sql.{SQLException, SQLFeatureNotSupportedException}
+import java.sql.SQLFeatureNotSupportedException
 import java.util.Properties
 
 import com.fortysevendeg.mvessel.util.ConnectionValues
 import org.specs2.matcher.Scope
+import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 
 trait DriverSpecification
-  extends Specification {
+  extends Specification
+  with Mockito {
 
   val name = "database.db"
 
@@ -34,18 +36,22 @@ trait DriverSpecification
 
     val connectionValues = ConnectionValues(name, Map("timeout" -> timeout.toString, "retry" -> retry.toString))
 
-    val driver = new Driver {
+    val driver = new BaseDriver {
 
       override def parseConnectionString(connectionString: String): Option[ConnectionValues] = Some(connectionValues)
+
+      override def connect(url: String, properties: Properties): Connection = mock[Connection]
     }
 
   }
 
   trait WithoutConnectionValues extends DriverScope {
 
-    val driver = new Driver {
+    val driver = new BaseDriver {
 
       override def parseConnectionString(connectionString: String): Option[ConnectionValues] = None
+
+      override def connect(url: String, properties: Properties): Connection = mock[Connection]
     }
 
   }
@@ -109,24 +115,6 @@ class DriverSpec
       driver.getParentLogger must throwA[SQLFeatureNotSupportedException]
     }
 
-  }
-
-  "connect" should {
-
-    "create a Connection with the params obtained by the ConnectionStringParser" in
-      new WithConnectionValues {
-        driver.connect(validUrl, properties) must beLike {
-          case c: Connection =>
-            c.databaseName shouldEqual name
-            c.timeout shouldEqual timeout
-            c.retryInterval shouldEqual retry
-        }
-      }
-
-    "throws a SQLException when the URL can't be parsed" in
-      new WithoutConnectionValues {
-        driver.connect(validUrl, properties) must throwA[SQLException]
-      }
   }
 
 }

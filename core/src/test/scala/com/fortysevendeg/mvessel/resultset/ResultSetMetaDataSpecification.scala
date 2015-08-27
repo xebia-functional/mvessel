@@ -1,7 +1,8 @@
 package com.fortysevendeg.mvessel.resultset
 
-import android.database.{Cursor, MatrixCursor}
 import com.fortysevendeg.mvessel.TestLogWrapper
+import com.fortysevendeg.mvessel.api.CursorProxy
+import com.fortysevendeg.mvessel.api.impl.CursorSeq
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
@@ -15,33 +16,38 @@ trait ResultSetMetaDataSpecification
   trait WithCursorMocked
     extends Scope {
 
-    val cursor = mock[Cursor]
+    val cursor = mock[CursorProxy]
 
     val resultSetMetaData = new ResultSetMetaData(cursor, new TestLogWrapper)
 
   }
 
-  trait WithMatrixCursor
+  trait WithEmptyCursor
     extends Scope {
 
     val columnNames = Array("column1", "column2", "column3")
 
-    val cursor = new MatrixCursor(columnNames)
+    val cursor = new CursorSeq(columnNames, Seq.empty)
 
     val resultSetMetaData = new ResultSetMetaData(cursor, new TestLogWrapper)
 
   }
 
-  trait WithData {
+  trait WithCursorData
+    extends Scope {
 
-    self: WithMatrixCursor =>
-
-    1 to 10 foreach { _ =>
-      cursor.addRow(Array[AnyRef](
+    val rows = 1 to 10 map { _ =>
+      Seq[Any](
         Random.nextString(10),
-        new java.lang.Integer(Random.nextInt(10)),
-        new java.lang.Float(Random.nextFloat())))
+        Random.nextInt(10),
+        Random.nextFloat())
     }
+
+    val columnNames = Array("column1", "column2", "column3")
+
+    val cursor = new CursorSeq(columnNames, rows)
+
+    val resultSetMetaData = new ResultSetMetaData(cursor, new TestLogWrapper)
 
   }
 

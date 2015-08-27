@@ -2,8 +2,8 @@ package com.fortysevendeg.mvessel.metadata
 
 import java.sql.{Connection => SQLConnection, DatabaseMetaData => SQLDatabaseMetaData, ResultSet}
 
-import android.database.sqlite.SQLiteDatabase
-import com.fortysevendeg.mvessel.{Driver, Connection, Database}
+import com.fortysevendeg.mvessel.api.{DatabaseProxyFactory, DatabaseProxy}
+import com.fortysevendeg.mvessel.{TestLogWrapper, Connection, Database}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
@@ -19,7 +19,7 @@ trait DatabaseMetaDataSpecification
 
     val connection = mock[Connection]
 
-    val databaseMetaData = new DatabaseMetaData(connection)
+    val databaseMetaData = new DatabaseMetaData(connection, new TestLogWrapper)
 
   }
 
@@ -28,21 +28,32 @@ trait DatabaseMetaDataSpecification
 
     val dbVersion = Random.nextInt(10) + 1
 
-    val connection = mock[Connection]
+    val driverName = "driver-name"
+
+    val driverVersion = "driver-version"
 
     val database = mock[Database]
 
-    val sqlLiteDatabase = mock[SQLiteDatabase]
+    val databaseProxy = mock[DatabaseProxy]
 
-    sqlLiteDatabase.getVersion returns dbVersion
+    val databaseProxyFactory = mock[DatabaseProxyFactory]
 
-    database.database returns sqlLiteDatabase
+    databaseProxyFactory.openDatabase(any, any) returns databaseProxy
 
-    val f = (db : Database) => db.database.getVersion
+    databaseProxy.getVersion returns dbVersion
 
-    connection.withOpenDatabase(f) returns dbVersion
+    databaseProxy.getDriverName returns driverName
 
-    val databaseMetaData = new DatabaseMetaData(connection)
+    databaseProxy.getDriverVersion returns driverVersion
+
+    database.database returns databaseProxy
+
+    val connection = new Connection(
+      databaseWrapperFactory = databaseProxyFactory,
+      databaseName = "",
+      logWrapper = new TestLogWrapper)
+
+    val databaseMetaData = new DatabaseMetaData(connection, new TestLogWrapper)
 
   }
 
@@ -134,14 +145,14 @@ class DatabaseMetaDataUnitSpec
   }
 
   "getDriverName" should {
-    "return " in new WithMockedSQLConnection {
-      databaseMetaData.getDriverName shouldEqual Driver.driverName
+    "return " in new WithMockedConnection {
+      databaseMetaData.getDriverName shouldEqual driverName
     }
   }
 
   "getDriverVersion" should {
-    "return " in new WithMockedSQLConnection {
-      databaseMetaData.getDriverVersion shouldEqual Driver.driverVersion
+    "return " in new WithMockedConnection {
+      databaseMetaData.getDriverVersion shouldEqual driverVersion
     }
   }
 

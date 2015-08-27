@@ -4,9 +4,8 @@ import java.io.{ByteArrayInputStream, InputStream, Reader, StringReader}
 import java.sql.{Blob, Clob, NClob, ResultSet => SQLResultSet, SQLException}
 import java.util.Calendar
 
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import com.fortysevendeg.mvessel._
+import com.fortysevendeg.mvessel.api.{CursorProxy, DatabaseProxyFactory, DatabaseProxy}
 import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.resultset.ResultSet
 import org.specs2.mock.Mockito
@@ -23,17 +22,22 @@ trait PreparedStatementSpecification
 
   trait PreparedStatementScope extends Scope {
 
-    val database = mock[Database]
+    val databaseName = "databaseName"
 
-    val sqliteDatabase = mock[SQLiteDatabase]
+    val logWrapper = new TestLogWrapper
 
-    database.database returns sqliteDatabase
+    val databaseProxy = mock[DatabaseProxy]
 
-    sqliteDatabase.isOpen returns true
+    val databaseProxyFactory = mock[DatabaseProxyFactory]
 
-    val connection: Connection = new Connection(databaseName = "databaseName", logWrapper = new TestLogWrapper) {
-      override protected def createDatabase(): Option[Database] = Some(database)
-    }
+    databaseProxyFactory.openDatabase(any, any) returns databaseProxy
+
+    databaseProxy.isOpen returns true
+
+    val connection: Connection = new Connection(
+      databaseWrapperFactory = databaseProxyFactory,
+      databaseName = databaseName,
+      logWrapper = logWrapper)
 
     val arguments = mock[PreparedStatementArguments]
   }
@@ -130,15 +134,15 @@ class PreparedStatementSpec
     }
 
     "return true with a select query and -1" in new WithConnectionAndSelect {
-      val cursor = mock[Cursor]
-      database.rawQuery(any, any) returns cursor
+      val cursor = mock[CursorProxy]
+      databaseProxy.rawQuery(any, any) returns cursor
       preparedStatement.execute() must beTrue
       preparedStatement.getUpdateCount shouldEqual -1
     }
 
     "return false with a select query and the result of changedRowCount in database" in new WithConnection {
       val changedRowCount = 10
-      database.changedRowCount() returns changedRowCount
+      databaseProxy.changedRowCount returns Some(changedRowCount)
       preparedStatement.execute() must beFalse
       preparedStatement.getUpdateCount shouldEqual changedRowCount
     }
@@ -152,8 +156,8 @@ class PreparedStatementSpec
     }
 
     "return a ResultSet with the Cursor returned by the database" in new WithConnectionAndSelect {
-      val cursor = mock[Cursor]
-      database.rawQuery(any, any) returns cursor
+      val cursor = mock[CursorProxy]
+      databaseProxy.rawQuery(any, any) returns cursor
       val rs = preparedStatement.executeQuery()
       rs must beLike[SQLResultSet] {
         case st: ResultSet => st.cursor shouldEqual cursor
@@ -182,7 +186,7 @@ class PreparedStatementSpec
 
     "return in both methods the result of changedRowCount in database" in new WithConnection {
       val changedRowCount = 10
-      database.changedRowCount() returns changedRowCount
+      databaseProxy.changedRowCount returns Some(changedRowCount)
       preparedStatement.executeUpdate() shouldEqual changedRowCount
     }
 
@@ -190,22 +194,23 @@ class PreparedStatementSpec
 
   "executeBatch" should {
 
-    "return an array with one element when the batch is first initailized" in new WithConnectionAndArgument {
+    "return an array with one element when the batch is first initialized" in new WithConnectionAndArgument {
+      databaseProxy.changedRowCount returns Some(0)
       preparedStatement.executeBatch() shouldEqual scala.Array(0)
     }
 
     "return an array with the results of changedRowCount and the sum when the bacth has elements" in new WithConnectionAndArgument {
       val batch = Seq(insertSql, insertSql, insertSql)
-      val changedRowCounts = Seq(20, 30, 40)
+      val changedRowCounts = Seq(Some(20), Some(30), Some(40))
 
-      database.changedRowCount() returns(
+      databaseProxy.changedRowCount returns(
         changedRowCounts.head,
         changedRowCounts.slice(1, changedRowCounts.size): _*)
 
       arguments.addNewEntry()
       arguments.addNewEntry()
 
-      preparedStatement.executeBatch() shouldEqual changedRowCounts.toArray
+      preparedStatement.executeBatch() shouldEqual changedRowCounts.map(_.get).toArray
     }
 
     "throws a SQLException when the connection is close" in new WithoutConnection {

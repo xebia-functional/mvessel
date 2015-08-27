@@ -2,14 +2,13 @@ package com.fortysevendeg.mvessel.resultset
 
 import java.sql.{ResultSetMetaData => SQLResultSetMetaData, Types}
 
-import android.database.Cursor
-import com.fortysevendeg.mvessel.logging.{AndroidLogWrapper, LogWrapper}
 import com.fortysevendeg.mvessel.WrapperNotSupported
-import com.fortysevendeg.mvessel.util.ReflectionOps._
+import com.fortysevendeg.mvessel.api.{CursorType, CursorProxy}
+import com.fortysevendeg.mvessel.logging.LogWrapper
 
 class ResultSetMetaData(
-  cursor: Cursor,
-  log: LogWrapper = new AndroidLogWrapper)
+  cursor: CursorProxy,
+  log: LogWrapper)
   extends SQLResultSetMetaData
   with WrapperNotSupported {
 
@@ -32,9 +31,9 @@ class ResultSetMetaData(
       case (None, _) =>
         Types.NULL
       case (Some(c), maybeInt) =>
-        val nativeType = getTypeSafe(cursor, column - 1)
+        val nativeType = cursor.getType(column - 1)
         maybeInt map cursor.moveToPosition
-        fromNativeType(nativeType)
+        fromWrapperType(nativeType)
     }
 
   override def getColumnTypeName(column: Int): String =
@@ -73,7 +72,7 @@ class ResultSetMetaData(
   override def isAutoIncrement(column: Int): Boolean =
     throw new UnsupportedOperationException
 
-  private[this] def prepareCursor: (Option[Cursor], Option[Int]) =
+  private[this] def prepareCursor: (Option[CursorProxy], Option[Int]) =
     (cursor.getCount, cursor.isBeforeFirst || cursor.isAfterLast) match {
       case (0, _) =>
         (None, None)
@@ -85,17 +84,17 @@ class ResultSetMetaData(
         (Some(cursor), None)
     }
 
-  private[this] def fromNativeType(nativeType: Int): Int =
-    nativeType match {
-      case Cursor.FIELD_TYPE_NULL => Types.NULL
-      case Cursor.FIELD_TYPE_INTEGER => Types.INTEGER
-      case Cursor.FIELD_TYPE_FLOAT => Types.FLOAT
-      case Cursor.FIELD_TYPE_STRING => Types.VARCHAR
-      case Cursor.FIELD_TYPE_BLOB => Types.BLOB
+  private[this] def fromWrapperType(cursorType: CursorType.Value): Int =
+    cursorType match {
+      case CursorType.Null => Types.NULL
+      case CursorType.Integer => Types.INTEGER
+      case CursorType.Float => Types.FLOAT
+      case CursorType.String => Types.VARCHAR
+      case CursorType.Blob => Types.BLOB
       case _ => Types.NULL
     }
 
-  private[this] def  typeName(t: Int): String =
+  private[this] def typeName(t: Int): String =
     t match {
       case Types.NULL => "NULL"
       case Types.INTEGER => "INTEGER"

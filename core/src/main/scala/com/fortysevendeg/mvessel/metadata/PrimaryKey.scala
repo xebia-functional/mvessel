@@ -3,7 +3,7 @@ package com.fortysevendeg.mvessel.metadata
 import java.sql.{Connection, ResultSet, SQLException, Statement}
 
 import com.fortysevendeg.mvessel._
-import com.fortysevendeg.mvessel.util.StructureControlOps._
+import com.fortysevendeg.mvessel.util.ResultSetProcessorOps._
 import com.fortysevendeg.mvessel.util.DatabaseUtils._
 
 class PrimaryKey(val name: Option[String], val columns: Seq[String])

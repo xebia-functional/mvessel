@@ -3,8 +3,9 @@ package com.fortysevendeg.mvessel.resultset
 import java.io.{BufferedReader, Reader, InputStream}
 import java.util.Date
 
-import android.database.{Cursor, MatrixCursor}
 import com.fortysevendeg.mvessel._
+import com.fortysevendeg.mvessel.api.CursorProxy
+import com.fortysevendeg.mvessel.api.impl.CursorSeq
 import com.fortysevendeg.mvessel.util.DateUtils
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -33,13 +34,13 @@ trait ResultSetSpecification
   trait WithCursorMocked
     extends Scope {
 
-    val cursor = mock[Cursor]
+    val cursor = mock[CursorProxy]
 
     val resultSet = new ResultSet(cursor, log)
 
   }
 
-  trait WithMatrixCursor
+  trait WithEmptyCursor
     extends Scope {
 
     val columnNames = Array("column1", "column2", "column3", "column4", "column5")
@@ -56,28 +57,43 @@ trait ResultSetSpecification
 
     val nonExistentColumnName = "column0"
 
-    val cursor = new MatrixCursor(columnNames)
+    val cursor = new CursorSeq(columnNames, Seq.empty)
 
     val resultSet = new ResultSet(cursor, log)
 
   }
 
-  trait WithData {
-
-    self: WithMatrixCursor =>
+  trait WithCursor
+    extends Scope {
 
     val numRows = 10
 
     val rows = 1 to numRows map { _ =>
-      val row = Array[AnyRef](
+      Seq[Any](
         Random.nextString(10),
-        new java.lang.Integer(Random.nextInt(10)),
-        new java.lang.Float(Random.nextFloat()),
+        Random.nextInt(10),
+        Random.nextFloat(),
         Random.nextString(10).getBytes,
         javaNull)
-      cursor.addRow(row)
-      row
     }
+
+    val columnNames = Array("column1", "column2", "column3", "column4", "column5")
+
+    val columnString = 1
+
+    val columnInteger = 2
+
+    val columnFloat = 3
+
+    val columnBytes = 4
+
+    val columnNull = 5
+
+    val nonExistentColumnName = "column0"
+
+    val cursor = new CursorSeq(columnNames, rows)
+
+    val resultSet = new ResultSet(cursor, log)
   }
 
 }

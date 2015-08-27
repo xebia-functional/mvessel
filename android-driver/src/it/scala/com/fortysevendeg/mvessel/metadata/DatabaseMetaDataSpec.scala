@@ -4,7 +4,7 @@ import java.sql.SQLException
 
 import com.fortysevendeg.mvessel._
 import org.specs2.specification.Scope
-import com.fortysevendeg.mvessel.util.StructureControlOps._
+import com.fortysevendeg.mvessel.util.ResultSetProcessorOps._
 
 trait DatabaseMetaDataSpecification
   extends DatabaseSupport {
@@ -12,7 +12,9 @@ trait DatabaseMetaDataSpecification
   trait DatabaseMetadataScope
     extends Scope {
 
-    val databaseMetaData = new DatabaseMetaData(connection.getOrElse(throw new IllegalStateException("Connection is not created")))
+    val databaseMetaData = new DatabaseMetaData(
+      connection.getOrElse(throw new IllegalStateException("Connection is not created")),
+      new TestLogWrapper)
 
   }
 

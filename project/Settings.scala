@@ -32,6 +32,13 @@ object Settings {
     organizationName := "47 Degrees",
     organizationHomepage := Some(new URL("http://47deg.com")))
 
+  lazy val androidDriverSettings = basicSettings ++ orgSettings ++ Seq(
+    name := "mvessel-android",
+    version := V.project,
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "com.fortysevendeg.mvessel",
+    fork in Test := true)
+
   lazy val coreSettings = basicSettings ++ orgSettings ++ Seq(
     name := "mvessel",
     version := V.project,
@@ -48,11 +55,15 @@ object Settings {
 
   lazy val mockAndroidSettings = basicSettings ++ orgSettings
 
-  lazy val coreLibraries = Seq(
+  lazy val androidDriverLibraries = Seq(
     specs2Core % "it,test",
     specs2Mock % "it,test",
     sqliteJdbc % "it",
     android % "provided")
+
+  lazy val coreLibraries = Seq(
+    specs2Core % "test",
+    specs2Mock % "test")
 
   lazy val utilLibraries = Seq(
     specs2Core % "test",

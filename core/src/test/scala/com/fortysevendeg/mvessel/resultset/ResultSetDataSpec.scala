@@ -2,6 +2,7 @@ package com.fortysevendeg.mvessel.resultset
 
 import java.sql.{Time, SQLFeatureNotSupportedException, SQLException, Timestamp, ResultSet => SQLResultSet}
 
+import com.fortysevendeg.mvessel.api.impl.CursorSeq
 import com.fortysevendeg.mvessel.data.Blob
 
 import scala.{Array => SArray}
@@ -17,33 +18,37 @@ class ResultSetDataSpec
   "getTimestamp" should {
 
     "returns a right TimeStamp when time is stored in an number" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         val timeStamp = new Timestamp(rows.head(columnInteger - 1).asInstanceOf[Int])
         cursor.moveToNext()
         resultSet.getTimestamp(columnInteger) shouldEqual timeStamp
     }
 
     "returns a right TimeStamp when time is stored in a string with valid format" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         val timeStamp = new Timestamp(Random.nextInt(100))
-        cursor.addRow(SArray[AnyRef](
+        val row = Seq[Any](
           formatDateOrThrow(new Date(timeStamp.getTime)),
           javaNull,
           javaNull,
           javaNull,
-          javaNull))
-        cursor.moveToNext()
-        resultSet.getTimestamp(1) shouldEqual timeStamp
+          javaNull)
+
+        val c = new CursorSeq(columnNames, Seq(row))
+        val rs = new ResultSet(c, new TestLogWrapper)
+
+        c.moveToNext()
+        rs.getTimestamp(1) shouldEqual timeStamp
     }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getTimestamp(columnNull) must beNull
     }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getTimestamp(1) must throwA[SQLException]
     }
@@ -53,27 +58,27 @@ class ResultSetDataSpec
   "getBinaryStream" should {
 
     "returns a right InputStream when the bytes are stored in an string" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         val value = rows.head(columnString - 1)
         cursor.moveToNext()
         inputStreamToString(resultSet.getBinaryStream(columnString)) shouldEqual value
     }
 
     "returns a right InputStream when the bytes are stored in a byte array" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         val value = new String(rows.head(columnBytes - 1).asInstanceOf[SArray[Byte]])
         cursor.moveToNext()
         inputStreamToString(resultSet.getBinaryStream(columnBytes)) shouldEqual value
     }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getBinaryStream(columnNull) must beNull
     }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getBinaryStream(columnBytes) must throwA[SQLException]
     }
@@ -91,19 +96,19 @@ class ResultSetDataSpec
   "getCharacterStream" should {
 
     "returns a right Reader when the stream is stored in an string" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         readerToString(resultSet.getCharacterStream(columnString)) shouldEqual rows.head(columnString - 1)
       }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getCharacterStream(columnNull) must beNull
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getCharacterStream(columnString) must throwA[SQLException]
       }
@@ -113,19 +118,19 @@ class ResultSetDataSpec
   "getDouble" should {
 
     "returns a right Double when the value is stored in a Float" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getDouble(columnFloat) shouldEqual rows.head(columnFloat - 1)
       }
 
     "returns 0 when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getDouble(columnNull) shouldEqual 0
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getDouble(columnFloat) must throwA[SQLException]
       }
@@ -159,19 +164,19 @@ class ResultSetDataSpec
   "getFloat" should {
 
     "returns a right Float when the value is stored in a Float" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getFloat(columnFloat) shouldEqual rows.head(columnFloat - 1)
       }
 
     "returns 0 when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getFloat(columnNull) shouldEqual 0
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getFloat(columnFloat) must throwA[SQLException]
       }
@@ -189,19 +194,19 @@ class ResultSetDataSpec
   "getClob" should {
 
     "returns a right Clob when the data is stored in an string" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         readerToString(resultSet.getClob(columnString).getCharacterStream) shouldEqual rows.head(columnString - 1)
       }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getClob(columnNull) must beNull
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getClob(columnString) must throwA[SQLException]
       }
@@ -211,19 +216,19 @@ class ResultSetDataSpec
   "getLong" should {
 
     "returns a right Long when the value is stored in a Integer" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getLong(columnInteger) shouldEqual rows.head(columnInteger - 1)
       }
 
     "returns 0 when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getLong(columnNull) shouldEqual 0
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getLong(columnInteger) must throwA[SQLException]
       }
@@ -233,19 +238,19 @@ class ResultSetDataSpec
   "getString" should {
 
     "returns a right String when the value is stored in a String" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getString(columnString) shouldEqual rows.head(columnString - 1)
       }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getString(columnNull) must beNull
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getString(columnString) must throwA[SQLException]
       }
@@ -263,33 +268,37 @@ class ResultSetDataSpec
   "getTime" should {
 
     "returns a right Time when time is stored in an number" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         val timeStamp = new Time(rows.head(columnInteger - 1).asInstanceOf[Int])
         cursor.moveToNext()
         resultSet.getTime(columnInteger) shouldEqual timeStamp
       }
 
     "returns a right Time when time is stored in a string with valid format" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         val time = new Time(Random.nextInt(100))
-        cursor.addRow(SArray[AnyRef](
+        val row = Seq[Any](
           formatDateOrThrow(new Date(time.getTime)),
           javaNull,
           javaNull,
           javaNull,
-          javaNull))
-        cursor.moveToNext()
-        resultSet.getTime(1) shouldEqual time
+          javaNull)
+
+        val c = new CursorSeq(columnNames, Seq(row))
+        val rs = new ResultSet(c, new TestLogWrapper)
+
+        c.moveToNext()
+        rs.getTime(1) shouldEqual time
       }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getTime(columnNull) must beNull
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getTime(1) must throwA[SQLException]
       }
@@ -299,19 +308,19 @@ class ResultSetDataSpec
   "getByte" should {
 
     "returns a right Byte when the value is stored in a Integer" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getByte(columnInteger) shouldEqual rows.head(columnInteger - 1)
       }
 
     "returns 0 when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getByte(columnNull) shouldEqual 0
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getByte(columnInteger) must throwA[SQLException]
       }
@@ -321,19 +330,19 @@ class ResultSetDataSpec
   "getBoolean" should {
 
     "returns a right Boolean when the value is stored in a Integer" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getBoolean(columnInteger) shouldEqual rows.head(columnInteger - 1).asInstanceOf[Int] != 0
       }
 
     "returns false when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getBoolean(columnNull) must beFalse
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getBoolean(columnInteger) must throwA[SQLException]
       }
@@ -351,19 +360,19 @@ class ResultSetDataSpec
   "getShort" should {
 
     "returns a right Short when the value is stored in a Integer" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getShort(columnInteger) shouldEqual rows.head(columnInteger - 1)
       }
 
     "returns 0 when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getShort(columnNull) shouldEqual 0
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getShort(columnInteger) must throwA[SQLException]
       }
@@ -373,7 +382,7 @@ class ResultSetDataSpec
   "getObject" should {
 
     "returns the String when fetching the String value" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         val o = resultSet.getObject(columnString)
         o must haveClass[java.lang.String]
@@ -381,7 +390,7 @@ class ResultSetDataSpec
       }
 
     "returns the Integer when fetching the Integer value" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         val o = resultSet.getObject(columnInteger)
         o must haveClass[java.lang.Integer]
@@ -389,7 +398,7 @@ class ResultSetDataSpec
       }
 
     "returns the Float when fetching the Float value" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         val o = resultSet.getObject(columnFloat)
         o must haveClass[java.lang.Float]
@@ -397,14 +406,14 @@ class ResultSetDataSpec
       }
 
     "returns the Blob when fetching the byte array value" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         val o = resultSet.getObject(columnBytes)
         o must haveClass[Blob]
       }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getObject(columnNull) must beNull
       }
@@ -430,20 +439,20 @@ class ResultSetDataSpec
   "getBlob" should {
 
     "returns a right Blob when the data is stored in a byte array" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         val value = new String(rows.head(columnBytes - 1).asInstanceOf[SArray[Byte]])
         inputStreamToString(resultSet.getBlob(columnBytes).getBinaryStream) shouldEqual value
       }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getBlob(columnNull) must beNull
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getBlob(columnBytes) must throwA[SQLException]
       }
@@ -453,33 +462,37 @@ class ResultSetDataSpec
   "getDate" should {
 
     "returns a right Date when is stored in an number" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         val date = new java.sql.Date(rows.head(columnInteger - 1).asInstanceOf[Int])
         cursor.moveToNext()
         resultSet.getDate(columnInteger) shouldEqual date
       }
 
     "returns a right Date when is stored in a string with valid format" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         val date = new java.sql.Date(Random.nextInt(100).toLong)
-        cursor.addRow(SArray[AnyRef](
+        val row = Seq[Any](
           formatDateOrThrow(new Date(date.getTime)),
           javaNull,
           javaNull,
           javaNull,
-          javaNull))
-        cursor.moveToNext()
-        resultSet.getDate(1) shouldEqual date
+          javaNull)
+
+        val c = new CursorSeq(columnNames, Seq(row))
+        val rs = new ResultSet(c, new TestLogWrapper)
+
+        c.moveToNext()
+        rs.getDate(1) shouldEqual date
       }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getDate(columnNull) must beNull
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getDate(1) must throwA[SQLException]
       }
@@ -505,19 +518,19 @@ class ResultSetDataSpec
   "getInt" should {
 
     "returns a right Int when the value is stored in a Integer" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getInt(columnInteger) shouldEqual rows.head(columnInteger - 1)
       }
 
     "returns 0 when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getInt(columnNull) shouldEqual 0
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getInt(columnInteger) must throwA[SQLException]
       }
@@ -527,19 +540,19 @@ class ResultSetDataSpec
   "getBytes" should {
 
     "returns a right byte array when the value is stored in byte array" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getBytes(columnBytes) shouldEqual rows.head(columnBytes - 1)
       }
 
     "returns null when the field is null" in
-      new WithMatrixCursor with WithData {
+      new WithCursor {
         cursor.moveToNext()
         resultSet.getBytes(columnNull) must beNull
       }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getBytes(columnBytes) must throwA[SQLException]
       }
@@ -553,7 +566,7 @@ class ResultSetDataSpec
     }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getHoldability must throwA[SQLException]
       }
@@ -567,7 +580,7 @@ class ResultSetDataSpec
     }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getConcurrency must throwA[SQLException]
       }
@@ -581,7 +594,7 @@ class ResultSetDataSpec
     }
 
     "throws SQLException when the cursor is closed" in
-      new WithMatrixCursor {
+      new WithEmptyCursor {
         cursor.close()
         resultSet.getFetchDirection must throwA[SQLException]
       }

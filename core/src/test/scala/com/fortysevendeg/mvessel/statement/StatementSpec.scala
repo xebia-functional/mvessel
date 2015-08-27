@@ -2,9 +2,8 @@ package com.fortysevendeg.mvessel.statement
 
 import java.sql.SQLException
 
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import com.fortysevendeg.mvessel._
+import com.fortysevendeg.mvessel.api.{CursorProxy, DatabaseProxyFactory, DatabaseProxy}
 import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.resultset.ResultSet
 import org.specs2.mock.Mockito
@@ -21,17 +20,23 @@ trait StatementSpecification
 
   trait StatementScope extends Scope {
 
-    val database = mock[Database]
+    val databaseName = "databaseName"
 
-    val sqliteDatabase = mock[SQLiteDatabase]
+    val logWrapper = new TestLogWrapper
 
-    database.database returns sqliteDatabase
+    val databaseProxy = mock[DatabaseProxy]
 
-    sqliteDatabase.isOpen returns true
+    val databaseProxyFactory = mock[DatabaseProxyFactory]
 
-    val connection: Connection = new Connection(databaseName = "databaseName", logWrapper = new TestLogWrapper) {
-      override protected def createDatabase(): Option[Database] = Some(database)
-    }
+    databaseProxyFactory.openDatabase(any, any) returns databaseProxy
+
+    databaseProxy.isOpen returns true
+
+    val connection: Connection = new Connection(
+      databaseWrapperFactory = databaseProxyFactory,
+      databaseName = databaseName,
+      logWrapper = logWrapper)
+
   }
 
   trait WithColumnGenerated extends StatementScope {
@@ -112,15 +117,15 @@ class StatementSpec
   "execute and getUpdateCount" should {
 
     "return true with a select query and -1" in new WithoutColumnGenerated {
-      val cursor = mock[Cursor]
-      database.rawQuery(any) returns cursor
+      val cursor = mock[CursorProxy]
+      databaseProxy.rawQuery(any, any) returns cursor
       statement.execute(selectSql) must beTrue
       statement.getUpdateCount shouldEqual -1
     }
 
     "return false with a select query and the result of changedRowCount in database" in new WithoutColumnGenerated {
       val changedRowCount = 10
-      database.changedRowCount() returns changedRowCount
+      databaseProxy.changedRowCount returns Some(changedRowCount)
       statement.execute(insertSql) must beFalse
       statement.getUpdateCount shouldEqual changedRowCount
     }
@@ -154,16 +159,16 @@ class StatementSpec
 
     "return an array with the results of changedRowCount and the sum when the bacth has elements" in new WithoutColumnGenerated {
       val batch = Seq.fill(3)(insertSql)
-      val changedRowCounts = Seq(20, 30, 40)
+      val changedRowCounts = Seq(Some(20), Some(30), Some(40))
 
-      database.changedRowCount() returns(
+      databaseProxy.changedRowCount returns(
         changedRowCounts.head,
         changedRowCounts.slice(1, changedRowCounts.size): _*)
 
       batch foreach statement.addBatch
 
-      statement.executeBatch() shouldEqual changedRowCounts.toArray
-      statement.getUpdateCount shouldEqual changedRowCounts.sum
+      statement.executeBatch() shouldEqual changedRowCounts.map(_.get).toArray
+      statement.getUpdateCount shouldEqual changedRowCounts.foldLeft(0)((a, b) => a + b.get)
     }
 
     "throws a SQLException when the connection is close" in new WithoutConnection {
@@ -174,8 +179,8 @@ class StatementSpec
   "executeQuery and getResultSet" should {
 
     "return in both methods the same ResultSet with the Cursor returned by the database" in new WithoutColumnGenerated {
-      val cursor = mock[Cursor]
-      database.rawQuery(any) returns cursor
+      val cursor = mock[CursorProxy]
+      databaseProxy.rawQuery(any, any) returns cursor
       val rs = statement.executeQuery(selectSql)
       rs must beLike {
         case st: ResultSet => st.cursor shouldEqual cursor
@@ -192,7 +197,7 @@ class StatementSpec
 
     "return in both methods the result of changedRowCount in database" in new WithoutColumnGenerated {
       val changedRowCount = 10
-      database.changedRowCount() returns changedRowCount
+      databaseProxy.changedRowCount returns Some(changedRowCount)
       statement.executeUpdate(insertSql) shouldEqual changedRowCount
       statement.getUpdateCount shouldEqual changedRowCount
     }
@@ -232,8 +237,8 @@ class StatementSpec
 
     "return the same ResultSet with the Cursor returned by the database that receive the column generated name" in
       new WithColumnGenerated {
-        val cursor = mock[Cursor]
-        database.rawQuery(contain(columnGenerated)) returns cursor
+        val cursor = mock[CursorProxy]
+        databaseProxy.rawQuery(contain(columnGenerated), any) returns cursor
         val rs = statement.getGeneratedKeys
         rs must beLike {
           case st: ResultSet => st.cursor shouldEqual cursor

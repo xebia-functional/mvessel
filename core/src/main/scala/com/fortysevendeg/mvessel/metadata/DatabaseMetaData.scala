@@ -2,16 +2,19 @@ package com.fortysevendeg.mvessel.metadata
 
 import java.sql.{Connection => SQLConnection, DatabaseMetaData => SQLDatabaseMetadata, ResultSet => SQLResultSet, RowIdLifetime, Types}
 
-import android.database.{MatrixCursor, MergeCursor}
-import com.fortysevendeg.mvessel.{Driver, Connection, WrapperNotSupported, _}
+import com.fortysevendeg.mvessel.api.impl.CursorSeq
+import com.fortysevendeg.mvessel.logging.LogWrapper
+import com.fortysevendeg.mvessel.{Connection, WrapperNotSupported, _}
 import com.fortysevendeg.mvessel.metadata.DatabaseMetaData._
 import com.fortysevendeg.mvessel.resultset.ResultSet
-import com.fortysevendeg.mvessel.util.StructureControlOps._
+import com.fortysevendeg.mvessel.util.ResultSetProcessorOps._
 import com.fortysevendeg.mvessel.util.DatabaseUtils._
 
 import scala.util.{Failure, Success, Try}
 
-class DatabaseMetaData(connection: SQLConnection)
+class DatabaseMetaData(
+  connection: SQLConnection,
+  logWrapper: LogWrapper)
   extends SQLDatabaseMetadata
   with DatabaseMetaDataSupport
   with WrapperNotSupported {
@@ -76,7 +79,7 @@ class DatabaseMetaData(connection: SQLConnection)
     tableNamePattern: String,
     columnNamePattern: String
     ): SQLResultSet = {
-    val columnNames = scala.Array(
+    val columnNames = Seq(
       "TABLE_CAT", "TABLE_SCHEM", "TABLE_NAME", "COLUMN_NAME", "DATA_TYPE",
       "TYPE_NAME", "COLUMN_SIZE", "BUFFER_LENGTH", "DECIMAL_DIGITS", "NUM_PREC_RADIX",
       "NULLABLE", "REMARKS", "COLUMN_DEF", "SQL_DATA_TYPE", "SQL_DATETIME_SUB",
@@ -106,9 +109,8 @@ class DatabaseMetaData(connection: SQLConnection)
       }
     }
 
-    val cursorList = WithStatement { statement =>
+    val rowsSeq = WithStatement { statement =>
       tableList map { tableName =>
-        val matrixCursor = new MatrixCursor(columnNames)
 
         statement.executeQuery(pragmaTable(tableName)).process { rs =>
           val columnName = rs.getString("NAME")
@@ -116,26 +118,17 @@ class DatabaseMetaData(connection: SQLConnection)
           val sqlType = fieldTypeToSqlType(fieldType)
           val nullable = nullableToInt(rs.getInt("NOTNULL"))
 
-          val columnValues = scala.Array[AnyRef](
-            javaNull, javaNull, tableName, columnName, new Integer(sqlType),
-            fieldType, javaNull, javaNull, javaNull, new Integer(10),
-            new Integer(nullable), javaNull, javaNull, javaNull, javaNull,
-            new Integer(-1), new Integer(-1), "", javaNull, javaNull,
+          Seq[Any](
+            javaNull, javaNull, tableName, columnName, sqlType,
+            fieldType, javaNull, javaNull, javaNull, 10,
+            nullable, javaNull, javaNull, javaNull, javaNull,
+            -1, -1, "", javaNull, javaNull,
             javaNull, javaNull, "")
 
-          matrixCursor.addRow(columnValues)
         }
-
-
-        matrixCursor
       }
     }
-
-    cursorList match {
-      case Seq(cursor) => new ResultSet(cursor)
-      case seq if seq.size > 1 => new ResultSet(new MergeCursor(seq.toArray))
-      case _ => new ResultSet(new MatrixCursor(columnNames, 0))
-    }
+    new ResultSet(new CursorSeq(columnNames, rowsSeq.flatten), logWrapper)
   }
 
   override def getCrossReference(
@@ -296,20 +289,26 @@ class DatabaseMetaData(connection: SQLConnection)
     schema: String,
     table: String
     ): SQLResultSet = {
-    val matrixCursor = new MatrixCursor(primaryKeysColumns)
-    WithStatement { statement =>
+    val rows = WithStatement { statement =>
       Try(statement.executeQuery(pragmaTable(table))) match {
         case Success(resultSet) =>
           val pkPos = resultSet.findColumn("PK")
           val namePos = resultSet.findColumn("NAME")
           resultSet.process { rs =>
             if (rs.getInt(pkPos) > 0)
-              matrixCursor.addRow(scala.Array[AnyRef](javaNull, javaNull, table, rs.getString(namePos), javaNull, javaNull))
+              Seq[Any](
+                javaNull,
+                javaNull,
+                table,
+                rs.getString(namePos),
+                javaNull,
+                javaNull)
+            else Seq.empty[Any]
           }
-        case _ =>
+        case _ => Seq(Seq.empty[Any])
       }
     }
-    new ResultSet(matrixCursor)
+    new ResultSet(new CursorSeq(primaryKeysColumns, rows.filterNot(_.isEmpty)), logWrapper)
   }
 
   override def getProcedureColumns(
@@ -404,9 +403,15 @@ class DatabaseMetaData(connection: SQLConnection)
 
   override val getDriverMinorVersion: Int = 1
 
-  override val getDriverName: String = Driver.driverName
+  override val getDriverName: String = connection match {
+    case c: Connection => c.withOpenDatabase(_.database.getDriverName)
+    case _ => javaNull
+  }
 
-  override val getDriverVersion: String = Driver.driverVersion
+  override val getDriverVersion: String = connection match {
+    case c: Connection => c.withOpenDatabase(_.database.getDriverVersion)
+    case _ => javaNull
+  }
 
   override val getExtraNameCharacters: String = ""
 

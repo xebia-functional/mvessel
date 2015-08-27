@@ -7,19 +7,18 @@ import java.sql.{ResultSet => SQLResultSet, _}
 import java.util
 import java.util.Calendar
 
-import android.database.Cursor
+import com.fortysevendeg.mvessel.api.{CursorType, CursorProxy}
 import com.fortysevendeg.mvessel.data.{Blob, Clob}
-import com.fortysevendeg.mvessel.logging.{AndroidLogWrapper, LogWrapper}
+import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.util.DateUtils
-import com.fortysevendeg.mvessel.{WrapperNotSupported, javaNull, _}
-import com.fortysevendeg.mvessel.util.ReflectionOps._
+import com.fortysevendeg.mvessel.{WrapperNotSupported, _}
 
 import scala.util.{Failure, Success, Try}
 import scala.{Array => SArray}
 
 class ResultSet(
-  val cursor: Cursor,
-  val log: LogWrapper = new AndroidLogWrapper())
+  val cursor: CursorProxy,
+  val log: LogWrapper)
   extends SQLResultSet
   with NonEditableResultSet
   with WrapperNotSupported
@@ -56,8 +55,8 @@ class ResultSet(
 
   private[this] def readBytes(columnIndex: Int): Option[SArray[Byte]] =
     notNull(columnIndex) {
-      getTypeSafe(cursor, columnIndex.index) match {
-        case t if t == Cursor.FIELD_TYPE_STRING => getOp(columnIndex.index)(cursor.getString).getBytes
+      cursor.getType(columnIndex.index) match {
+        case CursorType.String => getOp(columnIndex.index)(cursor.getString).getBytes
         case _ => getOp(columnIndex.index)(cursor.getBlob)
       }
     }
@@ -67,8 +66,8 @@ class ResultSet(
 
   private[this] def readTime(columnIndex: Int): Option[Long] =
     notNull(columnIndex) {
-      getTypeSafe(cursor, columnIndex.index) match {
-        case (Cursor.FIELD_TYPE_INTEGER) => Some(getOp(columnIndex.index)(cursor.getLong))
+      cursor.getType(columnIndex.index) match {
+        case CursorType.Integer => Some(getOp(columnIndex.index)(cursor.getLong))
         case _ => parseDate(getOp(columnIndex.index)(cursor.getString)) map (_.getTime)
       }
     } getOrElse None
@@ -290,10 +289,10 @@ class ResultSet(
 
   override def getObject(columnIndex: Int): AnyRef = notClosed {
     notNull(columnIndex) {
-      getTypeSafe(cursor, columnIndex.index) match {
-        case Cursor.FIELD_TYPE_INTEGER => new java.lang.Integer(getOp(columnIndex.index)(cursor.getInt))
-        case Cursor.FIELD_TYPE_FLOAT => new java.lang.Float(getOp(columnIndex.index)(cursor.getFloat))
-        case Cursor.FIELD_TYPE_BLOB => new Blob(getOp(columnIndex.index)(cursor.getBlob))
+      cursor.getType(columnIndex.index) match {
+        case CursorType.Integer => new java.lang.Integer(getOp(columnIndex.index)(cursor.getInt))
+        case CursorType.Float => new java.lang.Float(getOp(columnIndex.index)(cursor.getFloat))
+        case CursorType.Blob => new Blob(getOp(columnIndex.index)(cursor.getBlob))
         case _ => getOp(columnIndex.index)(cursor.getString)
       }
     } getOrElse javaNull

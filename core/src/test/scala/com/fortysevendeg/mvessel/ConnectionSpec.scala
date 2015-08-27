@@ -4,7 +4,7 @@ import java.sql._
 import java.util.Properties
 import java.util.concurrent.Executor
 
-import android.database.sqlite.SQLiteDatabase
+import com.fortysevendeg.mvessel.api.{DatabaseProxyFactory, DatabaseProxy}
 import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.statement.PreparedStatement
 import org.specs2.mock.Mockito
@@ -30,11 +30,11 @@ trait ConnectionSpecification
 
     val logWrapper = mock[TestLogWrapper]
 
-    val database = mock[Database]
+    val databaseProxy = mock[DatabaseProxy]
 
-    val sqliteDatabase = mock[SQLiteDatabase]
+    val databaseProxyFactory = mock[DatabaseProxyFactory]
 
-    database.database returns sqliteDatabase
+    databaseProxyFactory.openDatabase(any, any) returns databaseProxy
 
     val connection: Connection
 
@@ -42,31 +42,20 @@ trait ConnectionSpecification
 
   trait WithSomeConnection extends ConnectionScope {
 
-    val connection: Connection = new Connection(databaseName = databaseName, logWrapper = new TestLogWrapper) {
-
-      override protected def createDatabase(): Option[Database] = Some(database)
-
-    }
+    val connection: Connection = new Connection(
+      databaseWrapperFactory = databaseProxyFactory,
+      databaseName = databaseName,
+      logWrapper = new TestLogWrapper)
 
   }
 
   trait WithSomeConnectionAutoCommit extends ConnectionScope {
 
-    val connection: Connection = new Connection(databaseName = databaseName, logWrapper = new TestLogWrapper) {
-
-      override protected def createDatabase(): Option[Database] = Some(database)
-
+    val connection: Connection = new Connection(
+      databaseWrapperFactory = databaseProxyFactory,
+      databaseName = databaseName,
+      logWrapper = new TestLogWrapper) {
       override protected def defaultAutoCommit(): Boolean = true
-    }
-
-  }
-
-  trait WithNoneConnection extends ConnectionScope {
-
-    val connection: Connection = new Connection(databaseName = databaseName, logWrapper = new TestLogWrapper) {
-
-      override protected def createDatabase(): Option[Database] = None
-
     }
 
   }
@@ -75,7 +64,10 @@ trait ConnectionSpecification
 
     val mockLog = mock[LogWrapper]
 
-    val connection: Connection = new Connection(databaseName = databaseName, logWrapper = mockLog)
+    val connection: Connection = new Connection(
+      databaseWrapperFactory = databaseProxyFactory,
+      databaseName = databaseName,
+      logWrapper = mockLog)
 
   }
 
@@ -88,12 +80,7 @@ class ConnectionSpec
 
     "call close method on database when its open" in new WithSomeConnection {
       connection.close()
-      there was one(database).close()
-    }
-
-    "call nothing when database its closed" in new WithNoneConnection {
-      connection.close()
-      there was no(database).close()
+      there was one(databaseProxy).close()
     }
 
   }
@@ -102,15 +89,16 @@ class ConnectionSpec
 
     "call endTransaction and beginTransaction when the state it's ok" in new WithSomeConnection {
       connection.commit()
-      there was one(database).endTransaction()
-      there was one(database).beginTransaction()
+      there was one(databaseProxy).endTransaction()
+      there was one(databaseProxy).beginTransaction()
     }
 
     "throw a SQLException if the autoCommit is active" in new WithSomeConnectionAutoCommit {
       connection.commit() must throwA[SQLException]
     }
 
-    "throw a SQLException when the database is closed" in new WithNoneConnection {
+    "throw a SQLException when the database is closed" in new WithSomeConnection {
+      connection.close()
       connection.commit() must throwA[SQLException]
     }
 
@@ -140,21 +128,21 @@ class ConnectionSpec
 
     "doing nothing when the autoCommit status is the same" in new WithSomeConnection {
       connection.setAutoCommit(false)
-      there was no(database).beginTransaction()
-      there was no(database).endTransaction()
+      there was no(databaseProxy).beginTransaction()
+      there was no(databaseProxy).endTransaction()
     }
 
     "call to endTransaction and activate autoCommit when pass true and autoCommit is disabled" in
       new WithSomeConnection {
         connection.setAutoCommit(true)
-        there was one(database).endTransaction()
+        there was one(databaseProxy).endTransaction()
         connection.getAutoCommit must beTrue
       }
 
     "call to beginTransaction and disable autoCommit when pass false and autoCommit is enabled" in
       new WithSomeConnectionAutoCommit {
         connection.setAutoCommit(false)
-        there was one(database).beginTransaction()
+        there was one(databaseProxy).beginTransaction()
         connection.getAutoCommit must beFalse
       }
 
@@ -171,16 +159,17 @@ class ConnectionSpec
   "isClosed" should {
 
     "return false when the database is open" in new WithSomeConnection {
-      sqliteDatabase.isOpen returns true
+      databaseProxy.isOpen returns true
       connection.isClosed must beFalse
     }
 
     "return true when the database is closed" in new WithSomeConnection {
-      sqliteDatabase.isOpen returns false
+      databaseProxy.isOpen returns false
       connection.isClosed must beTrue
     }
 
-    "return false when the connection is close" in new WithNoneConnection {
+    "return false when the connection is close" in new WithSomeConnection {
+      connection.close()
       connection.isClosed must beTrue
     }
 
@@ -188,7 +177,7 @@ class ConnectionSpec
 
   "nativeSQL" should {
 
-    "return the same string" in new WithNoneConnection {
+    "return the same string" in new WithSomeConnection {
       val value = Random.nextString(10)
       connection.nativeSQL(value) shouldEqual value
     }
@@ -197,7 +186,7 @@ class ConnectionSpec
 
   "prepareStatement" should {
 
-    "creates a PreparedStatement with the passed sql" in new WithNoneConnection {
+    "creates a PreparedStatement with the passed sql" in new WithSomeConnection {
       val value = Random.nextString(10)
       connection.prepareStatement(value) must beLike[PreparedStatement] {
         case st: PreparedStatement =>
@@ -207,7 +196,7 @@ class ConnectionSpec
     }
 
     "creates a PreparedStatement with the passed sql when passing resultSet type and concurrency" in
-      new WithNoneConnection {
+      new WithSomeConnection {
         val value = Random.nextString(10)
         connection.prepareStatement(
           sql = value,
@@ -220,7 +209,7 @@ class ConnectionSpec
       }
 
     "creates a PreparedStatement with the passed sql when passing resultSet type, concurrency and holdability" in
-      new WithNoneConnection {
+      new WithSomeConnection {
         val value = Random.nextString(10)
         connection.prepareStatement(
           sql = value,
@@ -234,7 +223,7 @@ class ConnectionSpec
       }
 
     "creates a PreparedStatement with the passed sql when passing autoGeneratedKeys value" in
-      new WithNoneConnection {
+      new WithSomeConnection {
         val value = Random.nextString(10)
         connection.prepareStatement(value, 1) must beLikeA[PreparedStatement] {
           case st: PreparedStatement =>
@@ -244,7 +233,7 @@ class ConnectionSpec
       }
 
     "creates a PreparedStatement with the passed sql when passing a column int array" in
-      new WithNoneConnection {
+      new WithSomeConnection {
         val value = Random.nextString(10)
         connection.prepareStatement(value, scala.Array[Int]()) must
           beLikeA[PreparedStatement] {
@@ -255,7 +244,7 @@ class ConnectionSpec
       }
 
     "creates a PreparedStatement with the passed sql when the column array is empty" in
-      new WithNoneConnection {
+      new WithSomeConnection {
         val value = Random.nextString(10)
         connection.prepareStatement(value, scala.Array[String]()) must
           beLikeA[PreparedStatement] {
@@ -266,7 +255,7 @@ class ConnectionSpec
       }
 
     "creates a PreparedStatement with the passed sql and column name when the column array has only one element" in
-      new WithNoneConnection {
+      new WithSomeConnection {
         val value = Random.nextString(10)
         val column = Random.nextString(10)
         connection.prepareStatement(value, scala.Array[String](column)) must
@@ -278,7 +267,7 @@ class ConnectionSpec
       }
 
     "creates a PreparedStatement with the passed sql when the column array is null" in
-      new WithNoneConnection {
+      new WithSomeConnection {
         val value = Random.nextString(10)
         connection.prepareStatement(value, javaNull.asInstanceOf[scala.Array[String]]) must
           beLikeA[PreparedStatement] {
@@ -289,7 +278,7 @@ class ConnectionSpec
       }
 
     "return null when the column array has more than one element" in
-      new WithNoneConnection {
+      new WithSomeConnection {
         val value = Random.nextString(10)
         Option(connection.prepareStatement(value, scala.Array[String]("1", "2"))) must beNone
       }
@@ -304,9 +293,9 @@ class ConnectionSpec
 
     "execute rollback sql and starts a new transaction" in new WithSomeConnection {
       connection.rollback()
-      there was one(database).execSQL(connection.rollbackSql)
-      there was one(database).endTransaction()
-      there was one(database).beginTransaction()
+      there was one(databaseProxy).execSQL(connection.rollbackSql)
+      there was one(databaseProxy).endTransaction()
+      there was one(databaseProxy).beginTransaction()
     }
 
     "call to LogWrapper.notImplemented when passing a SavePoint object" in new WithMockLogger {

@@ -15,7 +15,7 @@ trait DataSourceSpecification
   trait DataSourceScope
     extends Scope {
 
-    val driver = mock[Driver]
+    val driver = mock[BaseDriver]
 
     val connection = mock[Connection]
 

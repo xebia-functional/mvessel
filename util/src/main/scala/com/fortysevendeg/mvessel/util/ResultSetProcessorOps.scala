@@ -2,16 +2,19 @@ package com.fortysevendeg.mvessel.util
 
 import java.sql.ResultSet
 
-import android.database.Cursor
 import StructureControlProcessor._
 
-object StructureControlOps {
+import scala.util.Try
 
-  implicit class CursorOps(cursor: Cursor) {
+object ResultSetProcessorOps {
 
-    def process[T](process: Cursor => T, until: Option[Int] = None) = processStructureControl(cursor)(process, until)
+  implicit def `ResultSet processor` = new StructureControlProcessor[ResultSet] {
 
-    def processOne[T](process: Cursor => T) = processStructureControl(cursor)(process, Some(1)).headOption
+    def move(resultSet: ResultSet): Boolean = resultSet.next()
+
+    def close(resultSet: ResultSet): Unit = Try(resultSet.close())
+
+    def isClosed(resultSet: ResultSet): Boolean = resultSet.isClosed
 
   }
 

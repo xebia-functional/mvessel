@@ -2,6 +2,7 @@ package com.fortysevendeg.mvessel.metadata
 
 import java.sql.{ResultSet, Connection}
 
+import com.fortysevendeg.mvessel.TestLogWrapper
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
@@ -15,7 +16,7 @@ trait DatabaseMetaDataSupportSpecification
 
     val connection = mock[Connection]
 
-    val databaseMetaData = new DatabaseMetaData(connection)
+    val databaseMetaData = new DatabaseMetaData(connection, new TestLogWrapper)
 
   }
 

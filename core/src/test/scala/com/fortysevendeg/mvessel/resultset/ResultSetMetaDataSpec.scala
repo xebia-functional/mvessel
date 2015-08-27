@@ -71,30 +71,30 @@ class ResultSetMetaDataSpec
 
   "getColumnType" should {
 
-    "returns type NULL when the cursor is empty" in new WithMatrixCursor {
+    "returns type NULL when the cursor is empty" in new WithEmptyCursor {
       resultSetMetaData.getColumnType(1) shouldEqual Types.NULL
     }
 
     "returns type VARCHAR for first column when the cursor has data and positioned on first row" in
-      new WithMatrixCursor with WithData {
+      new WithCursorData {
       cursor.moveToNext()
       resultSetMetaData.getColumnType(1) shouldEqual Types.VARCHAR
     }
 
     "returns type INTEGER for second column when the cursor has data and positioned on first row" in
-      new WithMatrixCursor with WithData {
+      new WithCursorData {
       cursor.moveToNext()
       resultSetMetaData.getColumnType(2) shouldEqual Types.INTEGER
     }
 
     "returns type FLOAT for third column when the cursor has data and positioned on first row" in
-      new WithMatrixCursor with WithData {
+      new WithCursorData {
       cursor.moveToNext()
       resultSetMetaData.getColumnType(3) shouldEqual Types.FLOAT
     }
 
     "returns type VARCHAR and restore position when the cursor has data but has been read" in
-      new WithMatrixCursor with WithData {
+      new WithCursorData {
       cursor.moveToNext()
       cursor.moveToNext()
       resultSetMetaData.getColumnType(1) shouldEqual Types.VARCHAR
@@ -102,7 +102,7 @@ class ResultSetMetaDataSpec
     }
 
     "returns type VARCHAR and restore position when the cursor is unread" in
-      new WithMatrixCursor with WithData {
+      new WithCursorData {
       resultSetMetaData.getColumnType(1) shouldEqual Types.VARCHAR
       cursor.getPosition shouldEqual -1
     }
@@ -111,18 +111,18 @@ class ResultSetMetaDataSpec
 
   "getColumnTypeName" should {
 
-    "returns name NULL when the cursor is empty" in new WithMatrixCursor {
+    "returns name NULL when the cursor is empty" in new WithEmptyCursor {
       resultSetMetaData.getColumnTypeName(1) shouldEqual "NULL"
     }
 
     "returns name TEXT when the cursor has data and positioned on first row" in
-      new WithMatrixCursor with WithData {
+      new WithCursorData {
       cursor.moveToNext()
       resultSetMetaData.getColumnTypeName(1) shouldEqual "TEXT"
     }
 
     "returns type VARCHAR and restore position when the cursor has data but has been read" in
-      new WithMatrixCursor with WithData {
+      new WithCursorData {
       cursor.moveToNext()
       cursor.moveToNext()
       resultSetMetaData.getColumnTypeName(1) shouldEqual "TEXT"
@@ -130,7 +130,7 @@ class ResultSetMetaDataSpec
     }
 
     "returns type VARCHAR and restore position when the cursor is unread" in
-      new WithMatrixCursor with WithData {
+      new WithCursorData {
       resultSetMetaData.getColumnTypeName(1) shouldEqual "TEXT"
       cursor.getPosition shouldEqual -1
     }
@@ -228,15 +228,15 @@ class ResultSetMetaDataSpec
 
   "isSigned" should {
 
-    "returns false when the column type is VARCHAR" in new WithMatrixCursor with WithData {
+    "returns false when the column type is VARCHAR" in new WithCursorData {
       resultSetMetaData.isSigned(1) must beFalse
     }
 
-    "returns true when the column type is INTEGER" in new WithMatrixCursor with WithData {
+    "returns true when the column type is INTEGER" in new WithCursorData {
       resultSetMetaData.isSigned(2) must beTrue
     }
 
-    "returns true when the column type is FLOAT" in new WithMatrixCursor with WithData {
+    "returns true when the column type is FLOAT" in new WithCursorData {
       resultSetMetaData.isSigned(3) must beTrue
     }
 
