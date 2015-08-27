@@ -34,7 +34,7 @@ class AndroidDatabase(sqliteDatabase: SQLiteDatabase) extends DatabaseProxy {
 
   override def isOpen: Boolean = sqliteDatabase.isOpen
 
-  override def close(): Unit = sqliteDatabase.clone()
+  override def close(): Unit = sqliteDatabase.close()
 
   override def beginTransaction(): Unit = sqliteDatabase.beginTransaction()
 
