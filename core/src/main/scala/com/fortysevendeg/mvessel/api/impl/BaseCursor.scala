@@ -40,6 +40,6 @@ trait BaseCursor extends CursorProxy {
     case p if p == index => false
     case p =>
       index = p
-      true
+      index >= 0 && index < getCount
   }
 }
