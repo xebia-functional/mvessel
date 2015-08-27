@@ -2,59 +2,65 @@ package com.fortysevendeg.mvessel.api.impl
 
 import android.database.Cursor
 import com.fortysevendeg.mvessel.api.CursorType.Value
-import com.fortysevendeg.mvessel.api.CursorProxy
+import com.fortysevendeg.mvessel.api.{CursorType, CursorProxy}
 
 class AndroidCursor(cursor: Cursor) extends CursorProxy {
 
-  override def isClosed: Boolean = ???
+  override def getType(columnIndex: Int): Value = cursor.getType(columnIndex) match {
+    case Cursor.FIELD_TYPE_NULL => CursorType.Null
+        case Cursor.FIELD_TYPE_INTEGER => CursorType.Integer
+        case Cursor.FIELD_TYPE_FLOAT => CursorType.Float
+        case Cursor.FIELD_TYPE_STRING => CursorType.String
+        case Cursor.FIELD_TYPE_BLOB => CursorType.Blob
+  }
 
-  override def getType(columnIndex: Int): Value = ???
+  override def isClosed: Boolean = cursor.isClosed
 
-  override def moveToFirst(): Boolean = ???
+  override def isBeforeFirst: Boolean = cursor.isBeforeFirst
 
-  override def move(offset: Int): Boolean = ???
+  override def isAfterLast: Boolean = cursor.isAfterLast
 
-  override def isBeforeFirst: Boolean = ???
+  override def isLast: Boolean = cursor.isLast
 
-  override def getPosition: Int = ???
+  override def isFirst: Boolean = cursor.isFirst
 
-  override def moveToNext(): Boolean = ???
+  override def getCount: Int = cursor.getCount
 
-  override def isAfterLast: Boolean = ???
+  override def getPosition: Int = cursor.getPosition
 
-  override def moveToPrevious(): Boolean = ???
+  override def getColumnCount: Int = cursor.getColumnCount
 
-  override def isLast: Boolean = ???
+  override def getColumnIndexOrThrow(columnName: String): Int = cursor.getColumnIndexOrThrow(columnName)
 
-  override def getDouble(columnIndex: Int): Double = ???
+  override def getColumnName(columnIndex: Int): String = cursor.getColumnName(columnIndex)
 
-  override def getColumnCount: Int = ???
+  override def moveToFirst(): Boolean = cursor.moveToFirst()
 
-  override def moveToLast(): Boolean = ???
+  override def move(offset: Int): Boolean = cursor.move(offset)
 
-  override def isFirst: Boolean = ???
+  override def moveToNext(): Boolean = cursor.moveToNext()
 
-  override def getCount: Int = ???
+  override def moveToPrevious(): Boolean = cursor.moveToPrevious()
 
-  override def getColumnIndexOrThrow(columnName: String): Int = ???
+  override def moveToLast(): Boolean = cursor.moveToLast()
 
-  override def getColumnName(columnIndex: Int): String = ???
+  override def moveToPosition(position: Int): Boolean = cursor.moveToPosition(position)
 
-  override def getFloat(columnIndex: Int): Float = ???
+  override def isNull(columnIndex: Int): Boolean = cursor.isNull(columnIndex)
 
-  override def getLong(columnIndex: Int): Long = ???
+  override def getDouble(columnIndex: Int): Double = cursor.getDouble(columnIndex)
 
-  override def moveToPosition(position: Int): Boolean = ???
+  override def getFloat(columnIndex: Int): Float = cursor.getFloat(columnIndex)
 
-  override def getShort(columnIndex: Int): Short = ???
+  override def getLong(columnIndex: Int): Long = cursor.getLong(columnIndex)
 
-  override def isNull(columnIndex: Int): Boolean = ???
+  override def getShort(columnIndex: Int): Short = cursor.getShort(columnIndex)
 
-  override def close(): Unit = ???
+  override def getInt(columnIndex: Int): Int = cursor.getInt(columnIndex)
 
-  override def getInt(columnIndex: Int): Int = ???
+  override def getBlob(columnIndex: Int): Array[Byte] = cursor.getBlob(columnIndex)
 
-  override def getBlob(columnIndex: Int): Array[Byte] = ???
+  override def getString(columnIndex: Int): String = cursor.getString(columnIndex)
 
-  override def getString(columnIndex: Int): String = ???
+  override def close(): Unit = cursor.close()
 }

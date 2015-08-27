@@ -17,21 +17,26 @@ class AndroidDatabaseFactory extends DatabaseProxyFactory {
 
 class AndroidDatabase(sqliteDatabase: SQLiteDatabase) extends DatabaseProxy {
 
-  override def rawQuery(sql: String, selectionArgs: Array[String]): CursorProxy = ???
+  override def rawQuery(sql: String, selectionArgs: Array[String]): CursorProxy =
+    new AndroidCursor(sqliteDatabase.rawQuery(sql, selectionArgs))
 
-  override def execSQL(sql: String, bindArgs: Option[Array[AnyRef]]): Unit = ???
+  override def execSQL(sql: String, bindArgs: Option[Array[AnyRef]]): Unit =
+    bindArgs match {
+      case Some(args) => sqliteDatabase.execSQL(sql, args)
+      case _ => sqliteDatabase.execSQL(sql)
+    }
 
-  override def setTransactionSuccessful(): Unit = ???
+  override def setTransactionSuccessful(): Unit = sqliteDatabase.setTransactionSuccessful()
 
-  override def endTransaction(): Unit = ???
+  override def endTransaction(): Unit = sqliteDatabase.endTransaction()
 
   override def changedRowCount: Option[Int] = lastChangeCount(sqliteDatabase)
 
-  override def isOpen: Boolean = ???
+  override def isOpen: Boolean = sqliteDatabase.isOpen
 
-  override def close(): Unit = ???
+  override def close(): Unit = sqliteDatabase.clone()
 
-  override def beginTransaction(): Unit = ???
+  override def beginTransaction(): Unit = sqliteDatabase.beginTransaction()
 
   override def getVersion: Int = sqliteDatabase.getVersion
 
