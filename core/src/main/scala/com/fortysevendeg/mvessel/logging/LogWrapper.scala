@@ -1,6 +1,6 @@
 package com.fortysevendeg.mvessel.logging
 
-import Printer._
+import com.fortysevendeg.mvessel.logging.Printer._
 
 import scala.util.{Failure, Try}
 

@@ -2,6 +2,7 @@ package com.fortysevendeg.mvessel.util
 
 import java.text.SimpleDateFormat
 import java.util.Date
+
 import com.fortysevendeg.mvessel.logging.LogWrapper
 
 import scala.util.{Failure, Success, Try}

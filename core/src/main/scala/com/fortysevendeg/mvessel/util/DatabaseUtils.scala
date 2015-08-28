@@ -1,6 +1,7 @@
 package com.fortysevendeg.mvessel.util
 
-import java.sql.{SQLException, Connection, Statement}
+import java.sql.{Connection, SQLException, Statement}
+
 import scala.util.{Failure, Success, Try}
 
 object DatabaseUtils {

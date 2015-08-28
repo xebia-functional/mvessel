@@ -2,10 +2,10 @@ package com.fortysevendeg.mvessel.util
 
 import java.sql.ResultSet
 
+import com.fortysevendeg.mvessel.util.ResultSetProcessorOps._
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import ResultSetProcessorOps._
 
 import scala.util.Random
 

@@ -1,11 +1,11 @@
 package com.fortysevendeg.mvessel.util
 
-import java.io.{Closeable, StringReader, ByteArrayInputStream}
+import java.io.{ByteArrayInputStream, Closeable, StringReader}
 
+import com.fortysevendeg.mvessel.util.StreamUtils._
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-import StreamUtils._
 
 class StreamUtilsSpecification
   extends Specification

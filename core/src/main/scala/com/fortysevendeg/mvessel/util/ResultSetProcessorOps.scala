@@ -2,7 +2,7 @@ package com.fortysevendeg.mvessel.util
 
 import java.sql.ResultSet
 
-import StructureControlProcessor._
+import com.fortysevendeg.mvessel.util.StructureControlProcessor._
 
 import scala.util.Try
 
