@@ -6,6 +6,7 @@ import java.util.Date
 import com.fortysevendeg.mvessel._
 import com.fortysevendeg.mvessel.api.CursorProxy
 import com.fortysevendeg.mvessel.api.impl.CursorSeq
+import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.util.DateUtils
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -94,6 +95,17 @@ trait ResultSetSpecification
     val cursor = new CursorSeq(columnNames, rows)
 
     val resultSet = new ResultSet(cursor, log)
+  }
+
+  trait WithCursorAndLogMocked
+    extends Scope {
+
+    val cursor = mock[CursorProxy]
+
+    val logger = mock[LogWrapper]
+
+    val resultSet = new ResultSet(cursor, logger)
+
   }
 
 }

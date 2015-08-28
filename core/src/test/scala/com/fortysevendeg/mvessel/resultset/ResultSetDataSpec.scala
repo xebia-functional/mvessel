@@ -822,6 +822,51 @@ class ResultSetDataSpec
 
   }
 
+  "setFetchSize" should {
+
+    "call to notImplemented on log" in new WithCursorAndLogMocked {
+      resultSet.setFetchSize(0)
+      there was one(logger).notImplemented(Unit)
+    }
+
+    "throw SQLException when the cursor is closed" in
+      new WithEmptyCursor {
+        cursor.close()
+        resultSet.setFetchSize(0) must throwA[SQLException]
+      }
+
+  }
+
+  "getFetchSize" should {
+
+    "call to notImplemented on log" in new WithCursorAndLogMocked {
+      resultSet.getFetchSize
+      there was one(logger).notImplemented(0)
+    }
+
+    "throw SQLException when the cursor is closed" in
+      new WithEmptyCursor {
+        cursor.close()
+        resultSet.getFetchSize must throwA[SQLException]
+      }
+
+  }
+
+  "setFetchDirection" should {
+
+    "call to notImplemented on log" in new WithCursorAndLogMocked {
+      resultSet.setFetchDirection(0)
+      there was one(logger).notImplemented(Unit)
+    }
+
+    "throw SQLException when the cursor is closed" in
+      new WithEmptyCursor {
+        cursor.close()
+        resultSet.setFetchDirection(0) must throwA[SQLException]
+      }
+
+  }
+
   "getFetchDirection" should {
 
     "return ResultSet.FETCH_FORWARD on a valid cursor" in new WithCursorMocked {
