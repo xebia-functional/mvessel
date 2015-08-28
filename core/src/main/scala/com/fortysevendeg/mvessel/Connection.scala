@@ -4,32 +4,32 @@ import java.sql.{Connection => SQLConnection, DatabaseMetaData => SQLDatabaseMet
 import java.util.Properties
 import java.util.concurrent.Executor
 
-import com.fortysevendeg.mvessel.logging.{AndroidLogWrapper, LogWrapper}
+import com.fortysevendeg.mvessel.api.DatabaseProxyFactory
+import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.metadata.DatabaseMetaData
 import com.fortysevendeg.mvessel.statement.{PreparedStatement, Statement}
-import com.fortysevendeg.mvessel.util.DatabaseUtils._
+import com.fortysevendeg.mvessel.util.DatabaseUtils.WrapSQLException
 
 class Connection(
+  databaseWrapperFactory: DatabaseProxyFactory,
   val databaseName: String,
   val timeout: Long = 0,
   val retryInterval: Int = 50,
   val flags: Int = 0,
-  val logWrapper: LogWrapper = new AndroidLogWrapper())
+  val logWrapper: LogWrapper)
   extends SQLConnection
   with WrapperNotSupported {
-
-  protected def createDatabase(): Option[Database] =
-    Some(new Database(databaseName, timeout, retryInterval, flags))
 
   protected def defaultAutoCommit(): Boolean = false
 
   private[this] def createPreparedStatement(
     sql: String,
-    columnName: Option[String] = None
-    ) = columnName match {
-    case Some(c) => new PreparedStatement(sql, this, Some(c))
-    case _ => new PreparedStatement(sql, this)
-  }
+    columnName: Option[String] = None) =
+    new PreparedStatement(
+      sql = sql,
+      connection = this,
+      columnGenerated = columnName,
+      logWrapper = logWrapper)
 
   val rollbackSql = "rollback;"
 
@@ -39,15 +39,15 @@ class Connection(
 
   val alreadyClosedErrorMessage = "Database connection closed"
 
-  private[this] var sqliteDatabase: Option[Database] = createDatabase()
+  private[this] var database: Option[Database] = Some(new Database(databaseWrapperFactory, databaseName, timeout, retryInterval, flags))
 
   private[this] var autoCommit: Boolean = defaultAutoCommit()
 
   override def close(): Unit = synchronized {
-    sqliteDatabase match {
+    database match {
       case Some(db) =>
         logWrapper.logOnError(db.close(), closingErrorMessage)
-        sqliteDatabase = None
+        database = None
       case _ =>
     }
   }
@@ -62,7 +62,9 @@ class Connection(
     }
   }
 
-  override def createStatement(): Statement = new Statement(this)
+  override def createStatement(): Statement = new Statement(
+    sqlConnection = this,
+    logWrapper = logWrapper)
 
   override def getAutoCommit: Boolean = autoCommit
 
@@ -79,9 +81,9 @@ class Connection(
     }
   }
 
-  override def getMetaData: SQLDatabaseMetaData = new DatabaseMetaData(this)
+  override def getMetaData: SQLDatabaseMetaData = new DatabaseMetaData(this, logWrapper)
 
-  override def isClosed: Boolean = sqliteDatabase match {
+  override def isClosed: Boolean = database match {
     case Some(db) => !db.database.isOpen
     case _ => true
   }
@@ -114,7 +116,7 @@ class Connection(
     super.finalize()
   }
 
-  def withOpenDatabase[T](f: (Database) => T) = WrapSQLException(sqliteDatabase, alreadyClosedErrorMessage)(f)
+  def withOpenDatabase[T](f: (Database) => T) = WrapSQLException(database, alreadyClosedErrorMessage)(f)
 
   override def clearWarnings(): Unit = logWrapper.notImplemented(Unit)
 

@@ -1,48 +1,33 @@
 package com.fortysevendeg.mvessel
 
-import java.sql.{Driver => SQLDriver, _}
+import java.sql.SQLException
 import java.util.Properties
-import java.util.logging.Logger
 
-import com.fortysevendeg.mvessel.Connection._
-import com.fortysevendeg.mvessel.Driver._
-import com.fortysevendeg.mvessel.util.ConnectionStringParser
+import com.fortysevendeg.mvessel.api.impl.AndroidDatabaseFactory
+import com.fortysevendeg.mvessel.logging.AndroidLogWrapper
 import com.fortysevendeg.mvessel.util.DatabaseUtils.WrapSQLException
 
 import scala.util.{Failure, Try}
+import com.fortysevendeg.mvessel.Connection._
 
-class Driver
-  extends SQLDriver
-  with ConnectionStringParser {
-
-  override def acceptsURL(url: String): Boolean =
-    Option(url) exists (_.startsWith(sqlitePrefix))
-
-  override def jdbcCompliant(): Boolean = false
-
-  override def getPropertyInfo(url: String, info: Properties): scala.Array[DriverPropertyInfo] = scala.Array.empty
-
-  override def getMinorVersion: Int = 0
-
-  override def getMajorVersion: Int = 1
-
-  override def getParentLogger: Logger =
-    throw new SQLFeatureNotSupportedException
+class AndroidDriver extends BaseDriver {
 
   override def connect(connectionUrl: String, properties: Properties): Connection =
     WrapSQLException(parseConnectionString(connectionUrl), s"Can't parse $connectionUrl") { values =>
       new Connection(
+        databaseWrapperFactory = new AndroidDatabaseFactory,
         databaseName = values.name,
         timeout = readTimeOut(values.params) getOrElse defaultTimeout,
         retryInterval = readRetry(values.params) getOrElse defaultRetryInterval,
-        flags = readFlags(properties))
+        flags = readFlags(properties),
+        logWrapper = new AndroidLogWrapper)
     }
 
   private[this] def readTimeOut(params: Map[String, String]): Option[Long] =
-    readLongParam("timeout", params)
+    readLongParam(BaseDriver.timeoutParam, params)
 
   private[this] def readRetry(params: Map[String, String]): Option[Int] =
-    readLongParam("retry", params) map (_.toInt)
+    readLongParam(BaseDriver.retryParam, params) map (_.toInt)
 
   private[this] def readLongParam(name: String, params: Map[String, String]): Option[Long] =
     params.get(name) flatMap (value => Try(value.toLong).toOption)
@@ -54,7 +39,10 @@ class Driver
 
   private[this] def readFlags(properties: Properties): Int =
     Option(properties) match {
-      case Some(p) => completeFlags(p.getProperty(databaseFlags), p.getProperty(additionalDatabaseFlags))
+      case Some(p) =>
+        completeFlags(
+          p.getProperty(AndroidDriver.databaseFlags),
+          p.getProperty(AndroidDriver.additionalDatabaseFlags))
       case _ => flags
     }
 
@@ -67,12 +55,13 @@ class Driver
 
   private[this] def parseInt(value: String, defaultValue: Int) =
     Try(value.toInt).toOption getOrElse defaultValue
+
 }
 
-object Driver {
+object AndroidDriver {
 
   def register() =
-    Try(java.sql.DriverManager.registerDriver(new Driver)) match {
+    Try(java.sql.DriverManager.registerDriver(new AndroidDriver)) match {
       case Failure(e) => throw new SQLException(e)
       case _ =>
     }
@@ -84,11 +73,5 @@ object Driver {
   val databaseFlags = "DatabaseFlags"
 
   val additionalDatabaseFlags = "AdditionalDatabaseFlags"
-
-  val sqlitePrefix = "jdbc:sqlite:"
-
-  val timeoutParam = "timeout"
-
-  val retryParam = "retry"
 
 }

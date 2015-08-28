@@ -1,7 +1,6 @@
 package com.fortysevendeg.mvessel
 
-import android.database.Cursor
-import android.database.sqlite.{SQLiteDatabaseLockedException, SQLiteDatabase}
+import com.fortysevendeg.mvessel.api.{CursorProxy, DatabaseProxy, DatabaseProxyFactory}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
@@ -23,13 +22,19 @@ trait DatabaseSpecification
   trait DatabaseScope
     extends Scope {
 
-    val mockedDatabase = mock[SQLiteDatabase]
+    val exception = new RuntimeException("Error")
 
-    val cursor = mock[Cursor]
+    val mockedDatabaseFactory = mock[DatabaseProxyFactory]
 
-    val database = new Database(databaseName, timeout, retry, flags) {
-      override def openDatabase(name: String, flags: Int): SQLiteDatabase = mockedDatabase
-    }
+    val mockedDatabase = mock[DatabaseProxy]
+
+    mockedDatabaseFactory.openDatabase(any, any) returns mockedDatabase
+
+    mockedDatabaseFactory.isLockedException(exception) returns true
+
+    val cursor = mock[CursorProxy]
+
+    val database = new Database(mockedDatabaseFactory, databaseName, timeout, retry, flags)
 
   }
 
@@ -46,14 +51,14 @@ class DatabaseSpec extends DatabaseSpecification {
     }
 
     "returns the Cursor when the method rawQuery in SQLiteDatabase throws an exception in the first call and returns cursor in the second call" in new DatabaseScope {
-      mockedDatabase.rawQuery(any, any) throws new SQLiteDatabaseLockedException("Error") thenReturn cursor
+      mockedDatabase.rawQuery(any, any) throws exception thenReturn cursor
       database.rawQuery(sql = sql, selectionArgs = Array()) shouldEqual cursor
       there was two(mockedDatabase).rawQuery(sql, Array())
     }
 
-    "throws SQLiteDatabaseLockedException when rawQuery in SQLiteDatabase throws always an exception" in new DatabaseScope {
-      mockedDatabase.rawQuery(any, any) throws new SQLiteDatabaseLockedException("Error")
-      database.rawQuery(sql = sql, selectionArgs = Array()) must throwA[SQLiteDatabaseLockedException]
+    "throws RuntimeException when rawQuery in SQLiteDatabase throws always an exception" in new DatabaseScope {
+      mockedDatabase.rawQuery(any, any) throws exception
+      database.rawQuery(sql = sql, selectionArgs = Array()) must throwA[RuntimeException]
       there was two(mockedDatabase).rawQuery(sql, Array())
     }
 
@@ -67,15 +72,14 @@ class DatabaseSpec extends DatabaseSpecification {
     }
 
     "executes the SQL statement successful when the method execSQL in SQLiteDatabase throws an exception in the first call and returns cursor in the second call" in new DatabaseScope {
-      mockedDatabase.execSQL(any) throws new SQLiteDatabaseLockedException("Error") thenAnswer new MockAnswer[Unit](args => Unit)
+      mockedDatabase.execSQL(any, any) throws exception thenAnswer new MockAnswer[Unit](args => Unit)
       database.execSQL(sql = sql)
       there was two(mockedDatabase).execSQL(sql)
     }
 
-    "throws SQLiteDatabaseLockedException when execSQL in SQLiteDatabase throws always an exception" in new DatabaseScope {
-      mockedDatabase.execSQL(any) throws new SQLiteDatabaseLockedException("Error")
-      database.execSQL(sql = sql) must throwA[SQLiteDatabaseLockedException]
-      there was two(mockedDatabase).execSQL(sql)
+    "throws RuntimeException when execSQL in SQLiteDatabase throws always an exception" in new DatabaseScope {
+      mockedDatabase.execSQL(any, any) throws exception
+      database.execSQL(sql = sql) must throwA[RuntimeException]
     }
 
   }
@@ -83,7 +87,9 @@ class DatabaseSpec extends DatabaseSpecification {
   "changedRowCount" should {
 
     "calls lastChangeCount in SQLiteDatabase" in new DatabaseScope {
-      database.changedRowCount() shouldEqual -1
+      val changedRowCount = -1
+      mockedDatabase.changedRowCount returns Some(changedRowCount)
+      database.changedRowCount() shouldEqual changedRowCount
     }
 
   }
@@ -98,15 +104,15 @@ class DatabaseSpec extends DatabaseSpecification {
 
     "executes successfully when the method setTransactionSuccessful in SQLiteDatabase throws an exception in the first call and executes successfully in the second call" in
       new DatabaseScope {
-        mockedDatabase.setTransactionSuccessful() throws new SQLiteDatabaseLockedException("Error") thenAnswer new MockAnswer[Unit](args => Unit)
+        mockedDatabase.setTransactionSuccessful() throws exception thenAnswer new MockAnswer[Unit](args => Unit)
         database.setTransactionSuccessful()
         there was two(mockedDatabase).setTransactionSuccessful()
       }
 
-    "throws SQLiteDatabaseLockedException when setTransactionSuccessful in SQLiteDatabase throws always an exception" in
+    "throws RuntimeException when setTransactionSuccessful in SQLiteDatabase throws always an exception" in
       new DatabaseScope {
-        mockedDatabase.setTransactionSuccessful() throws new SQLiteDatabaseLockedException("Error")
-        database.setTransactionSuccessful() must throwA[SQLiteDatabaseLockedException]
+        mockedDatabase.setTransactionSuccessful() throws exception
+        database.setTransactionSuccessful() must throwA[RuntimeException]
         there was two(mockedDatabase).setTransactionSuccessful()
       }
 
@@ -122,15 +128,15 @@ class DatabaseSpec extends DatabaseSpecification {
 
     "executes successfully when the method beginTransaction in SQLiteDatabase throws an exception in the first call and executes successfully in the second call" in
       new DatabaseScope {
-        mockedDatabase.beginTransaction() throws new SQLiteDatabaseLockedException("Error") thenAnswer new MockAnswer[Unit](args => Unit)
+        mockedDatabase.beginTransaction() throws exception thenAnswer new MockAnswer[Unit](args => Unit)
         database.beginTransaction()
         there was two(mockedDatabase).beginTransaction()
       }
 
-    "throws SQLiteDatabaseLockedException when beginTransaction in SQLiteDatabase throws always an exception" in
+    "throws RuntimeException when beginTransaction in SQLiteDatabase throws always an exception" in
       new DatabaseScope {
-        mockedDatabase.beginTransaction() throws new SQLiteDatabaseLockedException("Error")
-        database.beginTransaction() must throwA[SQLiteDatabaseLockedException]
+        mockedDatabase.beginTransaction() throws exception
+        database.beginTransaction() must throwA[RuntimeException]
         there was two(mockedDatabase).beginTransaction()
       }
 
@@ -146,15 +152,15 @@ class DatabaseSpec extends DatabaseSpecification {
 
     "executes successfully when the method endTransaction in SQLiteDatabase throws an exception in the first call and executes successfully in the second call" in
       new DatabaseScope {
-        mockedDatabase.endTransaction() throws new SQLiteDatabaseLockedException("Error") thenAnswer new MockAnswer[Unit](args => Unit)
+        mockedDatabase.endTransaction() throws exception thenAnswer new MockAnswer[Unit](args => Unit)
         database.endTransaction()
         there was two(mockedDatabase).endTransaction()
       }
 
-    "throws SQLiteDatabaseLockedException when endTransaction in SQLiteDatabase throws always an exception" in
+    "throws RuntimeException when endTransaction in SQLiteDatabase throws always an exception" in
       new DatabaseScope {
-        mockedDatabase.endTransaction() throws new SQLiteDatabaseLockedException("Error")
-        database.endTransaction() must throwA[SQLiteDatabaseLockedException]
+        mockedDatabase.endTransaction() throws exception
+        database.endTransaction() must throwA[RuntimeException]
         there was two(mockedDatabase).endTransaction()
       }
 
@@ -170,15 +176,15 @@ class DatabaseSpec extends DatabaseSpecification {
 
     "executes successfully when the method close in SQLiteDatabase throws an exception in the first call and executes successfully in the second call" in
       new DatabaseScope {
-        mockedDatabase.close() throws new SQLiteDatabaseLockedException("Error") thenAnswer new MockAnswer[Unit](args => Unit)
+        mockedDatabase.close() throws exception thenAnswer new MockAnswer[Unit](args => Unit)
         database.close()
         there was two(mockedDatabase).close()
       }
 
-    "throws SQLiteDatabaseLockedException when close in SQLiteDatabase throws always an exception" in
+    "throws RuntimeException when close in SQLiteDatabase throws always an exception" in
       new DatabaseScope {
-        mockedDatabase.close() throws new SQLiteDatabaseLockedException("Error")
-        database.close() must throwA[SQLiteDatabaseLockedException]
+        mockedDatabase.close() throws exception
+        database.close() must throwA[RuntimeException]
         there was two(mockedDatabase).close()
       }
 

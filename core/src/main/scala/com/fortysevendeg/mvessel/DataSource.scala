@@ -6,15 +6,15 @@ import java.util.Properties
 import java.util.logging.Logger
 import javax.sql.{DataSource => SQLDataSource}
 
-import com.fortysevendeg.mvessel.logging.{AndroidLogWrapper, LogWrapper}
+import com.fortysevendeg.mvessel.logging.LogWrapper
 
 import scala.util.{Failure, Success, Try}
 
 class DataSource(
-  driver: Driver,
+  driver: BaseDriver,
   properties: Properties = new Properties,
   dbPath: String,
-  log: LogWrapper = new AndroidLogWrapper)
+  log: LogWrapper)
   extends SQLDataSource
   with WrapperNotSupported {
 
