@@ -24,18 +24,12 @@ class Connection(
 
   private[this] def createPreparedStatement(
     sql: String,
-    columnName: Option[String] = None
-    ) = columnName match {
-    case Some(c) => new PreparedStatement(
+    columnName: Option[String] = None) =
+    new PreparedStatement(
       sql = sql,
       connection = this,
-      columnGenerated = Some(c),
+      columnGenerated = columnName,
       logWrapper = logWrapper)
-    case _ => new PreparedStatement(
-      sql = sql,
-      connection = this,
-      logWrapper = logWrapper)
-  }
 
   val rollbackSql = "rollback;"
 
