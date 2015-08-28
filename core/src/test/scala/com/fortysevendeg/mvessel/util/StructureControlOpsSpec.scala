@@ -1,6 +1,6 @@
 package com.fortysevendeg.mvessel.util
 
-import java.sql.ResultSet
+import java.sql.{SQLException, ResultSet}
 
 import com.fortysevendeg.mvessel.util.ResultSetProcessorOps._
 import org.specs2.mock.Mockito
@@ -69,6 +69,23 @@ class StructureControlOpsSpec
 
     "return an empty sequence when pass 0 as until param" in new WithResultSets {
       resultSet.process (c => c.getString(1), Some(0)) shouldEqual Seq.empty
+    }
+
+    "throws the same exception as the process body and call close" in new WithResultSets {
+      val exception = new SQLException("Error")
+      resultSet.process { c =>
+        throw exception
+      } must throwA(exception)
+      there was one(resultSet).close()
+    }
+
+    "throws the same exception as the process body and don't call close if is already closed" in new WithResultSets {
+      val exception = new SQLException("Error")
+      resultSet.isClosed returns true
+      resultSet.process { c =>
+        throw exception
+      } must throwA(exception)
+      there was no(resultSet).close()
     }
 
   }
