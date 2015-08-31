@@ -12,7 +12,7 @@ object DatabaseUtils {
       case Some(db) =>
         Try(f(db)) match {
           case Success(r) => r
-          case Failure(e) => throw new SQLException(message, e)
+          case Failure(e) => throw new SQLException(e)
         }
       case None =>
         throw new SQLException(message)

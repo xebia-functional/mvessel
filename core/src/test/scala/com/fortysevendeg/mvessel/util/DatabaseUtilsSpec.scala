@@ -58,7 +58,9 @@ class DatabaseUtilsSpec
 
     "throw a SQLException with a cause equal to the exception thrown by the function" in
       new WrapSQLExceptionScope {
-        WrapSQLException(Some(intValue), message)(functionThrowable) must throwA[SQLException](message)
+        WrapSQLException(Some(intValue), message)(functionThrowable) must throwA.like {
+          case e: SQLException => e.getCause shouldEqual exception
+        }
       }
 
   }
