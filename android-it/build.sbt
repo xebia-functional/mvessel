@@ -10,7 +10,7 @@ instrumentTestRunner in Android :=
 libraryDependencies ++= Seq(
   "com.android.support.test" % "runner" % "0.2",
   "com.android.support.test.espresso" % "espresso-core" % "2.1",
-  "com.fortysevendeg" %% "mvessel" % "0.1-SNAPSHOT" )
+  "com.fortysevendeg" %% "mvessel-android" % "0.1-SNAPSHOT" )
 
 apkbuildExcludes in Android += "LICENSE.txt"
 
