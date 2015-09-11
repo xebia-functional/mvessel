@@ -31,7 +31,7 @@ class ResultSetMetaData(
       case (None, _) =>
         Types.NULL
       case (Some(c), maybeInt) =>
-        val nativeType = cursor.getType(column - 1)
+        val nativeType = cursor.getCursorType(column - 1)
         maybeInt map cursor.moveToPosition
         fromWrapperType(nativeType)
     }

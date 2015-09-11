@@ -2,7 +2,7 @@ package com.fortysevendeg.mvessel.metadata
 
 import java.sql.{Connection => SQLConnection, DatabaseMetaData => SQLDatabaseMetaData, ResultSet}
 
-import com.fortysevendeg.mvessel.api.{DatabaseProxyFactory, DatabaseProxy}
+import com.fortysevendeg.mvessel.api.{CursorProxy, DatabaseProxyFactory, DatabaseProxy}
 import com.fortysevendeg.mvessel.{TestLogWrapper, Connection, Database}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -17,7 +17,7 @@ trait DatabaseMetaDataSpecification
   trait WithMockedSQLConnection
     extends Scope {
 
-    val connection = mock[Connection]
+    val connection = mock[Connection[CursorProxy]]
 
     val databaseMetaData = new DatabaseMetaData(connection, new TestLogWrapper)
 
@@ -32,11 +32,11 @@ trait DatabaseMetaDataSpecification
 
     val driverVersion = "driver-version"
 
-    val database = mock[Database]
+    val database = mock[Database[CursorProxy]]
 
-    val databaseProxy = mock[DatabaseProxy]
+    val databaseProxy = mock[DatabaseProxy[CursorProxy]]
 
-    val databaseProxyFactory = mock[DatabaseProxyFactory]
+    val databaseProxyFactory = mock[DatabaseProxyFactory[CursorProxy]]
 
     databaseProxyFactory.openDatabase(any, any) returns databaseProxy
 
@@ -48,7 +48,7 @@ trait DatabaseMetaDataSpecification
 
     database.database returns databaseProxy
 
-    val connection = new Connection(
+    val connection = new Connection[CursorProxy](
       databaseWrapperFactory = databaseProxyFactory,
       databaseName = "",
       logWrapper = new TestLogWrapper)

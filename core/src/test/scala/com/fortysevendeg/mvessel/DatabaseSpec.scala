@@ -24,9 +24,9 @@ trait DatabaseSpecification
 
     val exception = new RuntimeException("Error")
 
-    val mockedDatabaseFactory = mock[DatabaseProxyFactory]
+    val mockedDatabaseFactory = mock[DatabaseProxyFactory[CursorProxy]]
 
-    val mockedDatabase = mock[DatabaseProxy]
+    val mockedDatabase = mock[DatabaseProxy[CursorProxy]]
 
     mockedDatabaseFactory.openDatabase(any, any) returns mockedDatabase
 
@@ -34,7 +34,12 @@ trait DatabaseSpecification
 
     val cursor = mock[CursorProxy]
 
-    val database = new Database(mockedDatabaseFactory, databaseName, timeout, retry, flags)
+    val database = new Database[CursorProxy](
+      databaseFactory = mockedDatabaseFactory,
+      name = databaseName,
+      timeout = timeout,
+      retry = retry,
+      flags = flags)
 
   }
 

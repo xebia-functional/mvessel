@@ -4,12 +4,13 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.database.Cursor;
 import com.fortysevendeg.mvessel.Database;
+import com.fortysevendeg.mvessel.api.impl.AndroidCursor;
 
 public class ContactsCursorLoader extends CursorLoader {
 
-    private final Database database;
+    private final Database<AndroidCursor> database;
 
-    public ContactsCursorLoader(Context context, Database database) {
+    public ContactsCursorLoader(Context context, Database<AndroidCursor> database) {
         super(context);
         this.database = database;
     }

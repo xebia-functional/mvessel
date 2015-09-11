@@ -2,6 +2,7 @@ package com.fortysevendeg.mvessel
 
 import java.util.Properties
 
+import com.fortysevendeg.mvessel.api.CursorProxy
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
@@ -15,15 +16,19 @@ trait DataSourceSpecification
   trait DataSourceScope
     extends Scope {
 
-    val driver = mock[BaseDriver]
+    val driver = mock[BaseDriver[CursorProxy]]
 
-    val connection = mock[Connection]
+    val connection = mock[Connection[CursorProxy]]
 
     val properties = new Properties
 
     val dbPath = "/path/dbname.db"
 
-    val datasource = new DataSource(driver, properties, dbPath, new TestLogWrapper)
+    val datasource = new DataSource[CursorProxy](
+      driver = driver,
+      properties = properties,
+      dbPath = dbPath,
+      log = new TestLogWrapper)
 
   }
 
@@ -71,7 +76,7 @@ class DataSourceSpec
   "isWrapperFor" should {
 
     "throws an UnsupportedOperationException" in new DataSourceScope {
-      datasource.isWrapperFor(classOf[DataSource]) must throwA[UnsupportedOperationException]
+      datasource.isWrapperFor(classOf[DataSource[CursorProxy]]) must throwA[UnsupportedOperationException]
     }
 
   }
@@ -79,7 +84,7 @@ class DataSourceSpec
   "unwrap" should {
 
     "throws an UnsupportedOperationException" in new DataSourceScope {
-      datasource.unwrap(classOf[DataSource]) must throwA[UnsupportedOperationException]
+      datasource.unwrap(classOf[DataSource[CursorProxy]]) must throwA[UnsupportedOperationException]
     }
 
   }

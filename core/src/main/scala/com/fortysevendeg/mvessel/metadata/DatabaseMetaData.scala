@@ -387,7 +387,7 @@ class DatabaseMetaData(
   override val getCatalogTerm: String = "catalog"
 
   override def getDatabaseMajorVersion: Int = connection match {
-    case c: Connection => c.withOpenDatabase(_.database.getVersion)
+    case c: Connection[_] => c.withOpenDatabase(_.database.getVersion)
     case _ => 0
   }
 
@@ -404,12 +404,12 @@ class DatabaseMetaData(
   override val getDriverMinorVersion: Int = 1
 
   override val getDriverName: String = connection match {
-    case c: Connection => c.withOpenDatabase(_.database.getDriverName)
+    case c: Connection[_] => c.withOpenDatabase(_.database.getDriverName)
     case _ => javaNull
   }
 
   override val getDriverVersion: String = connection match {
-    case c: Connection => c.withOpenDatabase(_.database.getDriverVersion)
+    case c: Connection[_] => c.withOpenDatabase(_.database.getDriverVersion)
     case _ => javaNull
   }
 

@@ -1,12 +1,15 @@
 package com.fortysevendeg.mvessel.api.impl
 
-import android.database.Cursor
+import android.content.ContentResolver
+import android.database.{ContentObserver, CharArrayBuffer, DataSetObserver, Cursor}
+import android.net.Uri
+import android.os.Bundle
 import com.fortysevendeg.mvessel.api.CursorType.Value
 import com.fortysevendeg.mvessel.api.{CursorType, CursorProxy}
 
-class AndroidCursor(cursor: Cursor) extends CursorProxy {
+class AndroidCursor(cursor: Cursor) extends CursorProxy with Cursor {
 
-  override def getType(columnIndex: Int): Value = cursor.getType(columnIndex) match {
+  override def getCursorType(columnIndex: Int): Value = cursor.getType(columnIndex) match {
     case Cursor.FIELD_TYPE_NULL => CursorType.Null
         case Cursor.FIELD_TYPE_INTEGER => CursorType.Integer
         case Cursor.FIELD_TYPE_FLOAT => CursorType.Float
@@ -63,4 +66,32 @@ class AndroidCursor(cursor: Cursor) extends CursorProxy {
   override def getString(columnIndex: Int): String = cursor.getString(columnIndex)
 
   override def close(): Unit = cursor.close()
+
+  override def getType(columnIndex: Int): Int = cursor.getType(columnIndex)
+
+  override def getColumnNames: Array[String] = cursor.getColumnNames
+
+  override def getColumnIndex(columnName: String): Int = cursor.getColumnIndex(columnName)
+
+  override def getExtras: Bundle = cursor.getExtras
+
+  override def getWantsAllOnMoveCalls: Boolean = cursor.getWantsAllOnMoveCalls
+
+  override def registerContentObserver(observer: ContentObserver): Unit = cursor.registerContentObserver(observer)
+
+  override def unregisterContentObserver(observer: ContentObserver): Unit = cursor.unregisterContentObserver(observer)
+
+  override def registerDataSetObserver(observer: DataSetObserver): Unit = cursor.registerDataSetObserver(observer)
+
+  override def unregisterDataSetObserver(observer: DataSetObserver): Unit = cursor.unregisterDataSetObserver(observer)
+
+  override def deactivate(): Unit = cursor.deactivate()
+
+  override def copyStringToBuffer(columnIndex: Int, buffer: CharArrayBuffer): Unit = cursor.copyStringToBuffer(columnIndex, buffer)
+
+  override def requery(): Boolean = cursor.requery()
+
+  override def setNotificationUri(cr: ContentResolver, uri: Uri): Unit = cursor.setNotificationUri(cr, uri)
+
+  override def respond(extras: Bundle): Bundle = cursor.respond(extras)
 }

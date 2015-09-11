@@ -22,7 +22,7 @@ class CursorSeq(
 
   override def getColumnName(columnIndex: Int): String = columnNames(columnIndex)
 
-  override def getType(columnIndex: Int): Value = readType(getValue(columnIndex))
+  override def getCursorType(columnIndex: Int): Value = readType(getValue(columnIndex))
 
   override def getDouble(columnIndex: Int): Double = getValue(columnIndex) match {
     case null => 0d
@@ -70,7 +70,7 @@ class CursorSeq(
     case a => a.toString
   }
 
-  override def isNull(columnIndex: Int): Boolean = getType(columnIndex) == CursorType.Null
+  override def isNull(columnIndex: Int): Boolean = getCursorType(columnIndex) == CursorType.Null
 
   private[this] def getValue(columnIndex: Int): Any =
     (getColumnCount, getPosition) match {
