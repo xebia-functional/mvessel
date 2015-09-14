@@ -17,8 +17,8 @@ class AndroidCursor(val cursor: Cursor)
       case Cursor.FIELD_TYPE_NULL => CursorType.Null
       case Cursor.FIELD_TYPE_INTEGER => CursorType.Integer
       case Cursor.FIELD_TYPE_FLOAT => CursorType.Float
-      case Cursor.FIELD_TYPE_STRING => CursorType.String
       case Cursor.FIELD_TYPE_BLOB => CursorType.Blob
+      case _ => CursorType.String
     }
 
   override def isClosed: Boolean =
@@ -44,6 +44,12 @@ class AndroidCursor(val cursor: Cursor)
 
   override def getColumnCount: Int =
     cursor.getColumnCount
+
+  override def getColumnNames: Array[String] =
+    cursor.getColumnNames
+
+  override def getColumnIndex(columnName: String): Int =
+    cursor.getColumnIndex(columnName)
 
   override def getColumnIndexOrThrow(columnName: String): Int =
     cursor.getColumnIndexOrThrow(columnName)
@@ -72,15 +78,6 @@ class AndroidCursor(val cursor: Cursor)
   override def close(): Unit =
     cursor.close()
 
-  override def getColumnNames: Array[String] =
-    cursor.getColumnNames
-
-  override def getColumnIndex(columnName: String): Int =
-    cursor.getColumnIndex(columnName)
-
-  override def getExtras: Bundle =
-    cursor.getExtras
-
   override def getWantsAllOnMoveCalls: Boolean =
     cursor.getWantsAllOnMoveCalls
 
@@ -106,6 +103,9 @@ class AndroidCursor(val cursor: Cursor)
 
   override def setNotificationUri(cr: ContentResolver, uri: Uri): Unit =
     cursor.setNotificationUri(cr, uri)
+
+  override def getExtras: Bundle =
+    cursor.getExtras
 
   override def respond(extras: Bundle): Bundle =
     cursor.respond(extras)
