@@ -24,15 +24,15 @@ trait StatementSpecification
 
     val logWrapper = new TestLogWrapper
 
-    val databaseProxy = mock[DatabaseProxy]
+    val databaseProxy = mock[DatabaseProxy[CursorProxy]]
 
-    val databaseProxyFactory = mock[DatabaseProxyFactory]
+    val databaseProxyFactory = mock[DatabaseProxyFactory[CursorProxy]]
 
     databaseProxyFactory.openDatabase(any, any) returns databaseProxy
 
     databaseProxy.isOpen returns true
 
-    val connection: Connection = new Connection(
+    val connection: Connection[CursorProxy] = new Connection(
       databaseWrapperFactory = databaseProxyFactory,
       databaseName = databaseName,
       logWrapper = logWrapper)
@@ -63,7 +63,7 @@ trait StatementSpecification
 
   trait WithoutColumnGenerated extends StatementScope {
 
-    val statement = new Statement(
+    val statement = new Statement[CursorProxy](
       sqlConnection = connection,
       columnGenerated = None,
       logWrapper = new TestLogWrapper())
@@ -183,7 +183,7 @@ class StatementSpec
       databaseProxy.rawQuery(any, any) returns cursor
       val rs = statement.executeQuery(selectSql)
       rs must beLike {
-        case st: ResultSet => st.cursor shouldEqual cursor
+        case st: ResultSet[_] => st.cursor shouldEqual cursor
       }
       statement.getResultSet shouldEqual rs
     }
@@ -241,7 +241,7 @@ class StatementSpec
         databaseProxy.rawQuery(contain(columnGenerated), any) returns cursor
         val rs = statement.getGeneratedKeys
         rs must beLike {
-          case st: ResultSet => st.cursor shouldEqual cursor
+          case st: ResultSet[_] => st.cursor shouldEqual cursor
         }
         statement.getResultSet shouldEqual rs
       }

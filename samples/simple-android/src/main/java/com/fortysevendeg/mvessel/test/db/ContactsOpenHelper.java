@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.fortysevendeg.mvessel.Database;
+import com.fortysevendeg.mvessel.api.impl.AndroidCursor;
+import com.fortysevendeg.mvessel.api.impl.AndroidDatabaseFactory;
 
 public class ContactsOpenHelper extends SQLiteOpenHelper {
 
@@ -12,7 +14,7 @@ public class ContactsOpenHelper extends SQLiteOpenHelper {
     public static final String C_NAME = "name";
     public static final String C_AGE = "age";
 
-    private Database database;
+    private Database<AndroidCursor> database;
 
     public ContactsOpenHelper(Context context) {
         super(context, "contacts.db", null, 1);
@@ -36,7 +38,7 @@ public class ContactsOpenHelper extends SQLiteOpenHelper {
 
     public Database open() {
         SQLiteDatabase database = getReadableDatabase();
-        this.database = new Database(database.getPath(), 50, 0, 0);
+        this.database = new Database<>(new AndroidDatabaseFactory(), database.getPath(), 50, 0, 0);
         return this.database;
     }
 
@@ -50,7 +52,7 @@ public class ContactsOpenHelper extends SQLiteOpenHelper {
         super.close();
     }
 
-    public Database getDatabase() {
+    public Database<AndroidCursor> getDatabase() {
         return database;
     }
 

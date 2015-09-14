@@ -2,12 +2,12 @@ package com.fortysevendeg.mvessel.api.impl
 
 import android.database.sqlite.SQLiteDatabase
 import com.fortysevendeg.mvessel.AndroidDriver
-import com.fortysevendeg.mvessel.api.{CursorProxy, DatabaseProxy, DatabaseProxyFactory}
+import com.fortysevendeg.mvessel.api.{DatabaseProxy, DatabaseProxyFactory}
 import com.fortysevendeg.mvessel.util.ReflectionOps._
 
-class AndroidDatabaseFactory extends DatabaseProxyFactory {
+class AndroidDatabaseFactory extends DatabaseProxyFactory[AndroidCursor] {
 
-  override def openDatabase(name: String, flags: Int): DatabaseProxy =
+  override def openDatabase(name: String, flags: Int): DatabaseProxy[AndroidCursor] =
     new AndroidDatabase(SQLiteDatabase.openDatabase(name, null, flags))
 
   override def isLockedException(exception: RuntimeException): Boolean =
@@ -15,9 +15,9 @@ class AndroidDatabaseFactory extends DatabaseProxyFactory {
 
 }
 
-class AndroidDatabase(sqliteDatabase: SQLiteDatabase) extends DatabaseProxy {
+class AndroidDatabase(sqliteDatabase: SQLiteDatabase) extends DatabaseProxy[AndroidCursor] {
 
-  override def rawQuery(sql: String, selectionArgs: Array[String]): CursorProxy =
+  override def rawQuery(sql: String, selectionArgs: Array[String]): AndroidCursor =
     new AndroidCursor(sqliteDatabase.rawQuery(sql, selectionArgs))
 
   override def execSQL(sql: String, bindArgs: Option[Array[AnyRef]]): Unit =

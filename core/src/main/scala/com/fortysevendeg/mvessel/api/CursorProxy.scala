@@ -36,7 +36,7 @@ trait CursorProxy {
 
   def isNull(columnIndex: Int): Boolean
 
-  def getType(columnIndex: Int): CursorType.Value
+  def getCursorType(columnIndex: Int): CursorType.Value
 
   def getString(columnIndex: Int): String
 

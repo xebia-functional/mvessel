@@ -3,12 +3,12 @@ package com.fortysevendeg.mvessel
 import java.io.Closeable
 
 import com.fortysevendeg.mvessel.Database._
-import com.fortysevendeg.mvessel.api.{CursorProxy, DatabaseProxyFactory}
+import com.fortysevendeg.mvessel.api.{DatabaseProxy, CursorProxy, DatabaseProxyFactory}
 
 import scala.util.{Failure, Success, Try}
 
-class Database(
-  databaseFactory: DatabaseProxyFactory,
+class Database[T <: CursorProxy](
+  databaseFactory: DatabaseProxyFactory[T],
   val name: String,
   timeout: Long,
   retry: Long,
@@ -16,11 +16,11 @@ class Database(
 
   val database = executeWithRetry(databaseFactory, retry, timeout)(openDatabase(name, flags))
 
-  def openDatabase(name: String, flags: Int) = databaseFactory.openDatabase(name, flags)
+  def openDatabase(name: String, flags: Int): DatabaseProxy[T] = databaseFactory.openDatabase(name, flags)
 
-  def rawQuery(sql: String): CursorProxy = rawQuery(sql, javaNull)
+  def rawQuery(sql: String): T = rawQuery(sql, javaNull)
 
-  def rawQuery(sql: String, selectionArgs: Array[String]): CursorProxy =
+  def rawQuery(sql: String, selectionArgs: Array[String]): T =
     executeWithRetry(databaseFactory, retry, timeout)(database.rawQuery(sql, selectionArgs))
 
   def execSQL(sql: String): Unit = execSQL(sql, javaNull)
@@ -66,22 +66,22 @@ object Database {
 
   case object Close extends TransactionState
 
-  def executeWithRetry[T](
-    databaseWrapperFactory: DatabaseProxyFactory,
+  def executeWithRetry[R, T <: CursorProxy](
+    databaseWrapperFactory: DatabaseProxyFactory[T],
     retry: Long, 
-    timeout: Long)(f: => T): T =
-    executeWithRetry(databaseWrapperFactory, 0, retry, timeout)(f)
+    timeout: Long)(f: => R): R =
+    withRetry(databaseWrapperFactory, 0, retry, timeout)(f)
 
-  private[this] def executeWithRetry[T](
-    databaseWrapperFactory: DatabaseProxyFactory,
+  private[this] def withRetry[R, T <: CursorProxy](
+    databaseWrapperFactory: DatabaseProxyFactory[T],
     elapsed: Long, 
     retry: Long, 
-    timeout: Long)(f: => T): T =
+    timeout: Long)(f: => R): R =
     Try(f) match {
       case Success(d) => d
       case Failure(e: RuntimeException) if databaseWrapperFactory.isLockedException(e) && (elapsed + retry < timeout) =>
         Thread.sleep(retry)
-        executeWithRetry(databaseWrapperFactory, elapsed + retry, retry, timeout)(f)
+        withRetry(databaseWrapperFactory, elapsed + retry, retry, timeout)(f)
       case Failure(e) => throw e
     }
 

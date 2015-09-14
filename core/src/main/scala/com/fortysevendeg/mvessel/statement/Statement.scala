@@ -2,7 +2,7 @@ package com.fortysevendeg.mvessel.statement
 
 import java.sql.{ResultSet => SQLResultSet, SQLException, SQLWarning, Statement => SQLStatement}
 
-import com.fortysevendeg.mvessel.api.CursorProxy
+import com.fortysevendeg.mvessel.api.{CursorType, CursorProxy}
 import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.resultset.ResultSet
 import com.fortysevendeg.mvessel.statement.StatementInfo._
@@ -11,8 +11,8 @@ import com.fortysevendeg.mvessel.{Connection, Database, WrapperNotSupported, jav
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
-class Statement(
-  sqlConnection: Connection,
+class Statement[T <: CursorProxy](
+  sqlConnection: Connection[T],
   columnGenerated: Option[String] = None,
   logWrapper: LogWrapper)
   extends SQLStatement
@@ -30,7 +30,7 @@ class Statement(
 
   protected val batchList = new mutable.MutableList[String]
 
-  protected var connection: Option[Connection] = Option(sqlConnection)
+  protected var connection: Option[Connection[T]] = Option(sqlConnection)
 
   protected var maxRows: Option[Int] = None
 
@@ -101,7 +101,7 @@ class Statement(
 
   override def executeUpdate(sql: String): Int = executeUpdateWithArgs(sql)
 
-  override def getConnection: Connection =
+  override def getConnection: Connection[T] =
     connection match {
       case Some(c) if !c.isClosed => c
       case _ => throw new SQLException(connectionClosedErrorMessage)
@@ -194,17 +194,17 @@ class Statement(
     resultSet = None
   }
 
-  protected def withOpenConnection[T](f: (Database) => T) =
+  protected def withOpenConnection[R](f: (Database[T]) => R) =
     connection match {
       case Some(c) if !c.isClosed =>
         closeResultSet()
-        c.withOpenDatabase[T](f)
+        c.withOpenDatabase[R](f)
       case _ =>
         throw new SQLException(connectionClosedErrorMessage)
     }
 
   private[this] def newQueryResultSet(
-    db: Database,
+    db: Database[T],
     sql: String,
     arguments: Option[StatementArguments] = None): SQLResultSet = {
     val rs = new ResultSet(rawQuery(db, sql, arguments), logWrapper)
@@ -213,16 +213,16 @@ class Statement(
   }
 
   private[this] def rawQuery(
-    db: Database,
+    db: Database[T],
     sql: String,
-    arguments: Option[StatementArguments] = None): CursorProxy =
+    arguments: Option[StatementArguments] = None): T =
     arguments match {
       case Some(a) => db.rawQuery(sql, a.toStringArray)
       case _ => db.rawQuery(sql)
     }
 
   private[this] def execSQL(
-    db: Database,
+    db: Database[T],
     sql: String,
     arguments: Option[StatementArguments] = None): Unit =
     arguments match {

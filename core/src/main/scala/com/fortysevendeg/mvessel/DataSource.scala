@@ -6,12 +6,13 @@ import java.util.Properties
 import java.util.logging.Logger
 import javax.sql.{DataSource => SQLDataSource}
 
+import com.fortysevendeg.mvessel.api.CursorProxy
 import com.fortysevendeg.mvessel.logging.LogWrapper
 
 import scala.util.{Failure, Success, Try}
 
-class DataSource(
-  driver: BaseDriver,
+class DataSource[T <: CursorProxy](
+  driver: BaseDriver[T],
   properties: Properties = new Properties,
   dbPath: String,
   log: LogWrapper)
@@ -20,7 +21,7 @@ class DataSource(
 
   private[this] val url: String = "jdbc:sqlite:" + dbPath
 
-  lazy val connection: Connection = driver.connect(url, properties)
+  lazy val connection: Connection[T] = driver.connect(url, properties)
 
   override def getConnection: SQLConnection = connection
 

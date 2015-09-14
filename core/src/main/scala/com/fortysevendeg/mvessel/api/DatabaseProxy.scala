@@ -1,16 +1,16 @@
 package com.fortysevendeg.mvessel.api
 
-trait DatabaseProxyFactory {
+trait DatabaseProxyFactory[T <: CursorProxy] {
 
-  def openDatabase(name: String, flags: Int): DatabaseProxy
+  def openDatabase(name: String, flags: Int): DatabaseProxy[T]
 
   def isLockedException(exception: RuntimeException): Boolean
 
 }
 
-trait DatabaseProxy {
+trait DatabaseProxy[T <: CursorProxy] {
 
-  def rawQuery(sql: String, selectionArgs: Array[String]): CursorProxy
+  def rawQuery(sql: String, selectionArgs: Array[String]): T
 
   def execSQL(sql: String, bindArgs: Option[Array[AnyRef]] = None): Unit
 

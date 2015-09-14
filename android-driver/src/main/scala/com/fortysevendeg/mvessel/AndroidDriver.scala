@@ -3,16 +3,16 @@ package com.fortysevendeg.mvessel
 import java.sql.SQLException
 import java.util.Properties
 
-import com.fortysevendeg.mvessel.api.impl.AndroidDatabaseFactory
+import com.fortysevendeg.mvessel.api.impl.{AndroidCursor, AndroidDatabaseFactory}
 import com.fortysevendeg.mvessel.logging.AndroidLogWrapper
 import com.fortysevendeg.mvessel.util.DatabaseUtils.WrapSQLException
 
 import scala.util.{Failure, Try}
 import com.fortysevendeg.mvessel.Connection._
 
-class AndroidDriver extends BaseDriver {
+class AndroidDriver extends BaseDriver[AndroidCursor] {
 
-  override def connect(connectionUrl: String, properties: Properties): Connection =
+  override def connect(connectionUrl: String, properties: Properties): Connection[AndroidCursor] =
     WrapSQLException(parseConnectionString(connectionUrl), s"Can't parse $connectionUrl") { values =>
       new Connection(
         databaseWrapperFactory = new AndroidDatabaseFactory,

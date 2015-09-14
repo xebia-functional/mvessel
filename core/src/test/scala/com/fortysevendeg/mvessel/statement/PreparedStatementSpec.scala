@@ -26,15 +26,15 @@ trait PreparedStatementSpecification
 
     val logWrapper = new TestLogWrapper
 
-    val databaseProxy = mock[DatabaseProxy]
+    val databaseProxy = mock[DatabaseProxy[CursorProxy]]
 
-    val databaseProxyFactory = mock[DatabaseProxyFactory]
+    val databaseProxyFactory = mock[DatabaseProxyFactory[CursorProxy]]
 
     databaseProxyFactory.openDatabase(any, any) returns databaseProxy
 
     databaseProxy.isOpen returns true
 
-    val connection: Connection = new Connection(
+    val connection: Connection[CursorProxy] = new Connection(
       databaseWrapperFactory = databaseProxyFactory,
       databaseName = databaseName,
       logWrapper = logWrapper)
@@ -98,7 +98,7 @@ trait PreparedStatementSpecification
 
     val mockLog = mock[LogWrapper]
 
-    val preparedStatement = new PreparedStatement(
+    val preparedStatement = new PreparedStatement[CursorProxy](
       sql = insertSql,
       connection = connection,
       columnGenerated = Some(columnGenerated),
@@ -160,7 +160,7 @@ class PreparedStatementSpec
       databaseProxy.rawQuery(any, any) returns cursor
       val rs = preparedStatement.executeQuery()
       rs must beLike[SQLResultSet] {
-        case st: ResultSet => st.cursor shouldEqual cursor
+        case st: ResultSet[_] => st.cursor shouldEqual cursor
       }
     }
 

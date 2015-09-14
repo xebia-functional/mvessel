@@ -6,6 +6,7 @@ import java.net.URL
 import java.sql.{PreparedStatement => SQLPreparedStatement, ResultSet => SQLResultSet, Statement => SQLStatement, _}
 import java.util.Calendar
 
+import com.fortysevendeg.mvessel.api.CursorProxy
 import com.fortysevendeg.mvessel.logging.LogWrapper
 import com.fortysevendeg.mvessel.statement.StatementInfo._
 import com.fortysevendeg.mvessel.{Connection, javaNull}
@@ -13,9 +14,9 @@ import com.fortysevendeg.mvessel.util.StreamUtils._
 
 import scala.util.{Failure, Success, Try}
 
-class PreparedStatement(
+class PreparedStatement[T <: CursorProxy](
   val sql: String,
-  connection: Connection,
+  connection: Connection[T],
   val columnGenerated: Option[String] = None,
   arguments: PreparedStatementArguments = new PreparedStatementArguments,
   logWrapper: LogWrapper)

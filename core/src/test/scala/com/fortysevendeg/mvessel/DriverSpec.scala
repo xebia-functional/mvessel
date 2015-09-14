@@ -3,6 +3,7 @@ package com.fortysevendeg.mvessel
 import java.sql.SQLFeatureNotSupportedException
 import java.util.Properties
 
+import com.fortysevendeg.mvessel.api.CursorProxy
 import com.fortysevendeg.mvessel.util.ConnectionValues
 import org.specs2.matcher.Scope
 import org.specs2.mock.Mockito
@@ -36,22 +37,24 @@ trait DriverSpecification
 
     val connectionValues = ConnectionValues(name, Map("timeout" -> timeout.toString, "retry" -> retry.toString))
 
-    val driver = new BaseDriver {
+    val driver = new BaseDriver[CursorProxy] {
 
       override def parseConnectionString(connectionString: String): Option[ConnectionValues] = Some(connectionValues)
 
-      override def connect(url: String, properties: Properties): Connection = mock[Connection]
+      override def connect(url: String, properties: Properties): Connection[CursorProxy] =
+        mock[Connection[CursorProxy]]
     }
 
   }
 
   trait WithoutConnectionValues extends DriverScope {
 
-    val driver = new BaseDriver {
+    val driver = new BaseDriver[CursorProxy] {
 
       override def parseConnectionString(connectionString: String): Option[ConnectionValues] = None
 
-      override def connect(url: String, properties: Properties): Connection = mock[Connection]
+      override def connect(url: String, properties: Properties): Connection[CursorProxy] =
+        mock[Connection[CursorProxy]]
     }
 
   }

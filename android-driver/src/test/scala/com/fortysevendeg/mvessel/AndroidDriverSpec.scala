@@ -3,6 +3,7 @@ package com.fortysevendeg.mvessel
 import java.sql.SQLException
 import java.util.Properties
 
+import com.fortysevendeg.mvessel.api.impl.AndroidCursor
 import com.fortysevendeg.mvessel.util.ConnectionValues
 import org.specs2.matcher.Scope
 import org.specs2.mutable.Specification
@@ -60,7 +61,7 @@ class DriverSpec
     "create a Connection with the params obtained by the ConnectionStringParser" in
       new WithConnectionValues {
         driver.connect(validUrl, properties) must beLike {
-          case c: Connection =>
+          case c: Connection[AndroidCursor] =>
             c.databaseName shouldEqual name
             c.timeout shouldEqual timeout
             c.retryInterval shouldEqual retry

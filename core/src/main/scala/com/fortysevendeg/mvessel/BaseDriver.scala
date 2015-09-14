@@ -5,9 +5,10 @@ import java.util.Properties
 import java.util.logging.Logger
 
 import com.fortysevendeg.mvessel.BaseDriver._
+import com.fortysevendeg.mvessel.api.CursorProxy
 import com.fortysevendeg.mvessel.util.ConnectionStringParser
 
-trait BaseDriver
+trait BaseDriver[T <: CursorProxy]
   extends SQLDriver
   with ConnectionStringParser {
 
@@ -25,7 +26,7 @@ trait BaseDriver
   override def getParentLogger: Logger =
     throw new SQLFeatureNotSupportedException
 
-  def connect(url: String, properties: Properties): Connection
+  def connect(url: String, properties: Properties): Connection[T]
 }
 
 object BaseDriver {

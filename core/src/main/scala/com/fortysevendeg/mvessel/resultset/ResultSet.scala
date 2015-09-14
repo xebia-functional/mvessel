@@ -16,8 +16,8 @@ import com.fortysevendeg.mvessel.{WrapperNotSupported, _}
 import scala.util.{Failure, Success, Try}
 import scala.{Array => SArray}
 
-class ResultSet(
-  val cursor: CursorProxy,
+class ResultSet[T <: CursorProxy](
+  val cursor: T,
   val log: LogWrapper)
   extends SQLResultSet
   with NonEditableResultSet
@@ -35,19 +35,19 @@ class ResultSet(
         false
     }
 
-  private[this] def getOp[T](index: Int)(f: Int => T): T = {
+  private[this] def getOp[R](index: Int)(f: Int => R): R = {
     lastColumnRead = Some(index)
     f(index)
   }
 
-  private[this] def notClosed[T](f: => T) =
+  private[this] def notClosed[R](f: => R) =
     if (cursor.isClosed) throw new SQLException("Cursor is closed")
     else Try(f) match {
       case Success(r) => r
       case Failure(e) => throw new SQLException(e)
     }
 
-  private[this] def notNull[T](columnIndex: Int)(f: => T): Option[T] =
+  private[this] def notNull[R](columnIndex: Int)(f: => R): Option[R] =
     getOp(columnIndex.index)(cursor.isNull) match {
       case true => None
       case false => Option(f)
@@ -55,7 +55,7 @@ class ResultSet(
 
   private[this] def readBytes(columnIndex: Int): Option[SArray[Byte]] =
     notNull(columnIndex) {
-      cursor.getType(columnIndex.index) match {
+      cursor.getCursorType(columnIndex.index) match {
         case CursorType.String => getOp(columnIndex.index)(cursor.getString).getBytes
         case _ => getOp(columnIndex.index)(cursor.getBlob)
       }
@@ -66,7 +66,7 @@ class ResultSet(
 
   private[this] def readTime(columnIndex: Int): Option[Long] =
     notNull(columnIndex) {
-      cursor.getType(columnIndex.index) match {
+      cursor.getCursorType(columnIndex.index) match {
         case CursorType.Integer => Some(getOp(columnIndex.index)(cursor.getLong))
         case _ => parseDate(getOp(columnIndex.index)(cursor.getString)) map (_.getTime)
       }
@@ -289,7 +289,7 @@ class ResultSet(
 
   override def getObject(columnIndex: Int): AnyRef = notClosed {
     notNull(columnIndex) {
-      cursor.getType(columnIndex.index) match {
+      cursor.getCursorType(columnIndex.index) match {
         case CursorType.Integer => new java.lang.Integer(getOp(columnIndex.index)(cursor.getInt))
         case CursorType.Float => new java.lang.Float(getOp(columnIndex.index)(cursor.getFloat))
         case CursorType.Blob => new Blob(getOp(columnIndex.index)(cursor.getBlob))
