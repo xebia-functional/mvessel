@@ -22,7 +22,7 @@ trait LogWrapper {
     result
   }
 
-  def logOnError[T](f: => T, msg: String = "") =
+  def logOnError[T](msg: String = "", f: => T) =
     Try(f) match {
       case Failure(ex) => e(msg, Some(ex))
       case _ =>

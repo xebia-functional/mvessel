@@ -167,7 +167,7 @@ class StatementSpec
 
       batch foreach statement.addBatch
 
-      statement.executeBatch() shouldEqual changedRowCounts.map(_.get).toArray
+      statement.executeBatch() shouldEqual changedRowCounts.flatten.toArray
       statement.getUpdateCount shouldEqual changedRowCounts.foldLeft(0)((a, b) => a + b.get)
     }
 
