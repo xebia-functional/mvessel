@@ -46,7 +46,7 @@ class Connection[T <: CursorProxy](
   override def close(): Unit = synchronized {
     database match {
       case Some(db) =>
-        logWrapper.logOnError(db.close(), closingErrorMessage)
+        logWrapper.logOnError(closingErrorMessage, db.close())
         database = None
       case _ =>
     }
