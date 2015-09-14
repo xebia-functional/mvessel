@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.fortysevendeg.mvessel.scala.sample.ui.MainActivity"
+            android:name="com.fortysevendeg.mvessel.sample.scala.ui.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop">
             <intent-filter>
