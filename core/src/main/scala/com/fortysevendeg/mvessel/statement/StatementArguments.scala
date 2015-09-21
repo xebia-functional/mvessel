@@ -19,28 +19,29 @@ class PreparedStatementArguments extends StatementArguments {
   private[this] var argumentsList: NonEmptyList[mutable.Map[Int, AnyRef]] = NonEmptyList(mutable.Map.empty)
 
   // Prepared statements count from 1
-  private[this] var maxIndex: Int = 1
+  private[this] var maxIndex: Int = 0
 
   val invalidArgumentIndexErrorMessage = (i: Int) => s"Invalid parameter index: $i"
 
   val classNotSupportedErrorMessage = (c: String) => s"Class $c not supported for bind args"
 
   def map[U](f: scala.Array[AnyRef] => U): Seq[U] =
-    argumentsList map (argumentsMap => f(toArray(argumentsMap, maxIndex)))
+    if (argumentsList.first.isEmpty) Seq.empty[U]
+    else argumentsList map (argumentsMap => f(toArray(argumentsMap, maxIndex)))
 
   def addNewEntry(): Unit =
     argumentsList = NonEmptyList(first = mutable.Map.empty, tail = argumentsList.tail :+ argumentsList.first)
 
   def clearArguments(): Unit = {
     argumentsList = NonEmptyList(mutable.Map.empty)
-    maxIndex = 1
+    maxIndex = 0
   }
 
   override def toStringArray: Array[String] = toArray map { value =>
     Option(value) match {
       case Some(v: String) => v
       case Some(v) => v.toString
-      case None => javaNull
+      case None => "NULL"
     }
   }
 

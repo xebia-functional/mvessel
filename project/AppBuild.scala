@@ -18,7 +18,6 @@ object AppBuild extends Build {
     .dependsOn(core, mockAndroid % "test->test;it->test")
 
   lazy val core = (project in file("core"))
-    .enablePlugins(BuildInfoPlugin)
     .settings(coreSettings: _*)
     .settings(libraryDependencies ++= coreLibraries)
 
