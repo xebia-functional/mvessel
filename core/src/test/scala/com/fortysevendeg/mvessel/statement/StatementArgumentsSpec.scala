@@ -50,27 +50,33 @@ class StatementArgumentsSpec
 
   "PreparedStatementArgument" should {
 
-    "iterate one time when call map" in
+    "iterate zero times when call map" in
       new WithPreparedStatementArgument {
-        arguments.map(_ => "") shouldEqual Seq("")
+        arguments.map(_ => "") must beEmpty
       }
 
-    "iterate two times when call map and after add a new entry" in
+    "iterate zero times when call map and after add a new entry" in
       new WithPreparedStatementArgument {
         arguments.addNewEntry()
-        arguments.map(_ => "") shouldEqual Seq("", "")
+        arguments.map(_ => "") must beEmpty
       }
 
-    "iterate one time when call map and after add a new entry and clear arguments" in
+    "iterate zero times when call map and after add a new entry and clear arguments" in
       new WithPreparedStatementArgument {
         arguments.addNewEntry()
         arguments.clearArguments()
-        arguments.map(_ => "") shouldEqual Seq("")
+        arguments.map(_ => "") must beEmpty
       }
 
-    "return an array with one null element when call toArray" in
+    "return an empty array when call toArray" in
       new WithPreparedStatementArgument {
-        arguments.toArray shouldEqual Array(javaNull)
+        arguments.toArray shouldEqual Array.empty
+      }
+
+    "return an empty array when call toArray after add a new entry" in
+      new WithPreparedStatementArgument {
+        arguments.addNewEntry()
+        arguments.toArray shouldEqual Array.empty
       }
 
     "return an array with a number of elements equal to the position used in setObjectArgument when call toArray" in
@@ -79,21 +85,21 @@ class StatementArgumentsSpec
         arguments.toArray shouldEqual Array(javaNull, javaNull, javaNull)
       }
 
-    "return an array with one null element when call toStringArray" in
+    "return an empty array when call toStringArray" in
       new WithPreparedStatementArgument {
-        arguments.toStringArray shouldEqual Array(javaNull)
+        arguments.toStringArray shouldEqual Array.empty
       }
 
     "return an array with a number of elements equal to the position used in setObjectArgument when call toStringArray" in
       new WithPreparedStatementArgument {
         arguments.setObjectArgument(3, javaNull)
-        arguments.toStringArray shouldEqual Array(javaNull, javaNull, javaNull)
+        arguments.toStringArray shouldEqual Array("NULL", "NULL", "NULL")
       }
 
     "return an array with a number of elements equal to the position used in setArgument when call toStringArray" in
       new WithPreparedStatementArgument {
         arguments.setArgument(3, "")
-        arguments.toStringArray shouldEqual Array(javaNull, javaNull, "")
+        arguments.toStringArray shouldEqual Array("NULL", "NULL", "")
       }
 
     "throws a SQLException when call setObjectArgument with a position less than 1" in

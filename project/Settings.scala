@@ -42,8 +42,6 @@ object Settings {
   lazy val coreSettings = basicSettings ++ orgSettings ++ Seq(
     name := "mvessel",
     version := V.project,
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "com.fortysevendeg.mvessel",
     fork in Test := true)
 
   lazy val mockAndroidSettings = basicSettings ++ orgSettings

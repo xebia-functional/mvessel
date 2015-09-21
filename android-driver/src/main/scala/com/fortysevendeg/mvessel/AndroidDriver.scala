@@ -66,7 +66,7 @@ object AndroidDriver {
       case _ =>
     }
 
-  val driverName = BuildInfo.name
+  val driverName = AndroidDriver.getClass.getName
 
   val driverVersion = BuildInfo.version
 
