@@ -26,8 +26,7 @@ class PreparedStatementArguments extends StatementArguments {
   val classNotSupportedErrorMessage = (c: String) => s"Class $c not supported for bind args"
 
   def map[U](f: scala.Array[AnyRef] => U): Seq[U] =
-    if (argumentsList.first.isEmpty) Seq.empty[U]
-    else argumentsList map (argumentsMap => f(toArray(argumentsMap, maxIndex)))
+    argumentsList map (argumentsMap => f(toArray(argumentsMap, maxIndex)))
 
   def addNewEntry(): Unit =
     argumentsList = NonEmptyList(first = mutable.Map.empty, tail = argumentsList.tail :+ argumentsList.first)

@@ -50,22 +50,22 @@ class StatementArgumentsSpec
 
   "PreparedStatementArgument" should {
 
-    "iterate zero times when call map" in
+    "iterate one time when call map" in
       new WithPreparedStatementArgument {
-        arguments.map(_ => "") must beEmpty
+        arguments.map(_ => "") shouldEqual Seq("")
       }
 
-    "iterate zero times when call map and after add a new entry" in
+    "iterate two times when call map and after add a new entry" in
       new WithPreparedStatementArgument {
         arguments.addNewEntry()
-        arguments.map(_ => "") must beEmpty
+        arguments.map(_ => "") shouldEqual Seq("", "")
       }
 
-    "iterate zero times when call map and after add a new entry and clear arguments" in
+    "iterate one time when call map and after add a new entry and clear arguments" in
       new WithPreparedStatementArgument {
         arguments.addNewEntry()
         arguments.clearArguments()
-        arguments.map(_ => "") must beEmpty
+        arguments.map(_ => "") shouldEqual Seq("")
       }
 
     "return an empty array when call toArray" in
