@@ -4,11 +4,11 @@ import java.sql.{Connection => SQLConnection, DatabaseMetaData => SQLDatabaseMet
 
 import com.fortysevendeg.mvessel.api.impl.CursorSeq
 import com.fortysevendeg.mvessel.logging.LogWrapper
-import com.fortysevendeg.mvessel.{Connection, WrapperNotSupported, _}
 import com.fortysevendeg.mvessel.metadata.DatabaseMetaData._
 import com.fortysevendeg.mvessel.resultset.ResultSet
 import com.fortysevendeg.mvessel.util.ResultSetProcessorOps._
 import com.fortysevendeg.mvessel.util.DatabaseUtils._
+import com.fortysevendeg.mvessel._
 
 import scala.util.{Failure, Success, Try}
 
@@ -646,7 +646,7 @@ object DatabaseMetaData {
 
   private[this] def safeName(b: Boolean, v: String, d: String = "''") = if (b) v else d
 
-  private[this] def quoteNull(s: Option[String]) = s map (s => s"'${s.escape}'") getOrElse "null"
+  private[this] def quoteNull(s: Option[String]) = s map (s => s"'${s.escape}'") getOrElse nullString
 
   def emptyIndexInfo(table: String) =
     indexInfoBody(

@@ -2,7 +2,7 @@ package com.fortysevendeg.mvessel.statement
 
 import java.sql.SQLException
 import TypeTransformers._
-import com.fortysevendeg.mvessel.javaNull
+import com.fortysevendeg.mvessel._
 
 import scala.collection.mutable
 
@@ -40,7 +40,7 @@ class PreparedStatementArguments extends StatementArguments {
     Option(value) match {
       case Some(v: String) => v
       case Some(v) => v.toString
-      case None => "NULL"
+      case None => nullString
     }
   }
 

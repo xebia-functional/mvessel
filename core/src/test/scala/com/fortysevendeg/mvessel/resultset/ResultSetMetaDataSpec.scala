@@ -1,6 +1,7 @@
 package com.fortysevendeg.mvessel.resultset
 
 import java.sql.{ResultSetMetaData => SQLResultSetMetaData, Types}
+import com.fortysevendeg.mvessel._
 
 import scala.util.Random
 
@@ -112,7 +113,7 @@ class ResultSetMetaDataSpec
   "getColumnTypeName" should {
 
     "returns name NULL when the cursor is empty" in new WithEmptyCursor {
-      resultSetMetaData.getColumnTypeName(1) shouldEqual "NULL"
+      resultSetMetaData.getColumnTypeName(1) shouldEqual nullString
     }
 
     "returns name TEXT when the cursor has data and positioned on first row" in

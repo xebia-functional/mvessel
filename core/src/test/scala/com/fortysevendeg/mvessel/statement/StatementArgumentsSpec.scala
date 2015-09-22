@@ -93,13 +93,13 @@ class StatementArgumentsSpec
     "return an array with a number of elements equal to the position used in setObjectArgument when call toStringArray" in
       new WithPreparedStatementArgument {
         arguments.setObjectArgument(3, javaNull)
-        arguments.toStringArray shouldEqual Array("NULL", "NULL", "NULL")
+        arguments.toStringArray shouldEqual Array(nullString, nullString, nullString)
       }
 
     "return an array with a number of elements equal to the position used in setArgument when call toStringArray" in
       new WithPreparedStatementArgument {
         arguments.setArgument(3, "")
-        arguments.toStringArray shouldEqual Array("NULL", "NULL", "")
+        arguments.toStringArray shouldEqual Array(nullString, nullString, "")
       }
 
     "throws a SQLException when call setObjectArgument with a position less than 1" in
