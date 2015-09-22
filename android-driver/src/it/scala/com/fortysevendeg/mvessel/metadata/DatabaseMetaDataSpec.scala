@@ -119,7 +119,7 @@ class DatabaseMetaDataSpec
 
   "getTypeInfo" should {
     "return a valid ResultSet with five elements: BLOB, INTEGER, NULL, REAL and TEXT" in new DatabaseMetadataScope {
-      databaseMetaData.getTypeInfo().process(_.getString(1)).toSet shouldEqual Set("BLOB", "INTEGER", "NULL", "REAL", "TEXT")
+      databaseMetaData.getTypeInfo().process(_.getString(1)).toSet shouldEqual Set("BLOB", "INTEGER", nullString, "REAL", "TEXT")
     }
   }
 

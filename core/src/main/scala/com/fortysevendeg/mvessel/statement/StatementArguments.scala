@@ -2,7 +2,7 @@ package com.fortysevendeg.mvessel.statement
 
 import java.sql.SQLException
 import TypeTransformers._
-import com.fortysevendeg.mvessel.javaNull
+import com.fortysevendeg.mvessel._
 
 import scala.collection.mutable
 
@@ -19,7 +19,7 @@ class PreparedStatementArguments extends StatementArguments {
   private[this] var argumentsList: NonEmptyList[mutable.Map[Int, AnyRef]] = NonEmptyList(mutable.Map.empty)
 
   // Prepared statements count from 1
-  private[this] var maxIndex: Int = 1
+  private[this] var maxIndex: Int = 0
 
   val invalidArgumentIndexErrorMessage = (i: Int) => s"Invalid parameter index: $i"
 
@@ -33,14 +33,14 @@ class PreparedStatementArguments extends StatementArguments {
 
   def clearArguments(): Unit = {
     argumentsList = NonEmptyList(mutable.Map.empty)
-    maxIndex = 1
+    maxIndex = 0
   }
 
   override def toStringArray: Array[String] = toArray map { value =>
     Option(value) match {
       case Some(v: String) => v
       case Some(v) => v.toString
-      case None => javaNull
+      case None => nullString
     }
   }
 

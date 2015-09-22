@@ -2,7 +2,7 @@ package com.fortysevendeg.mvessel.resultset
 
 import java.sql.{ResultSetMetaData => SQLResultSetMetaData, Types}
 
-import com.fortysevendeg.mvessel.WrapperNotSupported
+import com.fortysevendeg.mvessel.{WrapperNotSupported, _}
 import com.fortysevendeg.mvessel.api.{CursorType, CursorProxy}
 import com.fortysevendeg.mvessel.logging.LogWrapper
 
@@ -96,7 +96,7 @@ class ResultSetMetaData(
 
   private[this] def typeName(t: Int): String =
     t match {
-      case Types.NULL => "NULL"
+      case Types.NULL => nullString
       case Types.INTEGER => "INTEGER"
       case Types.FLOAT => "FLOAT"
       case Types.VARCHAR => "TEXT"
