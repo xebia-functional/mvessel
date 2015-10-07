@@ -10,13 +10,13 @@ mvessel
 The project is organized in three modules:
 
 * [mockAndroid](mock-android)
-Contains classes from the Android Open Source project without the final modifiers in order to be mocked. Used only for test purposes.
+  Contains classes from the Android Open Source project without the `final` modifier in order to be mocked. Used only for test purposes.
 
 * [core](core)
-Contains all core classes but relies on some [api classes](core/src/main/scala/com/fortysevendeg/mvessel/api) to do all the work. The main benefit of this module is that is not dependant of the android classes
+  Contains all core classes but relies on some [api classes](core/src/main/scala/com/fortysevendeg/mvessel/api) to do all the work. The main benefit of this module is that is not dependant of the Android API.
 
 * [androidDriver](android-driver)
-Implements the [api classes](core/src/main/scala/com/fortysevendeg/mvessel/api) using [SQLiteDatabase](http://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html) and derived classes.
+  Implements the [api classes](core/src/main/scala/com/fortysevendeg/mvessel/api) using [SQLiteDatabase](http://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html) and derived classes.
 
 Also contains the [android-it](android-it) subdirectory with [instrumentation tests](http://developer.android.com/tools/testing/testing_android.html#Instrumentation) and a subdirectory [samples](samples) with some example projects about how to use.
 
@@ -47,7 +47,7 @@ compile 'com.fortysevendeg:mvessel-android:0.1-SNAPSHOT'
 
 Android comes with a helper class to manage the creation and version management of our database. This class is [SQLiteOpenHelper](http://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html). We can use this helper class to let Android platform create the database file for us and later access to that file through our JDBC driver or favorite ORM.
 
-Our SQLiteOpenHelper could be something like:
+Our `SQLiteOpenHelper` could be something like:
 
 *Scala*
 ```scala
@@ -60,7 +60,7 @@ class ContactsOpenHelper(context: Context)
 
   def onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = {
 		// Use this method to upgrade your database
-	}
+  }
 }
 ```
 
@@ -74,12 +74,12 @@ public class ContactsOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Use this method to initialize your database
+       // Use this method to initialize your database
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				// Use this method to upgrade your database
+       // Use this method to upgrade your database
     }
 
 }
@@ -87,12 +87,12 @@ public class ContactsOpenHelper extends SQLiteOpenHelper {
 
 ## Use java.sql classes
 
-If you want to work directly with the `java.sql` classes you can create a method in our SQLiteOpenHelper that returns the `java.sql.Connection`.
+If you want to work directly with the `java.sql` classes you could create a method in our `SQLiteOpenHelper` that returns the `java.sql.Connection`.
 
 *Scala*
 ```scala
 def openConnection() = {
-	// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` method if necessary.
+	// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` methods.
 	val database: SQLiteDatabase = getReadableDatabase()
 	// 2. Register the driver, making available for `java.sql`
 	com.fortysevendeg.mvessel.AndroidDriver.register()
@@ -104,7 +104,7 @@ def openConnection() = {
 *Java*
 ```java
 public Connection openConnection() {
-	// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` method if necessary.
+	// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` methods.
 	SQLiteDatabase database = getReadableDatabase();
 	// 2. Register the driver, making available for `java.sql`
 	com.fortysevendeg.mvessel.AndroidDriver.register();
@@ -117,12 +117,12 @@ public Connection openConnection() {
 
 ## Use the `Database` class
 
-You can directly create a connection with the `Database` class provided in the library.
+You can directly create a connection with the `Database` class provided in the library. Again in your `SQLiteOpenHelper`:
 
 *Scala*
 ```scala
 def openDatabase() = {
-	// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` method if necessary.
+	// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` methods.
 	val database: SQLiteDatabase = getReadableDatabase()
 	// 2. Open the database using the path provided by the database
 	new Database[AndroidCursor](
@@ -137,7 +137,7 @@ def openDatabase() = {
 *Java*
 ```java
 public Database openDatabase() {
-	// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` method if necessary.
+	// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` methods.
 	SQLiteDatabase database = getReadableDatabase();
 	// 2. Open the database using the path provided by the database
 	return new Database<AndroidCursor>(new AndroidDatabaseFactory(), database.getPath(), 50, 0, 0);
@@ -152,7 +152,7 @@ See the [sample with Slick](samples/slick) for a sample of usage.
 
 # Build
 
-This project is built with [SBT](http://www.scala-sbt.org/). To build the artifacts you can use:
+This project is built with [SBT](http://www.scala-sbt.org/). To build the artifacts you could use:
 
 `sbt package`
 
