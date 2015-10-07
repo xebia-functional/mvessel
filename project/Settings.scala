@@ -57,6 +57,10 @@ object Settings {
       else
         Some("releases"  at nexus + "service/local/staging/deploy/maven2")
     },
+    credentials += Credentials("Sonatype Nexus Repository Manager",
+      "oss.sonatype.org",
+      sys.env("CI_DEPLOY_USERNAME"),
+      sys.env("CI_DEPLOY_PASSWORD")),
     publishArtifact in Test := false,
     homepage := Some(url("https://github.com/47deg/mvessel")),
     licenses := Seq("The MIT License (MIT)" -> url("https://opensource.org/licenses/MIT")),

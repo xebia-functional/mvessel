@@ -18,12 +18,14 @@ import sbt.Keys._
 import sbt._
 import sbtbuildinfo.BuildInfoPlugin
 import Settings._
+import com.typesafe.sbt.pgp.PgpKeys._
 
 object AppBuild extends Build {
 
   lazy val root = (project in file("."))
     .settings(basicSettings: _*)
     .aggregate(androidDriver, core)
+    .settings(publishSnapshot := { if(isSnapshot.value) publishSigned.value })
 
   lazy val androidDriver = (project in file("android-driver"))
     .enablePlugins(BuildInfoPlugin)
@@ -40,5 +42,7 @@ object AppBuild extends Build {
   lazy val mockAndroid = (project in file("mock-android"))
     .settings(mockAndroidSettings: _*)
     .settings(libraryDependencies ++= mockAndroidLibraries)
+
+  lazy val publishSnapshot = taskKey[Unit]("Publish only if the version is a SNAPSHOT")
 
 }
