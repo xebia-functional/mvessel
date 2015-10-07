@@ -5,6 +5,9 @@ scala:
 branches:
   except:
     - settings
+before_script:
+  - echo $TRAVIS_BRANCH
+  - echo $TRAVIS_PULL_REQUEST
 script:
   - sbt ++$TRAVIS_SCALA_VERSION clean coverage test it:test
 after_success:
