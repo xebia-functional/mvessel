@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.org/47deg/mvessel.svg?branch=master)](https://travis-ci.org/47deg/mvessel)
-
-[![Codacy Badge](https://www.codacy.com/project/badge/3e561d02afd44b8287ab0e84fc66daaf)](https://www.codacy.com/app/47deg/mvessel)
+[![Build Status](https://travis-ci.org/47deg/mvessel.svg?branch=master)](https://travis-ci.org/47deg/mvessel) [![Codacy Badge](https://www.codacy.com/project/badge/3e561d02afd44b8287ab0e84fc66daaf)](https://www.codacy.com/app/47deg/mvessel)
 
 mvessel
 =============
