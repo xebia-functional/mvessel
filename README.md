@@ -13,7 +13,7 @@ The project is organized in three modules:
   Contains classes from the Android Open Source project without the `final` modifier in order to be mocked. Used only for test purposes.
 
 * [core](core)
-  Contains all core classes but relies on some [api classes](core/src/main/scala/com/fortysevendeg/mvessel/api) to do all the work. The main benefit of this module is that is not dependant of the Android API.
+  Contains all core classes but relies on some [api classes](core/src/main/scala/com/fortysevendeg/mvessel/api) to do all the work. The main benefit of this module is that is not dependent of the Android API.
 
 * [androidDriver](android-driver)
   Implements the [api classes](core/src/main/scala/com/fortysevendeg/mvessel/api) using [SQLiteDatabase](http://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html) and derived classes.
@@ -160,7 +160,7 @@ This project is built with [SBT](http://www.scala-sbt.org/). To build the artifa
 
 Actually there are multiples ways to collaborate.
 
-The first place to look is the [GitHub issue tracking](https://github.com/47deg/mvessel/issues). Also, if you found a not listed bug, please submit it with a detalied description.
+The first place to look is the [GitHub issue tracking](https://github.com/47deg/mvessel/issues). Also, if you found a not listed bug, please submit it with a detailed description.
 
 The [samples](samples) always need to be improved (upgrade versions, make it more attractive). Also, feel free to add new samples.
 
