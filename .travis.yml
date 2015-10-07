@@ -1,13 +1,19 @@
 sudo: false
 language: scala
 scala:
-  - 2.11.7
+- 2.11.7
 branches:
   except:
-    - settings
+  - settings
+env:
+  global:
+  - secure: f7fArzx3AKmIWcpqrQ2Qs1qlEOtK6MVJ2CC2swAqpNtErsSjuxw6uVzqA+fj3mmglkLf1vc3UbUQ3sQXK1YK0pcQn1lCkrUZshzvzqwOhybNCZVGN2U1TEa0xyHuFs8BYxqdYJyH+XHcIfK2NgY13ryfDjFcunizWP/PJc5jFPzJxTbZvTj542FdBz3nxcQSWlnitFLTTJ5qPUUxrFcD1RGycwCrXIRLrjvMsWtEr/1u7AzhqCZpQ5la2nrQr6OpGzZ2Axzc0K57NNLAPQKTfbE2qJRZPLkYL22MJ1DweRJMvwUMGWgtty12bqTNaJl/+RdPKku0L0QGpVOrmDCfvEOfDT6D7tMujzMEnoVdSf0uBA8qIjgUhH3eWo/kSLmQZJ7FqctvaBuqHlYhOWXiqZINTMZumhAGWgSWYbE+kFL48RXCuhQBLLJWsFuY1byYQT8rqSo3Puvt7RuiB2v2lWRNhGz4W7zTr+NW/L6Hyl/JPqEBeZghOCgQKBvX6IQ5rw2n8E0+VgZGHiLUusW0oIwd0zupW/nLLFNaIemBj8UphQtn3rFbIlT3/lD/H4oq3xDFjNZ9QHIh80yeRtQGiIMkuMiEQ7GE3JDngWkJ4xOiwFY3Ya3jOk7ZcjTy6HlkNiUFuu7FtEdwFrsLhtPScQZT/bxHwELI1asljPH97hM=
+  - secure: o7ie1atEMO8K0PUEQBPccOnCkxVL1XZSXRvV0WWz+L4SzH38JhnpB1uhjbn7LeR4XMKrPVeWef0RS22Osnt47Rn8//myU0nO/WTjt0kXumWNSjfgREU/RjKN6OUymCAFRscGRgys67bjnZ8aXSdK9gUw8rFE+X0GgJQoJP5cOac3NFnCbJZ1LJVQn1zIn+3jDE8QHEyi9YuXNMN44x9DrWrqfA8upWBIPsFVA324/hWSBqPtluTo22x659KECACcZR671BweuD/RrpNaxVJFGK9nQvQqEB73wV9shNburSXOTnglauZupTA6a7WcoLvxDa+TIUKJarRBTtN1BgOO/zj9aftZil0Z6XARB7hnJ7/PZTrRRCyHjBatOdFZHSZUGXHP5exxqD17sgWG+UJBwpCl8p1UzvcAnxibl5LJg3n8G9gzkkE4tsKxG/qog9x75XVIxQNz6dZm/TVlNsOQDyXjvSjWc8jNWQSAtoIHhl/F2y8R9brxIfM6NQSBbuLNq2Jlu9+v0kbgCYI1BKZ++due/um5FqD6I8sPmzV4pzHLAD7bLKTEBabusX99ICCQpWZ2k0QmBG28v6B514PvAqfi5G9swbXDYPQ4ShWGYuWZKrcFifpUa/fUYlOmiS1+CJzHTIUUsPraUHdF70TjXyYFYiXrPUgO30m2bpDxa0Q=
+before_install: "git clone -b settings `git config --get remote.origin.url` target/settings"
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION clean coverage test it:test
+- sbt ++$TRAVIS_SCALA_VERSION clean coverage test it:test
 after_success:
-  - sbt ++$TRAVIS_SCALA_VERSION coverageReport
-  - sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
-  - sbt ++$TRAVIS_SCALA_VERSION codacyCoverage
+- //TODO sbt publish --settings target/travis/settings.xml
+- sbt ++$TRAVIS_SCALA_VERSION coverageReport
+- sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
+- sbt ++$TRAVIS_SCALA_VERSION codacyCoverage

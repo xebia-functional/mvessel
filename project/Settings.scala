@@ -48,6 +48,32 @@ object Settings {
     organizationName := "47 Degrees",
     organizationHomepage := Some(new URL("http://47deg.com")))
 
+  lazy val publishSettings = Seq(
+    publishMavenStyle := true,
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value)
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+      else
+        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    },
+    publishArtifact in Test := false,
+    homepage := Some(url("https://github.com/47deg/mvessel")),
+    licenses := Seq("The MIT License (MIT)" -> url("https://opensource.org/licenses/MIT")),
+    pomExtra :=
+      <scm>
+        <url>git@github.com:47deg/mvessel.git</url>
+        <connection>scm:git:git@github.com:47deg/mvessel.git</connection>
+      </scm>
+      <developers>
+        <developer>
+          <id>47deg</id>
+          <name>47 Degrees</name>
+          <url>http://47deg.com</url>
+        </developer>
+      </developers>
+  )
+
   lazy val androidDriverSettings = basicSettings ++ orgSettings ++ Seq(
     name := "mvessel-android",
     version := V.project,
