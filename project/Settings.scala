@@ -16,6 +16,7 @@
 
 import java.net.URL
 
+import com.typesafe.sbt.pgp.PgpKeys._
 import sbt._
 import sbt.Keys._
 import Libraries._
@@ -48,8 +49,15 @@ object Settings {
     organizationName := "47 Degrees",
     organizationHomepage := Some(new URL("http://47deg.com")))
 
+  lazy val publishSnapshot = taskKey[Unit]("Publish only if the version is a SNAPSHOT")
+
   lazy val publishSettings = Seq(
+    publishSnapshot := { if(isSnapshot.value) publishSigned.value },
     publishMavenStyle := true,
+    // https://github.com/sbt/sbt-pgp/issues/80
+    com.typesafe.sbt.SbtPgp.autoImport.pgpPassphrase := Some(sys.env("GPG_PASSPHRASE").toCharArray),
+    pgpPublicRing := file("./local.pubring.asc"),
+    pgpSecretRing := file("./local.secring.asc"),
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value)
@@ -78,14 +86,14 @@ object Settings {
       </developers>
   )
 
-  lazy val androidDriverSettings = basicSettings ++ orgSettings ++ Seq(
+  lazy val androidDriverSettings = basicSettings ++ orgSettings ++ publishSettings ++ Seq(
     name := "mvessel-android",
     version := V.project,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fortysevendeg.mvessel",
     fork in Test := true)
 
-  lazy val coreSettings = basicSettings ++ orgSettings ++ Seq(
+  lazy val coreSettings = basicSettings ++ orgSettings ++ publishSettings ++ Seq(
     name := "mvessel",
     version := V.project,
     fork in Test := true)
