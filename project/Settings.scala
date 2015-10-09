@@ -16,13 +16,14 @@
 
 import java.net.URL
 
-import com.typesafe.sbt.pgp.PgpKeys._
 import sbt._
 import sbt.Keys._
 import Libraries._
 import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
-object Settings {
+trait Settings {
+
+  this: Build with SettingsPublish =>
 
   lazy val commonResolvers = Seq(
     Resolver.mavenLocal,
@@ -48,43 +49,6 @@ object Settings {
     organization := "com.fortysevendeg",
     organizationName := "47 Degrees",
     organizationHomepage := Some(new URL("http://47deg.com")))
-
-  lazy val publishSnapshot = taskKey[Unit]("Publish only if the version is a SNAPSHOT")
-
-  lazy val publishSettings = Seq(
-    publishSnapshot := { if(isSnapshot.value) publishSigned.value },
-    publishMavenStyle := true,
-    // https://github.com/sbt/sbt-pgp/issues/80
-    com.typesafe.sbt.SbtPgp.autoImport.pgpPassphrase := Some(sys.env("GPG_PASSPHRASE").toCharArray),
-    pgpPublicRing := file("./local.pubring.asc"),
-    pgpSecretRing := file("./local.secring.asc"),
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value)
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-    },
-    credentials += Credentials("Sonatype Nexus Repository Manager",
-      "oss.sonatype.org",
-      sys.env("CI_DEPLOY_USERNAME"),
-      sys.env("CI_DEPLOY_PASSWORD")),
-    publishArtifact in Test := false,
-    homepage := Some(url("https://github.com/47deg/mvessel")),
-    licenses := Seq("The MIT License (MIT)" -> url("https://opensource.org/licenses/MIT")),
-    pomExtra :=
-      <scm>
-        <url>git@github.com:47deg/mvessel.git</url>
-        <connection>scm:git:git@github.com:47deg/mvessel.git</connection>
-      </scm>
-      <developers>
-        <developer>
-          <id>47deg</id>
-          <name>47 Degrees</name>
-          <url>http://47deg.com</url>
-        </developer>
-      </developers>
-  )
 
   lazy val androidDriverSettings = basicSettings ++ orgSettings ++ publishSettings ++ Seq(
     name := "mvessel-android",
