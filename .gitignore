@@ -5,3 +5,4 @@ project/project/
 project/target/
 /proguard-sbt.txt
 *.iml
+local.*

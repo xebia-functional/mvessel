@@ -21,7 +21,9 @@ import sbt.Keys._
 import Libraries._
 import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
-object Settings {
+trait Settings {
+
+  this: Build with SettingsPublish =>
 
   lazy val commonResolvers = Seq(
     Resolver.mavenLocal,
@@ -48,14 +50,14 @@ object Settings {
     organizationName := "47 Degrees",
     organizationHomepage := Some(new URL("http://47deg.com")))
 
-  lazy val androidDriverSettings = basicSettings ++ orgSettings ++ Seq(
+  lazy val androidDriverSettings = basicSettings ++ orgSettings ++ publishSettings ++ Seq(
     name := "mvessel-android",
     version := V.project,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fortysevendeg.mvessel",
     fork in Test := true)
 
-  lazy val coreSettings = basicSettings ++ orgSettings ++ Seq(
+  lazy val coreSettings = basicSettings ++ orgSettings ++ publishSettings ++ Seq(
     name := "mvessel",
     version := V.project,
     fork in Test := true)

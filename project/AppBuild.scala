@@ -17,9 +17,8 @@
 import sbt.Keys._
 import sbt._
 import sbtbuildinfo.BuildInfoPlugin
-import Settings._
 
-object AppBuild extends Build {
+object AppBuild extends Build with Settings with SettingsPublish {
 
   lazy val root = (project in file("."))
     .settings(basicSettings: _*)
