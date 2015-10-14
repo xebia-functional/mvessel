@@ -14,13 +14,9 @@
  * all copies or substantial portions of the Software.
  */
 
-import java.net.URL
-
-import Libraries._
 import com.typesafe.sbt.pgp.PgpKeys._
 import sbt.Keys._
 import sbt._
-import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
 trait SettingsPublish {
 
@@ -31,8 +27,8 @@ trait SettingsPublish {
     publishMavenStyle := true,
     // https://github.com/sbt/sbt-pgp/issues/80
     com.typesafe.sbt.SbtPgp.autoImport.pgpPassphrase := Some(sys.env("GPG_PASSPHRASE").toCharArray),
-    pgpPublicRing := file("./local.pubring.asc"),
-    pgpSecretRing := file("./local.secring.asc"),
+    com.typesafe.sbt.SbtPgp.autoImport.pgpPublicRing := file("local.pubring.asc"),
+    com.typesafe.sbt.SbtPgp.autoImport.pgpSecretRing := file("local.secring.asc"),
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value)
