@@ -10,15 +10,12 @@ env:
 before_install:
   - export GPG_FOLDER=$TRAVIS_BUILD_DIR
   - openssl aes-256-cbc -K $encrypted_32fca4d5b29b_key -iv $encrypted_32fca4d5b29b_iv -in $TRAVIS_BUILD_DIR/rings.tar.enc -out $TRAVIS_BUILD_DIR/rings.tar -d
-  - tar -xvf $TRAVIS_BUILD_DIR/rings.tar
-  - ls -l $TRAVIS_BUILD_DIR
+  - tar -xvf $TRAVIS_BUILD_DIR/rings.tar -C $TRAVIS_BUILD_DIR
 script:
   - sbt ++$TRAVIS_SCALA_VERSION clean coverage test it:test
 after_success:
   - sbt ++$TRAVIS_SCALA_VERSION coverageReport
   - sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
   - sbt ++$TRAVIS_SCALA_VERSION codacyCoverage
-#  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && sbt ++$TRAVIS_SCALA_VERSION "project core" publishSnapshot
-#  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && sbt ++$TRAVIS_SCALA_VERSION "project androidDriver" publishSnapshot
-  - sbt ++$TRAVIS_SCALA_VERSION "project core" publishSnapshot
-  - sbt ++$TRAVIS_SCALA_VERSION "project androidDriver" publishSnapshot
+  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && sbt ++$TRAVIS_SCALA_VERSION "project core" publishSnapshot
+  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && sbt ++$TRAVIS_SCALA_VERSION "project androidDriver" publishSnapshot
