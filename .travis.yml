@@ -8,13 +8,16 @@ env:
     - secure: u8DOdIda+vukE1ewD6p+mxBZS+Jk6FC8sacU0ABV5rgxKuuvxGRgEp8iI/8HYQUb2khteYGY0SDz0gQvN4EnwoPx75FPcL+BJl9kg4hkHfLNxJ1s2fedHl8mH33d7iKIR2hMhgiS+tk1qJX1heSDjzmZ8UpPxpm6p0dVXT3kEI1dHHIpA3vBapll8ThhN260EIFxVqfpy/FBWBIXBSMetZVm3yO9OdFb+fg9s2aOWHvQ3tXRbB6VUu2mebEaD01UooBHQ969pea4njn0YdZ84C9QBmp97twcYGCcEEDQ1s2YrAS7BGDjDhcVPteLQFdHnGFtiapQOqdtrxfAJD5ubffbDzYc76hA8hPHTdy1UwZzc2vf5OMWrUGRL0KaNomGhXw4kKLy/iRlSe1q4BFpc3mBrdYntbOA03QA3spw3vig36T5cAFMtULS8Y1SmiGqLYzaUFU6f+jvntWQxyoDe+xalpllSYFczKLfnJgFAmP81tUFTJmIFn6+/+cwSfp4FpJq9gg3YNblcc6xzyPvF0TOH2sGg4uobSNKhs9U6mKcVFoP0jseFG/8hhESlACT+XUprz8wu28EyAONG5nJA6GASw3hcrTpAhN5Pb8e63pmmgVWkdN12fleWMR/Ecoi852Tp6Uls11+9Lj+jCokcxKTgA+bwEeHVc8yEj1nLNw=
     - secure: h1EWcWSn5Wa5GSvUBqhJp2ek6Poukbrz9o+vYd4mTtZ83yMC5g9tCF76iup7ftpugneLJrHGcbfPUDg0sTrk0DlOoYfsPa1o1Stupp3s5qm0r97C8jYASlFSh/nYcR00hNageDaoY58qqY3yLVjnHdVVOH0JBX3kCRb6gss4BLxiSyVf7E1RFLZraUvr92SgIPMpgvbztbw1hR3X5SNJkN/I671EnMYeLdBgp4nRx5ZKadTNN9rb3EwWAiLF0aDy5urOtdmuTUkQt1kZQhmk+tOSvCpLpWQ4BUlrNMTioyF0PJqB5ZrH8EbaA5cEhRiHA8fbuthjIHLf6qZar5Nt35xt1pimEGdK61+hdtYIb+zNNMCRvZMXwTSU+GVUS067t1KNhlD8vSxx1n5fDkD+2HXu6hax7rhIZaES6S19OMX4aiL+ap5A1mZSe1xNcQ48tUw/exVXm2dkoBN7q1E6v+k2Jp/sck5vyYiwqF6APAqLlJlqDC6eVm4EIHCiSQOHUFpVJ7k5X8a4/zIqjbfqG8l9sWlfTGw7WLSjYKQGNaNg3wi9iBHGY0hFWOY3oH4dWnumLNoZNxf7RiCpirA0FOmyfWDjnt1XiaKnpvAMm357tO48zCiB8XC6vLmF5bgwW4kcetvaoxYTX5On32zJm/bMZlDao6c7koRJOGca2Fc=
 before_install:
-  - echo $TRAVIS_BUILD_DIR
+  - export GPG_FOLDER=$TRAVIS_BUILD_DIR
   - openssl aes-256-cbc -K $encrypted_32fca4d5b29b_key -iv $encrypted_32fca4d5b29b_iv -in $TRAVIS_BUILD_DIR/rings.tar.enc -out $TRAVIS_BUILD_DIR/rings.tar -d
+  - ls -l $TRAVIS_BUILD_DIR
 script:
   - sbt ++$TRAVIS_SCALA_VERSION clean coverage test it:test
 after_success:
   - sbt ++$TRAVIS_SCALA_VERSION coverageReport
   - sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
   - sbt ++$TRAVIS_SCALA_VERSION codacyCoverage
-  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && sbt ++$TRAVIS_SCALA_VERSION "project core" publishSnapshot
-  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && sbt ++$TRAVIS_SCALA_VERSION "project androidDriver" publishSnapshot
+#  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && sbt ++$TRAVIS_SCALA_VERSION "project core" publishSnapshot
+#  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && sbt ++$TRAVIS_SCALA_VERSION "project androidDriver" publishSnapshot
+  - sbt ++$TRAVIS_SCALA_VERSION "project core" publishSnapshot
+  - sbt ++$TRAVIS_SCALA_VERSION "project androidDriver" publishSnapshot
