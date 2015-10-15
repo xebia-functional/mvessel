@@ -22,13 +22,15 @@ trait SettingsPublish {
 
   lazy val publishSnapshot = taskKey[Unit]("Publish only if the version is a SNAPSHOT")
 
+  lazy val gpgFolder = sys.env.getOrElse("GPG_FOLDER", ".")
+
   lazy val publishSettings = Seq(
     publishSnapshot := { if(isSnapshot.value) publishSigned.value },
     publishMavenStyle := true,
     // https://github.com/sbt/sbt-pgp/issues/80
-    com.typesafe.sbt.SbtPgp.autoImport.pgpPassphrase := Some(sys.env("GPG_PASSPHRASE").toCharArray),
-    com.typesafe.sbt.SbtPgp.autoImport.pgpPublicRing := file("local.pubring.asc"),
-    com.typesafe.sbt.SbtPgp.autoImport.pgpSecretRing := file("local.secring.asc"),
+    com.typesafe.sbt.SbtPgp.autoImport.pgpPassphrase := Some(sys.env.getOrElse("GPG_PASSPHRASE", "").toCharArray),
+    com.typesafe.sbt.SbtPgp.autoImport.pgpPublicRing := file(s"$gpgFolder/local.pubring.asc"),
+    com.typesafe.sbt.SbtPgp.autoImport.pgpSecretRing := file(s"$gpgFolder/local.secring.asc"),
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value)
@@ -38,8 +40,8 @@ trait SettingsPublish {
     },
     credentials += Credentials("Sonatype Nexus Repository Manager",
       "oss.sonatype.org",
-      sys.env("CI_DEPLOY_USERNAME"),
-      sys.env("CI_DEPLOY_PASSWORD")),
+      sys.env.getOrElse("CI_DEPLOY_USERNAME", ""),
+      sys.env.getOrElse("CI_DEPLOY_PASSWORD", "")),
     publishArtifact in Test := false,
     homepage := Some(url("https://github.com/47deg/mvessel")),
     licenses := Seq("The MIT License (MIT)" -> url("https://opensource.org/licenses/MIT")),
