@@ -25,7 +25,10 @@ trait SettingsPublish {
   lazy val gpgFolder = sys.env.getOrElse("GPG_FOLDER", ".")
 
   lazy val publishSettings = Seq(
-    publishSnapshot := { if(isSnapshot.value) publishSigned.value else println("Actual version is not a Snapshot. Skipping publish.") },
+    publishSnapshot := {
+      if (isSnapshot.value) println("Actual version is not a Snapshot. Skipping publish.")
+      else publishSigned.value
+    },
     publishMavenStyle := true,
     // https://github.com/sbt/sbt-pgp/issues/80
     com.typesafe.sbt.SbtPgp.autoImport.pgpPassphrase := Some(sys.env.getOrElse("GPG_PASSPHRASE", "").toCharArray),
