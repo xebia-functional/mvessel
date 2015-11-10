@@ -24,12 +24,12 @@ Also contains the [android-it](android-it) subdirectory with [instrumentation te
 
 *SBT*
 ```scala
-libraryDependencies += "com.fortysevendeg" %% "mvessel-android" % "0.1-SNAPSHOT"
+libraryDependencies += "com.fortysevendeg" %% "mvessel-android" % "0.1"
 ```
 
 *Gradle*
 ```
-compile 'com.fortysevendeg:mvessel-android_2.11:0.1-SNAPSHOT'
+compile 'com.fortysevendeg:mvessel-android_2.11:0.1'
 ```
 
 *Maven*
@@ -37,7 +37,7 @@ compile 'com.fortysevendeg:mvessel-android_2.11:0.1-SNAPSHOT'
 <dependency>
 	<groupId>com.fortysevendeg</groupId>
 	<artifactId>mvessel-android_2.11</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.1</version>
 </dependency>
 ```
 
