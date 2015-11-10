@@ -41,6 +41,14 @@ compile 'com.fortysevendeg:mvessel-android_2.11:0.1'
 </dependency>
 ```
 
+**Using the last available version**
+
+You can use the SNAPSHOT version by adding the sonatype SNAPSHOT repository to your resolver list:
+
+* https://oss.sonatype.org/content/repositories/snapshots/
+
+And use the latest version: `0.2-SNAPSHOT`
+
 ## Create a SQLiteOpenHelper
 
 Android comes with a helper class to manage the creation and version management of our database. This class is [SQLiteOpenHelper](http://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html). We can use this helper class to let Android platform create the database file for us and later access to that file through our JDBC driver or favorite ORM.
