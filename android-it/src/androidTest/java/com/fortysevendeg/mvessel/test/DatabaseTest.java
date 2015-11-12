@@ -1,13 +1,12 @@
 package com.fortysevendeg.mvessel.test;
 
-import android.database.Cursor;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
 import com.fortysevendeg.mvessel.Database;
+import com.fortysevendeg.mvessel.api.impl.AndroidCursor;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(MyRunner.class)
 public class DatabaseTest {
 
     private static MyOpenHelper helper;
@@ -39,9 +38,9 @@ public class DatabaseTest {
 
     @Test
     public void databaseCreationTest() {
-        Database database = helper.getDatabase();
+        Database<AndroidCursor> database = helper.getDatabase();
         database.execSQL(String.format("CREATE TABLE %s(_id INT, name TEXT, age INT)", TABLE_NAME));
-        Cursor cursor = database.rawQuery(String.format("SELECT * FROM %s", TABLE_NAME));
+        AndroidCursor cursor = database.rawQuery(String.format("SELECT * FROM %s", TABLE_NAME));
         if (cursor != null) {
             cursor.close();
         }
@@ -50,10 +49,10 @@ public class DatabaseTest {
 
     @Test
     public void databaseInsertTest() {
-        Database database = helper.getDatabase();
+        Database<AndroidCursor> database = helper.getDatabase();
         database.execSQL(String.format("CREATE TABLE %s(_id INT, name TEXT, age INT)", TABLE_NAME));
         database.execSQL(String.format("INSERT INTO %s VALUES(1, 'test', 30)", TABLE_NAME));
-        Cursor cursor = database.rawQuery(String.format("SELECT * FROM %s", TABLE_NAME));
+        AndroidCursor cursor = database.rawQuery(String.format("SELECT * FROM %s", TABLE_NAME));
         boolean expected = false;
         if (cursor != null) {
             while (cursor.moveToNext()) {
