@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/47deg/mvessel.svg?branch=master)](https://travis-ci.org/47deg/mvessel) [![Codacy Badge](https://www.codacy.com/project/badge/3e561d02afd44b8287ab0e84fc66daaf)](https://www.codacy.com/app/47deg/mvessel)
+[![Build Status](https://travis-ci.org/47deg/mvessel.svg?branch=master)](https://travis-ci.org/47deg/mvessel) [![Codacy Badge](https://www.codacy.com/project/badge/3e561d02afd44b8287ab0e84fc66daaf)](https://www.codacy.com/app/47deg/mvessel) [![Codacy Coverage](https://api.codacy.com/project/badge/coverage/3e561d02afd44b8287ab0e84fc66daaf)](https://www.codacy.com/app/47deg/mvessel)
 
-mvessel
+Mvessel
 =============
 
-**mvessel** is a JDBC driver written in Scala. The main goal is to allow the use of ORMs in Android.
+**Mvessel** is a JDBC driver written in Scala. The main goal is to allow the use of ORMs in Android.
 
 The project is organized in three modules:
 
@@ -173,6 +173,8 @@ The [samples](samples) always need to be improved (upgrade versions, make it mor
 At last, there are a lot of functionalities [not implemented yet](https://github.com/47deg/mvessel/search?q=notimplemented&type=Code&utf8=%E2%9C%93). The tests are prepared to fail when a new functionality is added so don't forget to add the tests cases along with the new implementation.
 
 # License
+
+This project started as a fork of [SQLDroid](https://github.com/SQLDroid/SQLDroid) and then it was rewritten in Scala.
 
 The MIT License (MIT)
 
