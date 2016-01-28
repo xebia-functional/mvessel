@@ -18,7 +18,7 @@ import com.typesafe.sbt.pgp.PgpKeys._
 import sbt.Keys._
 import sbt._
 
-trait SettingsPublish {
+object SettingsPublish {
 
   lazy val publishSnapshot = taskKey[Unit]("Publish only if the version is a SNAPSHOT")
 
