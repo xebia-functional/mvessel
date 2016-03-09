@@ -19,4 +19,4 @@ addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.4.0")
 
 addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.3.3")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "0.8.1")
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "0.8.2")

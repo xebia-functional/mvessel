@@ -1,36 +1,113 @@
 <!doctype html>
-<html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="">
+<!--<![endif]-->
+
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>{{ site.name }} - {{ page.title }}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>{{ site.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ page.description }}">
+    <meta name="author" content="{{ page.author }}">
+    <link rel="apple-touch-icon" href="[INSERT apple-tuch-icon.png]">
+    <link rel="stylesheet" href="{{ site.baseurl }}/css/highlight/tomorrow.css">
+    <link href="//cdn.symbolset.com/61d736575ace9507464ed825c5daacfc56866925/symbolset.css" rel="stylesheet">
+    <link href="{{ site.baseurl }}/css/main.css" rel="stylesheet">
 </head>
+
 <body>
-<div>
-    <table>
-        <tr><td>Source:</td><td class="link"><a href="https://github.com/47deg/mvessel">Github</a></td></tr>
-        <tr><td>Api:</td><td class="link"><a href="{{site.apidocs}}">Scaladoc</a></td></tr>
-    </table>
-    <div>
-        Hello world
-        <p>
-        {{ content }}
-        </p>
-    </div>
-    <div id="extra">
-        <h5>useful links</h5>
-        <ul>
-            {% if page.source != null %}
-            <li><a href="{{page.source}}">Source</a></li>
-            {% endif %}
-            {% if page.scaladoc != null %}
-            <li><a href="{{site.apidocs}}{{page.scaladoc}}">Scaladoc</a></li>
-            {% endif %}
-        </ul>
-    </div>
-    <div id="footer">
-        <p>Last updated on <em>{{ site.time | date: '%B %d, %Y' }}</em></p>
-    </div>
-</div>
+    <!--[if IE]>
+    <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <header id="site-header">
+        <div class="navbar-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <a href="#" class="brand">
+                            <div class="icon-wrapper">
+                                <span>{{ site.name }}</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-xs-6">
+                        <nav class="text-right">
+                            <a href="{{ page.github }}">
+                                <span class="ss-icon ss-github"></span>
+                                <span class="hidden-xs">View on GitHub</span>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="jumbotron">
+            <div class="container">
+                <h1 class="text-center">{{ page.description }}</h1>
+                <p class="text-center">
+                    <a href="{{ page.github }}" class="btn btn-outline-inverse" >Learn More</a>
+                </p>
+            </div>
+        </div>
+    </header>
+    <main id="site-main">
+        <section class="use">
+            <div class="container">
+                <div class="row">
+                    {{ content }}
+                </div>
+            </div>
+        </section>
+        <section class="technologies">
+            <div class="container">
+                <div class="row">
+
+                {% for tech_hash in page.technologies %}
+                  {% for tech in tech_hash %}
+
+                    <div class="col-md-4">
+                        <div class="{{ tech[0] }}-icon-wrapper"></div>
+                        <h3>{{ tech[1][0] }}</h3>
+                        <p>{{ tech[1][1] }}</p>
+                    </div>
+
+                  {% endfor %}
+                {% endfor %}
+
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer id="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-6">
+                    <p>{{ site.name }} is design and development handcraft by <a href="{{ page.author_url }}">{{ page.author }}</a></p>
+                    <p>Code licensed <a href="{{ page.license_url }}">{{ page.license_name }}</a></p>
+                </div>
+                <div class="col-xs-6">
+                    <p class="text-right">
+                        <a href="{{ page.github }}">
+                            <span class="ss-icon ss-github"></span> View on Github
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="js/highlight.pack.js"></script>
+
+    <script>
+        hljs.initHighlightingOnLoad();
+    </script>
 </body>
+
 </html>
