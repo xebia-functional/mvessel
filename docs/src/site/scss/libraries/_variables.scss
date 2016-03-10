@@ -1,0 +1,64 @@
+// Variables
+// -----------------------------------------------------
+
+// Theme colors
+$brand-primary:                   #FFC107;
+$brand-secondary:                 #2C3358;
+$brand-tertiary:                  #212641;
+$gray-dark:                       #57585D;
+$gray:                            #96979C;
+$gray-light:                      #EBECF1;
+$gray-lighter:                    #F1F2F8;
+$text-color:                      $gray;
+
+// Typography
+$font-family-sans-serif:          "Lato", sans-serif;
+$font-size-base:                  15px;
+$font-size-large:                 ceil(($font-size-base * 1.35));    // 22px
+$line-height-base:                1.7;
+$headings-font-weight:            400;
+$headings-color:                  $gray-dark;
+
+// Navbar
+$navbar-inverse-bg:               transparent;
+$navbar-inverse-border:           transparent;
+
+// Jumbotron
+$jumbotron-padding:               80px;
+$jumbotron-color:                 #fff;
+$jumbotron-bg:                    $brand-secondary;
+$jumbotron-heading-color:         #fff;
+$jumbotron-heading-font-size:     floor(($font-size-base * 4.1));
+
+// Code
+$pre-bg:                          $gray-lighter;
+$pre-color:                       $gray-dark;
+$pre-border-color:                $gray-light;
+
+// Container sizes
+$grid-gutter-width:               30px;
+$container-large-desktop:         (1040px + $grid-gutter-width);
+$container-lg:                    $container-large-desktop;
+
+
+// Global
+
+// Images
+$sprite-width:                    56px;
+$sprite-height:                   164px;
+
+// Section
+$section-padding:                 80px;
+
+// Technologies
+$headings-technologies-color:     rgba(#fff, 0.9);
+$text-technologies-color:         rgba(#fff, 0.4);
+$icon-technologies-color:         0.3;
+$technologies-font-size-base:     floor(($font-size-base * 0.95));
+
+// Footer
+$footer-padding:                  40px;
+$text-footer-color:               rgba(#fff, 0.3);
+$link-footer-color:               rgba(#fff, 0.6);
+$footer-font-size-base:           $technologies-font-size-base;
+
