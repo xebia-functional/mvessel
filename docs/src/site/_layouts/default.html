@@ -39,13 +39,13 @@
                         <nav class="text-right">
                             <ul>
                                 <li>
-                                    <a data-toggle="tooltip" data-placement="bottom" title="View Github" href="{{ page.github }}">
+                                    <a href="{{ page.github }}">
                                         <i class="fa fa-github"></i>
                                         <span class="hidden-xs">GitHub</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-toggle="tooltip" data-placement="bottom" title="View Scala Docs" href="#">
+                                    <a href="#">
                                         <i class="fa fa-file-text"></i>
                                         <span class="hidden-xs">Scala Docs</span>
                                     </a>
@@ -115,11 +115,7 @@
     <script>
         hljs.initHighlightingOnLoad();
     </script>
-    <script>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
-    </script>
+
 </body>
 
 </html>
