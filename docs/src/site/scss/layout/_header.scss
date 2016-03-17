@@ -32,23 +32,38 @@
         nav {
             padding-top: 8px;
             ul {
+                padding: 0;
+                margin: 0;
                 li {
-                    
-                    &:first-child {
-                        margin-right: 30px;
-                    }
-                    padding: 0;
-                    margin: 0;
                     list-style: none;
                     display: inline-block;
                     a {
-                        position: relative;
-                        span:first-child {
-                            font-size: 20px;
-                            position: absolute;
-                            top: -4px;
-                            left: -30px;
-                            z-index: 35;
+                        i {
+                            font-size: 21px;
+                            margin-right: 3px;
+                        }
+                        .fa {
+                            &:before {
+                                vertical-align: -8%;
+                                display: inline-block;
+                            }
+                        }
+                        .fa-file-text {
+                            font-size: 17px;
+                        }
+                        &:hover,
+                        &:focus,
+                        &.focus {
+                            opacity: 0.5;
+                            text-decoration: none;
+                        }
+                    }
+                    
+                    &:first-child {
+                        margin-right: 20px;
+                        
+                        @media screen and (max-width: $screen-xs-max) {
+                            margin-right: 10px;
                         }
                     }
                 }
