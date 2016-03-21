@@ -3,6 +3,9 @@ target/
 .idea_modules/
 project/project/
 project/target/
+docs/src/site/bower_components/
+docs/src/site/css/
+docs/src/site/scss/.sass-cache/
 /proguard-sbt.txt
 *.iml
 local.*
