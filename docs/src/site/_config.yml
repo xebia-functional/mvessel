@@ -7,3 +7,6 @@ apidocs: /mvessel/api/
 collections:
   tut:
     output: true
+
+sass:
+  sass_dir: scss

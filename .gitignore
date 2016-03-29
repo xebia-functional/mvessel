@@ -6,3 +6,4 @@ project/target/
 /proguard-sbt.txt
 *.iml
 local.*
+docs/src/site/scss/.sass-cache/

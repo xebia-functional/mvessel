@@ -72,6 +72,7 @@ object AppBuild extends Build {
     noPublishSettings ++
     unidocSettings ++
     site.settings ++
+    site.jekyllSupport() ++
     tutSettings ++
     Seq(
       autoAPIMappings := true,
