@@ -1,1 +1,194 @@
-Hello World
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]--><!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]--><!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]--><!--[if gt IE 8]><!--><html class="no-js" lang="">
+<!--<![endif]-->
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>MyDemo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="apple-touch-icon" href="%5BINSERT%20apple-tuch-icon.png%5D">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/tomorrow.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link href="https://rawgit.com/47deg/microsites/cdn/style.css" rel="stylesheet"> </head>
+
+<body>
+  <!--[if IE]>
+    <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  <header id="site-header">
+    <div class="navbar-wrapper">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6">
+            <a href="#" data-href="/mvessel/" class="brand">
+              <div class="icon-wrapper" style="background:url('https://rawgit.com/47deg/microsites/cdn/default/navbar_brand.png') no-repeat"> <span>MyDemo</span> </div>
+            </a>
+          </div>
+          <div class="col-xs-6">
+            <nav class="text-right">
+              <ul>
+                <li>
+                  <a href="#" data-href="https://github.com/47deg/mvessel"> <i class="fa fa-github"></i> <span class="hidden-xs">GitHub</span> </a>
+                </li> 
+                <li>
+                  <a href="#" data-href="/mvessel/docs"> <i class="fa fa-file-text"></i> <span class="hidden-xs">Documentation</span> </a>
+                </li>  </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="jumbotron" style="background-image:url('https://rawgit.com/47deg/microsites/cdn/default/jumbotron_pattern.png')">
+      <div class="container">
+        <h1 class="text-center">A demo to show how microsites work</h1>
+        <h2></h2>
+        <p class="text-center"> <a href="#" data-href="https://github.com/47deg/mvessel" class="btn btn-outline-inverse">View on GitHub</a> </p>
+      </div>
+    </div>
+  </header>
+  <main id="site-main">
+    <section class="use">
+      <div class="container">
+        <div id="content" class="row"> <ul>
+<li><h2>Feature one</h2>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean mollis, enim quis mollis blandit, orci urna lobortis eros, quis tristique quam tellus sit amet nulla. Vivamus congue est quis magna vehicula lobortis. Pellentesque suscipit lectus eu mi vehicula, sed vehicula lectus porta. Aenean tempor metus ac viverra tempus.</p></li>
+<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">object</span> <span class="nc">repositories</span> <span class="o">{</span>
+
+  <span class="k">class</span> <span class="nc">Repository</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]](</span><span class="k">implicit</span> <span class="n">D</span><span class="k">:</span> <span class="kt">DataSource</span><span class="o">[</span><span class="kt">F</span><span class="o">])</span> <span class="o">{</span>
+    <span class="k">def</span> <span class="n">add</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">FreeC</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">Option</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="n">D</span><span class="o">.</span><span class="n">add</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
+    <span class="k">def</span> <span class="n">getAll</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="kt">FreeC</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="n">D</span><span class="o">.</span><span class="n">getAll</span>
+  <span class="o">}</span>
+
+  <span class="k">object</span> <span class="nc">Repository</span> <span class="o">{</span>
+    <span class="k">implicit</span> <span class="k">def</span> <span class="n">repository</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span>
+    <span class="o">(</span><span class="k">implicit</span> <span class="n">D</span><span class="k">:</span> <span class="kt">DataSource</span><span class="o">[</span><span class="kt">F</span><span class="o">])</span><span class="k">:</span> <span class="kt">Repository</span><span class="o">[</span><span class="kt">F</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Repository</span><span class="o">[</span><span class="kt">F</span><span class="o">]</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+
+<ul>
+<li><h2>Feature two</h2>
+
+<p>Morbi mollis molestie vulputate. Quisque interdum maximus fringilla. Mauris id ligula eu lacus egestas euismod. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras in velit a lacus pellentesque interdum. Suspendisse ipsum massa, convallis in venenatis eleifend, congue vitae tellus</p></li>
+<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">def</span> <span class="n">or</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">H</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span>
+<span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">F</span> <span class="kt">~&gt;</span> <span class="kt">H</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">G</span> <span class="kt">~&gt;</span> <span class="kt">H</span><span class="o">)</span><span class="k">:</span>
+<span class="o">({</span><span class="k">type</span> <span class="kt">cp</span><span class="o">[</span><span class="kt">α</span><span class="o">]</span> <span class="o">=</span> <span class="kt">Coproduct</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">G</span>, <span class="kt">α</span><span class="o">]})</span><span class="k">#</span><span class="n">cp</span> <span class="o">~&gt;</span> <span class="n">H</span> <span class="k">=</span>
+  <span class="k">new</span> <span class="nc">NaturalTransformation</span><span class="o">[({</span><span class="k">type</span> <span class="kt">cp</span><span class="o">[</span><span class="kt">α</span><span class="o">]</span> <span class="kt">=</span>
+    <span class="kt">Coproduct</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">G</span>, <span class="kt">α</span><span class="o">]})</span><span class="k">#</span><span class="kt">cp</span>, <span class="kt">H</span><span class="o">]</span> <span class="o">{</span>
+      <span class="k">def</span> <span class="n">apply</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">fa</span><span class="k">:</span> <span class="kt">Coproduct</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">G</span>, <span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">H</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="n">fa</span><span class="o">.</span><span class="n">run</span> <span class="k">match</span> <span class="o">{</span>
+        <span class="k">case</span> <span class="o">-\/(</span><span class="n">ff</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">ff</span><span class="o">)</span>
+        <span class="k">case</span> <span class="o">\/-(</span><span class="n">gg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">g</span><span class="o">(</span><span class="n">gg</span><span class="o">)</span>
+      <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+
+<ul>
+<li><h2>Feature three</h2>
+
+<p>Integer ante diam, faucibus at venenatis ullamcorper, tincidunt sed enim. Praesent in ante consectetur, vestibulum metus vel, dignissim diam. Sed vestibulum ac felis scelerisque pellentesque:</p></li>
+<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">type</span> <span class="kt">AgendaApp</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Coproduct</span><span class="o">[</span><span class="kt">DataOp</span>, <span class="kt">Interact</span>, <span class="kt">A</span><span class="o">]</span>
+<span class="k">type</span> <span class="kt">ACoyo</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Coyoneda</span><span class="o">[</span><span class="kt">AgendaApp</span>,<span class="kt">A</span><span class="o">]</span>
+<span class="k">type</span> <span class="kt">AFree</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">ACoyo</span>,<span class="kt">A</span><span class="o">]</span>
+
+<span class="k">def</span> <span class="n">prg</span><span class="o">(</span><span class="k">implicit</span> <span class="nc">CP</span> <span class="k">:</span> <span class="kt">ContactsListPresenter</span><span class="o">[</span><span class="kt">AgendaApp</span><span class="o">])</span> <span class="k">=</span> <span class="k">for</span> <span class="o">{</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nc">CP</span><span class="o">.</span><span class="n">onInitialize</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nc">Monad</span><span class="o">[</span><span class="kt">AFree</span><span class="o">].</span><span class="n">replicateM</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="nc">CP</span><span class="o">.</span><span class="n">onAddContactOptionSelected</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nc">CP</span><span class="o">.</span><span class="n">onStop</span>
+<span class="o">}</span> <span class="k">yield</span> <span class="o">()</span>
+
+<span class="k">def</span> <span class="n">runApp</span> <span class="k">=</span> <span class="n">prg</span><span class="o">.</span><span class="n">mapSuspension</span><span class="o">(</span><span class="n">coyoint</span><span class="o">)</span>
+</code></pre></div></li>
+</ul>
+ </div>
+      </div>
+    </section>
+    <section class="technologies">
+      <div class="container">
+        <div class="row">
+          
+            
+              <div class="col-md-4">
+                <div class="scala-icon-wrapper"></div>
+                <h3>Scala</h3>
+                <p>Lorem ipsum dolor sit amet, conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolo…</p>
+              </div>
+            
+          
+            
+              <div class="col-md-4">
+                <div class="android-icon-wrapper"></div>
+                <h3>Android</h3>
+                <p>Lorem ipsum dolor sit amet, conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolo…</p>
+              </div>
+            
+          
+            
+              <div class="col-md-4">
+                <div class="database-icon-wrapper"></div>
+                <h3>Database</h3>
+                <p>Lorem ipsum dolor sit amet, conse ctetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolo…</p>
+              </div>
+            
+          
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer id="site-footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-6">
+          <p>MyDemo is design and development handcraft by <a href="http://www.47deg.com/" target="_blank">47 Degrees</a></p>
+          <p>Code licensed <a href="https://opensource.org/licenses/MIT" target="_blank">The MIT License</a></p>
+        </div>
+        <div class="col-xs-6">
+          <p class="text-right">
+            <a href="#" data-href="https://github.com/47deg/mvessel"> <span class="fa fa-github"></span> View on Github </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/languages/scala.min.js"></script>
+  <script>
+    jQuery(document).ready(function() {
+      loadStyle();
+      hljs.initHighlightingOnLoad();
+      activeLinks();
+    });
+
+    function loadStyle() {
+      $("<link/>", {
+        rel: "stylesheet",
+        type: "text/css",
+        href: "https://rawgit.com/47deg/microsites/cdn/default/palette.css"
+      }).appendTo("head");
+    }
+
+    function activeLinks() {
+      $('a[data-href]').each(function(index, el) {
+        $(this).attr('href', $(this).attr('data-href'));
+      });
+    }
+  </script>
+</body>
+
+</html>
+
+
+
+<!-- https://cdn.rawgit.com/47deg/microsites/cdn/home.html  -->
+<!-- https://rawgit.com/47deg/microsites/cdn/home.html  -->
+<!-- http://localhost/~rafaparadela/cdn47/microsites/home.html  -->
