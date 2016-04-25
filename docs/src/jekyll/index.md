@@ -26,7 +26,7 @@ class ContactsOpenHelper(context: Context)
       // Use this method to upgrade your database
     }
 }
-````
+```
 
 * ## Use java.sql classes
   If you want to work directly with the java.sql classes you could create a method in our SQLiteOpenHelper that returns the java.sql.Connection.
@@ -40,7 +40,7 @@ def openConnection() = {
     // 3. Open a connection using the path provided by the database
     DriverManager.getConnection("jdbc:sqlite:" + database.getPath)
 }
-````
+```
 
 * ## Use the Database class
   You can directly create a connection with the Database class provided in the library. Again in your SQLiteOpenHelper:
@@ -57,4 +57,4 @@ def openDatabase() = {
           retry = 0,
           flags = 0)
 }
-````
+```
