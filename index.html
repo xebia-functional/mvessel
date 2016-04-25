@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>MyDemo</title>
+  <title>Mvessel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
   <meta name="author" content="">
@@ -26,7 +26,7 @@
         <div class="row">
           <div class="col-xs-6">
             <a href="#" data-href="/mvessel/" class="brand">
-              <div class="icon-wrapper" style="background:url('https://rawgit.com/47deg/microsites/cdn/mvessel/navbar_brand.png') no-repeat"> <span>MyDemo</span> </div>
+              <div class="icon-wrapper" style="background:url('https://rawgit.com/47deg/microsites/cdn/mvessel/navbar_brand.png') no-repeat"> <span>Mvessel</span> </div>
             </a>
           </div>
           <div class="col-xs-6">
@@ -34,9 +34,6 @@
               <ul>
                 <li>
                   <a href="#" data-href="https://github.com/47deg/mvessel"> <i class="fa fa-github"></i> <span class="hidden-xs">GitHub</span> </a>
-                </li> 
-                <li>
-                  <a href="#" data-href="/mvessel/docs"> <i class="fa fa-file-text"></i> <span class="hidden-xs">Documentation</span> </a>
                 </li>  </ul>
             </nav>
           </div>
@@ -45,7 +42,7 @@
     </div>
     <div class="jumbotron" style="background-image:url('https://rawgit.com/47deg/microsites/cdn/mvessel/jumbotron_pattern.png')">
       <div class="container">
-        <h1 class="text-center">A demo to show how microsites work</h1>
+        <h1 class="text-center">Mvessel: a JDBC driver written in Scala</h1>
         <h2></h2>
         <p class="text-center"> <a href="#" data-href="https://github.com/47deg/mvessel" class="btn btn-outline-inverse">View on GitHub</a> </p>
       </div>
@@ -55,57 +52,51 @@
     <section class="use">
       <div class="container">
         <div id="content" class="row"> <ul>
-<li><h2>Feature one</h2>
+<li><h2>Create a SQLiteOpenHelper</h2>
 
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean mollis, enim quis mollis blandit, orci urna lobortis eros, quis tristique quam tellus sit amet nulla. Vivamus congue est quis magna vehicula lobortis. Pellentesque suscipit lectus eu mi vehicula, sed vehicula lectus porta. Aenean tempor metus ac viverra tempus.</p></li>
-<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">object</span> <span class="nc">repositories</span> <span class="o">{</span>
-
-  <span class="k">class</span> <span class="nc">Repository</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]](</span><span class="k">implicit</span> <span class="n">D</span><span class="k">:</span> <span class="kt">DataSource</span><span class="o">[</span><span class="kt">F</span><span class="o">])</span> <span class="o">{</span>
-    <span class="k">def</span> <span class="n">add</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">FreeC</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">Option</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="n">D</span><span class="o">.</span><span class="n">add</span><span class="o">(</span><span class="n">a</span><span class="o">)</span>
-    <span class="k">def</span> <span class="n">getAll</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span><span class="k">:</span> <span class="kt">FreeC</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">List</span><span class="o">[</span><span class="kt">A</span><span class="o">]]</span> <span class="k">=</span> <span class="n">D</span><span class="o">.</span><span class="n">getAll</span>
-  <span class="o">}</span>
-
-  <span class="k">object</span> <span class="nc">Repository</span> <span class="o">{</span>
-    <span class="k">implicit</span> <span class="k">def</span> <span class="n">repository</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span>
-    <span class="o">(</span><span class="k">implicit</span> <span class="n">D</span><span class="k">:</span> <span class="kt">DataSource</span><span class="o">[</span><span class="kt">F</span><span class="o">])</span><span class="k">:</span> <span class="kt">Repository</span><span class="o">[</span><span class="kt">F</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Repository</span><span class="o">[</span><span class="kt">F</span><span class="o">]</span>
-  <span class="o">}</span>
-
+<p>Android comes with a helper class to manage the creation and version management of our database. This class is SQLiteOpenHelper. We can use this helper class to let Android platform create the database file for us and later access to that file through our JDBC driver or favorite ORM.</p></li>
+<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">class</span> <span class="nc">ContactsOpenHelper</span><span class="o">(</span><span class="n">context</span><span class="k">:</span> <span class="kt">Context</span><span class="o">)</span>
+<span class="k">extends</span> <span class="nc">SQLiteOpenHelper</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="s">"database.db"</span><span class="o">,</span> <span class="n">javaNull</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+<span class="k">def</span> <span class="n">onCreate</span><span class="o">(</span><span class="n">db</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// Use this method to initialize your database
+</span><span class="o">}</span>
+<span class="k">def</span> <span class="n">onUpgrade</span><span class="o">(</span><span class="n">db</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span><span class="o">,</span> <span class="n">oldVersion</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">newVersion</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="c1">// Use this method to upgrade your database
+</span><span class="o">}</span>
 <span class="o">}</span>
 </code></pre></div></li>
 </ul>
 
 <ul>
-<li><h2>Feature two</h2>
+<li><h2>Use java.sql classes</h2>
 
-<p>Morbi mollis molestie vulputate. Quisque interdum maximus fringilla. Mauris id ligula eu lacus egestas euismod. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras in velit a lacus pellentesque interdum. Suspendisse ipsum massa, convallis in venenatis eleifend, congue vitae tellus</p></li>
-<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">def</span> <span class="n">or</span><span class="o">[</span><span class="kt">F</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">G</span><span class="o">[</span><span class="k">_</span><span class="o">]</span>, <span class="kt">H</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span>
-<span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="kt">F</span> <span class="kt">~&gt;</span> <span class="kt">H</span><span class="o">,</span> <span class="n">g</span><span class="k">:</span> <span class="kt">G</span> <span class="kt">~&gt;</span> <span class="kt">H</span><span class="o">)</span><span class="k">:</span>
-<span class="o">({</span><span class="k">type</span> <span class="kt">cp</span><span class="o">[</span><span class="kt">α</span><span class="o">]</span> <span class="o">=</span> <span class="kt">Coproduct</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">G</span>, <span class="kt">α</span><span class="o">]})</span><span class="k">#</span><span class="n">cp</span> <span class="o">~&gt;</span> <span class="n">H</span> <span class="k">=</span>
-  <span class="k">new</span> <span class="nc">NaturalTransformation</span><span class="o">[({</span><span class="k">type</span> <span class="kt">cp</span><span class="o">[</span><span class="kt">α</span><span class="o">]</span> <span class="kt">=</span>
-    <span class="kt">Coproduct</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">G</span>, <span class="kt">α</span><span class="o">]})</span><span class="k">#</span><span class="kt">cp</span>, <span class="kt">H</span><span class="o">]</span> <span class="o">{</span>
-      <span class="k">def</span> <span class="n">apply</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">fa</span><span class="k">:</span> <span class="kt">Coproduct</span><span class="o">[</span><span class="kt">F</span>, <span class="kt">G</span>, <span class="kt">A</span><span class="o">])</span><span class="k">:</span> <span class="kt">H</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="n">fa</span><span class="o">.</span><span class="n">run</span> <span class="k">match</span> <span class="o">{</span>
-        <span class="k">case</span> <span class="o">-\/(</span><span class="n">ff</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">ff</span><span class="o">)</span>
-        <span class="k">case</span> <span class="o">\/-(</span><span class="n">gg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">g</span><span class="o">(</span><span class="n">gg</span><span class="o">)</span>
-      <span class="o">}</span>
+<p>If you want to work directly with the java.sql classes you could create a method in our SQLiteOpenHelper that returns the java.sql.Connection.</p></li>
+<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">def</span> <span class="n">openConnection</span><span class="o">()</span> <span class="k">=</span> <span class="o">{</span>
+<span class="c1">// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` methods.
+</span><span class="k">val</span> <span class="n">database</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span> <span class="o">=</span> <span class="n">getReadableDatabase</span><span class="o">()</span>
+<span class="c1">// 2. Register the driver, making available for `java.sql`
+</span><span class="n">com</span><span class="o">.</span><span class="n">fortysevendeg</span><span class="o">.</span><span class="n">mvessel</span><span class="o">.</span><span class="nc">AndroidDriver</span><span class="o">.</span><span class="n">register</span><span class="o">()</span>
+<span class="c1">// 3. Open a connection using the path provided by the database
+</span><span class="nc">DriverManager</span><span class="o">.</span><span class="n">getConnection</span><span class="o">(</span><span class="s">"jdbc:sqlite:"</span> <span class="o">+</span> <span class="n">database</span><span class="o">.</span><span class="n">getPath</span><span class="o">)</span>
 <span class="o">}</span>
 </code></pre></div></li>
 </ul>
 
 <ul>
-<li><h2>Feature three</h2>
+<li><h2>Use the Database class</h2>
 
-<p>Integer ante diam, faucibus at venenatis ullamcorper, tincidunt sed enim. Praesent in ante consectetur, vestibulum metus vel, dignissim diam. Sed vestibulum ac felis scelerisque pellentesque:</p></li>
-<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">type</span> <span class="kt">AgendaApp</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Coproduct</span><span class="o">[</span><span class="kt">DataOp</span>, <span class="kt">Interact</span>, <span class="kt">A</span><span class="o">]</span>
-<span class="k">type</span> <span class="kt">ACoyo</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Coyoneda</span><span class="o">[</span><span class="kt">AgendaApp</span>,<span class="kt">A</span><span class="o">]</span>
-<span class="k">type</span> <span class="kt">AFree</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Free</span><span class="o">[</span><span class="kt">ACoyo</span>,<span class="kt">A</span><span class="o">]</span>
-
-<span class="k">def</span> <span class="n">prg</span><span class="o">(</span><span class="k">implicit</span> <span class="nc">CP</span> <span class="k">:</span> <span class="kt">ContactsListPresenter</span><span class="o">[</span><span class="kt">AgendaApp</span><span class="o">])</span> <span class="k">=</span> <span class="k">for</span> <span class="o">{</span>
-    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nc">CP</span><span class="o">.</span><span class="n">onInitialize</span>
-    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nc">Monad</span><span class="o">[</span><span class="kt">AFree</span><span class="o">].</span><span class="n">replicateM</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="nc">CP</span><span class="o">.</span><span class="n">onAddContactOptionSelected</span><span class="o">)</span>
-    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nc">CP</span><span class="o">.</span><span class="n">onStop</span>
-<span class="o">}</span> <span class="k">yield</span> <span class="o">()</span>
-
-<span class="k">def</span> <span class="n">runApp</span> <span class="k">=</span> <span class="n">prg</span><span class="o">.</span><span class="n">mapSuspension</span><span class="o">(</span><span class="n">coyoint</span><span class="o">)</span>
+<p>You can directly create a connection with the Database class provided in the library. Again in your SQLiteOpenHelper:</p></li>
+<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">def</span> <span class="n">openDatabase</span><span class="o">()</span> <span class="k">=</span> <span class="o">{</span>
+<span class="c1">// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` methods.
+</span><span class="k">val</span> <span class="n">database</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span> <span class="o">=</span> <span class="n">getReadableDatabase</span><span class="o">()</span>
+<span class="c1">// 2. Open the database using the path provided by the database
+</span><span class="k">new</span> <span class="nc">Database</span><span class="o">[</span><span class="kt">AndroidCursor</span><span class="o">](</span>
+      <span class="n">databaseFactory</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">AndroidDatabaseFactory</span><span class="o">,</span>
+      <span class="n">name</span> <span class="k">=</span> <span class="n">database</span><span class="o">.</span><span class="n">getPath</span><span class="o">,</span>
+      <span class="n">timeout</span> <span class="k">=</span> <span class="mi">50</span><span class="o">,</span>
+      <span class="n">retry</span> <span class="k">=</span> <span class="mi">0</span><span class="o">,</span>
+      <span class="n">flags</span> <span class="k">=</span> <span class="mi">0</span><span class="o">)</span>
+<span class="o">}</span>
 </code></pre></div></li>
 </ul>
  </div>
@@ -147,7 +138,7 @@
     <div class="container">
       <div class="row">
         <div class="col-xs-6">
-          <p>MyDemo is design and development handcraft by <a href="http://www.47deg.com/" target="_blank">47 Degrees</a></p>
+          <p>Mvessel is design and development handcraft by <a href="http://www.47deg.com/" target="_blank">47 Degrees</a></p>
           <p>Code licensed <a href="https://opensource.org/licenses/MIT" target="_blank">The MIT License</a></p>
         </div>
         <div class="col-xs-6">
