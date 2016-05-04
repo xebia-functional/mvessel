@@ -1,9 +1,0 @@
-name: Mvessel
-markdown: redcarpet
-highlighter: pygments
-baseurl: /
-apidocs: /api/
-
-collections:
-  tut:
-    output: true

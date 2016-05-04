@@ -18,6 +18,10 @@ import Libraries._
 import SettingsPublish._
 import com.typesafe.sbt.SbtSite.SiteKeys._
 import com.typesafe.sbt.SbtSite._
+import com.typesafe.sbt.pgp.PgpKeys._
+import com.typesafe.sbt.SbtSite._
+import com.typesafe.sbt.SbtGit._
+import com.typesafe.sbt.SbtGhPages._
 import sbt.Keys._
 import sbt._
 import sbtbuildinfo.BuildInfoPlugin
@@ -73,8 +77,10 @@ object AppBuild extends Build {
     unidocSettings ++
     site.settings ++
     site.jekyllSupport() ++
+    ghpages.settings ++
     tutSettings ++
     Seq(
+      git.remoteRepo := "git@github.com:47deg/mvessel.git",
       autoAPIMappings := true,
       unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(core, androidDriver),
       site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "api"),
@@ -122,7 +128,7 @@ object AppBuild extends Build {
 
   lazy val docs = (project in file("docs"))
     .settings(moduleName := "mvessel-docs")
-    .settings(docsSettings)
+    .settings(docsSettings: _*)
     .dependsOn(androidDriver, core)
 
   lazy val noPublishSettings = Seq(

@@ -1,12 +1,11 @@
 name: Mvessel
-markdown: redcarpet
-highlighter: pygments
-baseurl: /mvessel/
-apidocs: /mvessel/api/
+description: "Mvessel: a JDBC driver written in Scala"
+github_owner: 47deg
+baseurl: /mvessel
+style: mvessel
+docs: false
 
+markdown: redcarpet
 collections:
   tut:
     output: true
-
-sass:
-  sass_dir: scss
