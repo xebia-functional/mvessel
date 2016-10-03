@@ -75,7 +75,6 @@ trait Settings {
     micrositeDescription := "Mvessel is a JDBC driver written in Scala",
     micrositeHomepage := "http://47deg.com",
     micrositeBaseUrl := "/mvessel",
-    micrositeDocumentationUrl := "/mvessel/docs/",
     micrositeDataDirectory := (resourceDirectory in Compile).value / "microsite" / "data",
     micrositeGithubOwner := "47deg",
     micrositeGithubRepo := "mvessel",
