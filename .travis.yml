@@ -11,6 +11,12 @@ before_install:
   - export GPG_FOLDER=$TRAVIS_BUILD_DIR
   - openssl aes-256-cbc -K $encrypted_32fca4d5b29b_key -iv $encrypted_32fca4d5b29b_iv -in $TRAVIS_BUILD_DIR/rings.tar.enc -out $TRAVIS_BUILD_DIR/rings.tar -d
   - tar -xvf $TRAVIS_BUILD_DIR/rings.tar -C $TRAVIS_BUILD_DIR
+  - export PATH=${PATH}:./vendor/bundle
+install:
+  - rvm use 2.2.3 --install --fuzzy
+  - gem update --system
+  - gem install sass
+  - gem install jekyll -v 3.2.1
 script:
   - sbt ++$TRAVIS_SCALA_VERSION clean coverage test it:test
 after_success:
