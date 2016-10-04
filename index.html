@@ -1,185 +1,52 @@
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]--><!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]--><!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]--><!--[if gt IE 8]><!--><html class="no-js" lang="">
-<!--<![endif]-->
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>mvessel</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Mvessel is a JDBC driver written in Scala" /><meta name="author" content="47 Degrees" /><meta name="og:image" content="/mvessel/img/poster.png" /><meta name="og:title" content="mvessel" /><meta name="og:site_name" content="mvessel" /><meta name="og:url" content="http://47deg.com" /><meta name="og:type" content="website" /><meta name="og:description" content="Mvessel is a JDBC driver written in Scala" /><meta name="twitter:image" content="/mvessel/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/mvessel/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/default.min.css" /><link rel="stylesheet" href="/mvessel/css/style.css" /><link rel="stylesheet" href="/mvessel/css/palette.css" /></head><body><header id="site-header"><div class="navbar-wrapper"><div class="container"><div class="row"><div class="col-xs-6"><a href="/mvessel/" class="brand"><div class="icon-wrapper" style="background:url('/mvessel/img/navbar_brand.png') no-repeat"><span>mvessel</span></div></a></div><div class="col-xs-6"><nav class="text-right"><ul class=""><li><a href="https://github.com/47deg/mvessel"><i class="fa fa-github"></i><span class="hidden-xs">GitHub</span></a></li></ul></nav></div></div></div></div><div class="jumbotron" style="background-image:url('/mvessel/img/jumbotron_pattern.png')"><div class="container"><h1 class="text-center">Mvessel is a JDBC driver written in Scala</h1><h2></h2><p class="text-center"><a href="https://github.com/47deg/mvessel" class="btn btn-outline-inverse">View on GitHub</a></p></div></div><div><ul class="horizontalNav">      </ul></div></header><main id="site-main"><section class="use"><div class="container"><div id="content"><h2 id="create-a-sqliteopenhelper">Create a SQLiteOpenHelper</h2>
+<p>Android comes with a helper class to manage the creation and version management of our database. This class is SQLiteOpenHelper. We can use this helper class to let Android platform create the database file for us and later access to that file through our JDBC driver or favorite ORM.</p>
 
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Mvessel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="">
-  <meta name="author" content="">
-  <link rel="apple-touch-icon" href="%5BINSERT%20apple-tuch-icon.png%5D">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/tomorrow.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-  <link href="https://rawgit.com/47deg/microsites/cdn/style.css" rel="stylesheet"> </head>
-
-<body>
-  <!--[if IE]>
-    <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  <header id="site-header">
-    <div class="navbar-wrapper">
-      <div class="container">
-        <div class="row">
-          <div class="col-xs-6">
-            <a href="#" data-href="/mvessel/" class="brand">
-              <div class="icon-wrapper" style="background:url('https://rawgit.com/47deg/microsites/cdn/mvessel/navbar_brand.png') no-repeat"> <span>Mvessel</span> </div>
-            </a>
-          </div>
-          <div class="col-xs-6">
-            <nav class="text-right">
-              <ul>
-                <li>
-                  <a href="#" data-href="https://github.com/47deg/mvessel"> <i class="fa fa-github"></i> <span class="hidden-xs">GitHub</span> </a>
-                </li>  </ul>
-            </nav>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="jumbotron" style="background-image:url('https://rawgit.com/47deg/microsites/cdn/mvessel/jumbotron_pattern.png')">
-      <div class="container">
-        <h1 class="text-center">Mvessel: a JDBC driver written in Scala</h1>
-        <h2></h2>
-        <p class="text-center"> <a href="#" data-href="https://github.com/47deg/mvessel" class="btn btn-outline-inverse">View on GitHub</a> </p>
-      </div>
-    </div>
-  </header>
-  <main id="site-main">
-    <section class="use">
-      <div class="container">
-        <div id="content" class="row"> <ul>
-<li><h2>Create a SQLiteOpenHelper</h2>
-
-<p>Android comes with a helper class to manage the creation and version management of our database. This class is SQLiteOpenHelper. We can use this helper class to let Android platform create the database file for us and later access to that file through our JDBC driver or favorite ORM.</p></li>
-<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">class</span> <span class="nc">ContactsOpenHelper</span><span class="o">(</span><span class="n">context</span><span class="k">:</span> <span class="kt">Context</span><span class="o">)</span>
-  <span class="k">extends</span> <span class="nc">SQLiteOpenHelper</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="s">"database.db"</span><span class="o">,</span> <span class="n">javaNull</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">def</span> <span class="n">onCreate</span><span class="o">(</span><span class="n">db</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span><span class="o">)</span> <span class="o">{</span>
-      <span class="c1">// Use this method to initialize your database
-</span>    <span class="o">}</span>
-    <span class="k">def</span> <span class="n">onUpgrade</span><span class="o">(</span><span class="n">db</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span><span class="o">,</span> <span class="n">oldVersion</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">newVersion</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="o">{</span>
-      <span class="c1">// Use this method to upgrade your database
-</span>    <span class="o">}</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ContactsOpenHelper</span><span class="o">(</span><span class="n">context</span><span class="k">:</span> <span class="kt">Context</span><span class="o">)</span>
+      <span class="k">extends</span> <span class="nc">SQLiteOpenHelper</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="s">"database.db"</span><span class="o">,</span> <span class="n">javaNull</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">def</span> <span class="n">onCreate</span><span class="o">(</span><span class="n">db</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span><span class="o">)</span> <span class="o">{</span>
+          <span class="c1">// Use this method to initialize your database
+</span>        <span class="o">}</span>
+        <span class="k">def</span> <span class="n">onUpgrade</span><span class="o">(</span><span class="n">db</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span><span class="o">,</span> <span class="n">oldVersion</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">newVersion</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="o">{</span>
+          <span class="c1">// Use this method to upgrade your database
+</span>        <span class="o">}</span>
 <span class="o">}</span>
-</code></pre></div></li>
-</ul>
+</code></pre>
+</div>
 
-<ul>
-<li><h2>Use java.sql classes</h2>
+<h2 id="use-javasql-classes">Use java.sql classes</h2>
+<p>If you want to work directly with the java.sql classes you could create a method in our SQLiteOpenHelper that returns the java.sql.Connection.</p>
 
-<p>If you want to work directly with the java.sql classes you could create a method in our SQLiteOpenHelper that returns the java.sql.Connection.</p></li>
-<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">def</span> <span class="n">openConnection</span><span class="o">()</span> <span class="k">=</span> <span class="o">{</span>
-  <span class="c1">// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` methods.
-</span>  <span class="k">val</span> <span class="n">database</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span> <span class="o">=</span> <span class="n">getReadableDatabase</span><span class="o">()</span>
-  <span class="c1">// 2. Register the driver, making available for `java.sql`
-</span>  <span class="n">com</span><span class="o">.</span><span class="n">fortysevendeg</span><span class="o">.</span><span class="n">mvessel</span><span class="o">.</span><span class="nc">AndroidDriver</span><span class="o">.</span><span class="n">register</span><span class="o">()</span>
-  <span class="c1">// 3. Open a connection using the path provided by the database
-</span>  <span class="nc">DriverManager</span><span class="o">.</span><span class="n">getConnection</span><span class="o">(</span><span class="s">"jdbc:sqlite:"</span> <span class="o">+</span> <span class="n">database</span><span class="o">.</span><span class="n">getPath</span><span class="o">)</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="n">openConnection</span><span class="o">()</span> <span class="k">=</span> <span class="o">{</span>
+      <span class="c1">// 1. This will trigger the `onCreate` and `onUpgrade` methods.
+</span>      <span class="k">val</span> <span class="n">database</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span> <span class="o">=</span> <span class="n">getReadableDatabase</span><span class="o">()</span>
+      <span class="c1">// 2. Register the driver, making available for `java.sql`
+</span>      <span class="n">com</span><span class="o">.</span><span class="n">fortysevendeg</span><span class="o">.</span><span class="n">mvessel</span><span class="o">.</span><span class="nc">AndroidDriver</span><span class="o">.</span><span class="n">register</span><span class="o">()</span>
+      <span class="c1">// 3. Open a connection using the path provided by the database
+</span>      <span class="nc">DriverManager</span><span class="o">.</span><span class="n">getConnection</span><span class="o">(</span><span class="s">"jdbc:sqlite:"</span> <span class="o">+</span> <span class="n">database</span><span class="o">.</span><span class="n">getPath</span><span class="o">)</span>
 <span class="o">}</span>
-</code></pre></div></li>
-</ul>
+</code></pre>
+</div>
 
-<ul>
-<li><h2>Use the Database class</h2>
+<h2 id="use-the-database-class">Use the Database class</h2>
+<p>You can directly create a connection with the Database class provided in the library. Again in your SQLiteOpenHelper:</p>
 
-<p>You can directly create a connection with the Database class provided in the library. Again in your SQLiteOpenHelper:</p></li>
-<li><div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">def</span> <span class="n">openDatabase</span><span class="o">()</span> <span class="k">=</span> <span class="o">{</span>
-  <span class="c1">// 1. This statement will create the database and trigger the `onCreate` and `onUpgrade` methods.
-</span>  <span class="k">val</span> <span class="n">database</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span> <span class="o">=</span> <span class="n">getReadableDatabase</span><span class="o">()</span>
-  <span class="c1">// 2. Open the database using the path provided by the database
-</span>  <span class="k">new</span> <span class="nc">Database</span><span class="o">[</span><span class="kt">AndroidCursor</span><span class="o">](</span>
-      <span class="n">databaseFactory</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">AndroidDatabaseFactory</span><span class="o">,</span>
-      <span class="n">name</span> <span class="k">=</span> <span class="n">database</span><span class="o">.</span><span class="n">getPath</span><span class="o">,</span>
-      <span class="n">timeout</span> <span class="k">=</span> <span class="mi">50</span><span class="o">,</span>
-      <span class="n">retry</span> <span class="k">=</span> <span class="mi">0</span><span class="o">,</span>
-      <span class="n">flags</span> <span class="k">=</span> <span class="mi">0</span><span class="o">)</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="n">openDatabase</span><span class="o">()</span> <span class="k">=</span> <span class="o">{</span>
+      <span class="c1">// 1. This will trigger the `onCreate` and `onUpgrade` methods.
+</span>      <span class="k">val</span> <span class="n">database</span><span class="k">:</span> <span class="kt">SQLiteDatabase</span> <span class="o">=</span> <span class="n">getReadableDatabase</span><span class="o">()</span>
+      <span class="c1">// 2. Open the database using the path provided by the database
+</span>      <span class="k">new</span> <span class="nc">Database</span><span class="o">[</span><span class="kt">AndroidCursor</span><span class="o">](</span>
+          <span class="n">databaseFactory</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">AndroidDatabaseFactory</span><span class="o">,</span>
+          <span class="n">name</span> <span class="k">=</span> <span class="n">database</span><span class="o">.</span><span class="n">getPath</span><span class="o">,</span>
+          <span class="n">timeout</span> <span class="k">=</span> <span class="mi">50</span><span class="o">,</span>
+          <span class="n">retry</span> <span class="k">=</span> <span class="mi">0</span><span class="o">,</span>
+          <span class="n">flags</span> <span class="k">=</span> <span class="mi">0</span><span class="o">)</span>
 <span class="o">}</span>
-</code></pre></div></li>
-</ul>
- </div>
-      </div>
-    </section>
-    <section class="technologies">
-      <div class="container">
-        <div class="row">
+</code></pre>
+</div>
+</div></div></section><section class="technologies"><div class="container"><div class="row">
+            <div class="col-md-4"><div class="first-icon-wrapper"></div><h3>Scala</h3><p>We love <u>Scala</u> and we thought that the driver should use all the power of this language.</p></div>
           
-            
-              <div class="col-md-4">
-                <div class="scala-icon-wrapper"></div>
-                <h3>Scala</h3>
-                <p>We love <u>Scala</u> and we thought that the driver should use all the power of this language.</p>
-              </div>
-            
+            <div class="col-md-4"><div class="second-icon-wrapper"></div><h3>Android</h3><p>Mainly intended for <u>Android</u>, it has been designed to support other underlying SQLite systems.</p></div>
           
-            
-              <div class="col-md-4">
-                <div class="android-icon-wrapper"></div>
-                <h3>Android</h3>
-                <p>Mainly intended for <u>Android</u>, it has been designed to support other underlying SQLite systems.</p>
-              </div>
-            
-          
-            
-              <div class="col-md-4">
-                <div class="database-icon-wrapper"></div>
-                <h3>Database</h3>
-                <p>Brings the capacity of all Scala and Java <u>Database</u> libraries to the Android platform.</p>
-              </div>
-            
-          
-        </div>
-      </div>
-    </section>
-  </main>
-  <footer id="site-footer">
-    <div class="container">
-      <div class="row">
-        <div class="col-xs-6">
-          <p>Mvessel is design and development handcraft by <a href="http://www.47deg.com/" target="_blank">47 Degrees</a></p>
-          <p>Code licensed <a href="https://opensource.org/licenses/MIT" target="_blank">The MIT License</a></p>
-        </div>
-        <div class="col-xs-6">
-          <p class="text-right">
-            <a href="#" data-href="https://github.com/47deg/mvessel"> <span class="fa fa-github"></span> View on Github </a>
-          </p>
-        </div>
-      </div>
-    </div>
-  </footer>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/languages/scala.min.js"></script>
-  <script>
-    jQuery(document).ready(function() {
-      loadStyle();
-      hljs.initHighlightingOnLoad();
-      activeLinks();
-    });
-
-    function loadStyle() {
-      $("<link/>", {
-        rel: "stylesheet",
-        type: "text/css",
-        href: "https://rawgit.com/47deg/microsites/cdn/mvessel/palette.css"
-      }).appendTo("head");
-    }
-
-    function activeLinks() {
-      $('a[data-href]').each(function(index, el) {
-        $(this).attr('href', $(this).attr('data-href'));
-      });
-    }
-  </script>
-</body>
-
-</html>
-
-
-
-<!-- https://cdn.rawgit.com/47deg/microsites/cdn/home.html  -->
-<!-- https://rawgit.com/47deg/microsites/cdn/home.html  -->
-<!-- http://localhost/~rafaparadela/cdn47/microsites/home.html  -->
+            <div class="col-md-4"><div class="third-icon-wrapper"></div><h3>Database</h3><p>Brings the capacity of all Scala and Java <u>Database</u> libraries to the Android platform.</p></div>
+          </div></div></section></main><footer id="site-footer"><div class="container"><div class="row"><div class="col-xs-6"><p>mvessel is designed and developed by <a href="http://47deg.com" target="_blank">47 Degrees</a></p></div><div class="col-xs-6"><p class="text-right"><a href="https://github.com/47deg/mvessel"><span class="fa fa-github"></span>View on Github</a></p></div></div></div></footer><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/languages/scala.min.js"></script><script>jQuery(document).ready(function(){hljs.initHighlightingOnLoad();});</script></body></html>
