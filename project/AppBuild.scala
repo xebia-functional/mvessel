@@ -14,6 +14,7 @@
  * all copies or substantial portions of the Software.
  */
 
+import microsites.MicrositesPlugin
 import sbt.Keys._
 import sbt._
 import sbtbuildinfo.BuildInfoPlugin
@@ -39,5 +40,10 @@ object AppBuild extends Build with Settings with SettingsPublish {
   lazy val mockAndroid = (project in file("mock-android"))
     .settings(mockAndroidSettings: _*)
     .settings(libraryDependencies ++= mockAndroidLibraries)
+
+  lazy val docs = (project in file("docs"))
+    .enablePlugins(MicrositesPlugin)
+    .settings(docsSettings: _*)
+    .settings(moduleName := "docs")
 
 }
