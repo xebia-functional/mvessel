@@ -2,7 +2,7 @@ android.Plugin.androidBuild
 
 javacOptions ++= Seq("-target", "1.7", "-source", "1.7")
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.11"
 
 platformTarget in Android := "android-23"
 

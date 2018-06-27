@@ -15,10 +15,9 @@
  */
 
 object V {
-
   val project = "0.2-SNAPSHOT"
 
-  val scala = "2.11.7"
+  val scala = "2.11.11"
 
   val java = "1.7"
 
@@ -27,5 +26,4 @@ object V {
   val xerialJdbc = "3.8.10.1"
 
   val androidJar = "4.1.1.4"
-
 }

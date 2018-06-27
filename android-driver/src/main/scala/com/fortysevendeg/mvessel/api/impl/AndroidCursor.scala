@@ -125,6 +125,10 @@ class AndroidCursor(val cursor: Cursor)
 
   override def respond(extras: Bundle): Bundle =
     cursor.respond(extras)
+
+  override def getNotificationUri: Uri = ???
+
+  override def setExtras(extras: Bundle): Unit = ???
 }
 
 trait AndroidCursorData {

@@ -1,4 +1,4 @@
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.11"
 
 javacOptions ++= Seq("-target", "1.7", "-source", "1.7")
 

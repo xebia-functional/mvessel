@@ -15,7 +15,6 @@
  */
 
 import java.net.URL
-
 import microsites.MicrositeKeys._
 import Libraries._
 import sbt._
@@ -91,14 +90,23 @@ trait Settings {
   lazy val androidDriverLibraries = Seq(
     specs2Core % "it,test",
     specs2Mock % "it,test",
-    sqliteJdbc % "it",
-    android % "provided")
+    sqliteJdbc % "it"
+    //    ,
+    //    android % "provided"
+  )
 
   lazy val coreLibraries = Seq(
     specs2Core % "test",
     specs2Mock % "test")
 
   lazy val mockAndroidLibraries = Seq(
-    android % "provided")
+    //    android % "provided"
+  )
 
- }
+  lazy val androidSettings = Seq(
+    // 等同于两句：targetSdkVersion, compileSdkVersion
+    android.Keys.platformTarget in android.Keys.Android := "android-27",
+    android.Keys.buildToolsVersion in android.Keys.Android := Some("27.0.3"),
+    android.Keys.minSdkVersion in android.Keys.Android := "23"
+  )
+}
