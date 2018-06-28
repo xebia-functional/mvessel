@@ -17,13 +17,13 @@
 object V {
   val project = "0.2-SNAPSHOT"
 
-  val scala = "2.11.11"
+  val scala = "2.12.6"
 
   val java = "1.7"
 
-  val specs2 = "3.6.4"
+  val specs2 = "[3.6.4,)"
 
-  val xerialJdbc = "3.8.10.1"
+  val xerialJdbc = "[3.8.10.1,)"
 
-  val androidJar = "4.1.1.4"
+//  val androidJar = "[4.1.1.4,)"
 }
