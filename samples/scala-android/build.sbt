@@ -15,3 +15,8 @@ proguardOptions in Android ++= Seq(
   "-ignorewarnings",
   "-keep class scala.Dynamic"
 )
+
+publish := ()
+publishM2 := ()
+publishLocal := ()
+publishArtifact := false

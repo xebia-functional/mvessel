@@ -35,3 +35,8 @@ proguardOptions in Android ++= Seq(
   "-keep public class * extends junit.framework.TestCase",
   "-keepclassmembers class * extends junit.framework.TestCase { *; }"
 )
+
+publish := ()
+publishM2 := ()
+publishLocal := ()
+publishArtifact := false

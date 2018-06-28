@@ -26,3 +26,8 @@ proguardOptions in Android ++= Seq(
   "-keep class com.fortysevendeg.mvessel.AndroidDriver",
   "-keep class slick.driver.SQLiteDriver"
 )
+
+publish := ()
+publishM2 := ()
+publishLocal := ()
+publishArtifact := false

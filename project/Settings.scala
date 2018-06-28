@@ -23,7 +23,7 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
 trait Settings {
 
-  this: Build with SettingsPublish =>
+  this: Build /* with SettingsPublish*/ =>
 
   lazy val commonResolvers = Seq(
     Resolver.mavenLocal,
@@ -50,22 +50,23 @@ trait Settings {
     organizationName := "47 Degrees",
     organizationHomepage := Some(new URL("http://47deg.com")))
 
-  lazy val androidDriverSettings = basicSettings ++ orgSettings ++ publishSettings ++ Seq(
+  lazy val androidDriverSettings = basicSettings ++ orgSettings /* ++ publishSettings*/ ++ Seq(
     name := "mvessel-android",
     version := V.project,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fortysevendeg.mvessel",
     fork in Test := true)
 
-  lazy val coreSettings = basicSettings ++ orgSettings ++ publishSettings ++ Seq(
+  lazy val coreSettings = basicSettings ++ orgSettings /* ++ publishSettings*/ ++ Seq(
     name := "mvessel",
     version := V.project,
     fork in Test := true)
 
-  lazy val mockAndroidSettings = basicSettings ++ orgSettings
+  //  lazy val mockAndroidSettings = basicSettings ++ orgSettings
 
   lazy val noPublishSettings = Seq(
     publish := (),
+    publishM2 := (),
     publishLocal := (),
     publishArtifact := false)
 
@@ -78,14 +79,14 @@ trait Settings {
     micrositeGithubOwner := "47deg",
     micrositeGithubRepo := "mvessel",
     micrositePalette := Map(
-      "brand-primary"     -> "#FFC107",
-      "brand-secondary"   -> "#2C3358",
-      "brand-tertiary"    -> "#212641",
-      "gray-dark"         -> "#494A4F",
-      "gray"              -> "#76767E",
-      "gray-light"        -> "#E6E7EC",
-      "gray-lighter"      -> "#F4F5F9",
-      "white-color"       -> "#FFFFFF"))
+      "brand-primary" -> "#FFC107",
+      "brand-secondary" -> "#2C3358",
+      "brand-tertiary" -> "#212641",
+      "gray-dark" -> "#494A4F",
+      "gray" -> "#76767E",
+      "gray-light" -> "#E6E7EC",
+      "gray-lighter" -> "#F4F5F9",
+      "white-color" -> "#FFFFFF"))
 
   lazy val androidDriverLibraries = Seq(
     specs2Core % "it,test",

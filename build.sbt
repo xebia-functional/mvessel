@@ -12,3 +12,8 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-android" % "[1.7.14,)",
   "org.slf4j" % "slf4j-api" % "[1.7.0,)"
 )
+
+publish := ()
+publishM2 := ()
+publishLocal := ()
+publishArtifact := false

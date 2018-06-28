@@ -20,7 +20,7 @@ import sbt.Keys._
 import sbt._
 import sbtbuildinfo.BuildInfoPlugin
 
-object AppBuild extends Build with Settings with SettingsPublish {
+object AppBuild extends Build with Settings/* with SettingsPublish*/ {
   lazy val mvessel = (project in file("."))
 //    .enablePlugins(AndroidLib)
     .settings(basicSettings: _*)
