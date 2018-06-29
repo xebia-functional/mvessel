@@ -1,7 +1,3 @@
-scalaVersion := "2.11.7"
-
-sbtVersion 如何指定独立的 sbt 版本
-
 addSbtPlugin("org.scala-android" % "sbt-android" % "[1.7.9,)")
 
 resolvers += Classpaths.sbtPluginReleases
