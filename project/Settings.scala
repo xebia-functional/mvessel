@@ -109,6 +109,6 @@ trait Settings {
     // 等同于两句：targetSdkVersion, compileSdkVersion
     android.Keys.platformTarget in android.Keys.Android := "android-27",
     android.Keys.buildToolsVersion in android.Keys.Android := Some("27.0.3"),
-    android.Keys.minSdkVersion in android.Keys.Android := "23"
+    android.Keys.minSdkVersion in android.Keys.Android := "16"
   )
 }
