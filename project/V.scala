@@ -17,7 +17,7 @@
 object V {
   val project = "0.3-SNAPSHOT"
 
-  val scala = "2.11.11"
+  val scala = "2.12.6"
 
   val java = "1.7"
 
