@@ -21,7 +21,6 @@ trait DatabaseProxyFactory[T <: CursorProxy] {
   def openDatabase(name: String, flags: Int): DatabaseProxy[T]
 
   def isLockedException(exception: RuntimeException): Boolean
-
 }
 
 trait DatabaseProxy[T <: CursorProxy] {
@@ -38,6 +37,8 @@ trait DatabaseProxy[T <: CursorProxy] {
 
   def endTransaction(): Unit
 
+  def inTransaction: Boolean
+
   def isOpen: Boolean
 
   def getVersion: Int
@@ -47,5 +48,4 @@ trait DatabaseProxy[T <: CursorProxy] {
   def getDriverVersion: String
 
   def close(): Unit
-
 }

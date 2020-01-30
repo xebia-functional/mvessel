@@ -2,7 +2,7 @@ android.Plugin.androidBuild
 
 javacOptions ++= Seq("-target", "1.7", "-source", "1.7")
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.12.6"
 
 platformTarget in Android := "android-23"
 
@@ -35,3 +35,8 @@ proguardOptions in Android ++= Seq(
   "-keep public class * extends junit.framework.TestCase",
   "-keepclassmembers class * extends junit.framework.TestCase { *; }"
 )
+
+publish := ()
+publishM2 := ()
+publishLocal := ()
+publishArtifact := false

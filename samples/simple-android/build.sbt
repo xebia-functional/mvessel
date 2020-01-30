@@ -1,4 +1,4 @@
-scalaVersion := "2.11.7"
+scalaVersion := "2.12.6"
 
 javacOptions ++= Seq("-target", "1.7", "-source", "1.7")
 
@@ -15,3 +15,8 @@ proguardOptions in Android ++= Seq(
   "-ignorewarnings",
   "-keep class scala.Dynamic"
 )
+
+publish := ()
+publishM2 := ()
+publishLocal := ()
+publishArtifact := false

@@ -15,7 +15,6 @@
  */
 
 import java.net.URL
-
 import microsites.MicrositeKeys._
 import Libraries._
 import sbt._
@@ -24,7 +23,7 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
 trait Settings {
 
-  this: Build with SettingsPublish =>
+  this: Build /* with SettingsPublish*/ =>
 
   lazy val commonResolvers = Seq(
     Resolver.mavenLocal,
@@ -51,22 +50,24 @@ trait Settings {
     organizationName := "47 Degrees",
     organizationHomepage := Some(new URL("http://47deg.com")))
 
-  lazy val androidDriverSettings = basicSettings ++ orgSettings ++ publishSettings ++ Seq(
+  lazy val androidDriverSettings = basicSettings ++ orgSettings /* ++ publishSettings*/ ++ Seq(
     name := "mvessel-android",
     version := V.project,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fortysevendeg.mvessel",
     fork in Test := true)
 
-  lazy val coreSettings = basicSettings ++ orgSettings ++ publishSettings ++ Seq(
+  lazy val coreSettings = basicSettings ++ orgSettings /* ++ publishSettings*/ ++ Seq(
     name := "mvessel",
     version := V.project,
+    exportJars := true,
     fork in Test := true)
 
-  lazy val mockAndroidSettings = basicSettings ++ orgSettings
+  //  lazy val mockAndroidSettings = basicSettings ++ orgSettings
 
   lazy val noPublishSettings = Seq(
     publish := (),
+    publishM2 := (),
     publishLocal := (),
     publishArtifact := false)
 
@@ -91,14 +92,23 @@ trait Settings {
   lazy val androidDriverLibraries = Seq(
     specs2Core % "it,test",
     specs2Mock % "it,test",
-    sqliteJdbc % "it",
-    android % "provided")
+    sqliteJdbc % "it"
+    //    ,
+    //    android % "provided"
+  )
 
   lazy val coreLibraries = Seq(
     specs2Core % "test",
     specs2Mock % "test")
 
   lazy val mockAndroidLibraries = Seq(
-    android % "provided")
+    //    android % "provided"
+  )
 
- }
+  lazy val androidSettings = Seq(
+    // 等同于两句：targetSdkVersion, compileSdkVersion
+    android.Keys.platformTarget in android.Keys.Android := "android-27",
+    android.Keys.buildToolsVersion in android.Keys.Android := Some("27.0.3"),
+    android.Keys.minSdkVersion in android.Keys.Android := "16"
+  )
+}

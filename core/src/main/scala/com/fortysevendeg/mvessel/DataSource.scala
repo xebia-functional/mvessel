@@ -35,11 +35,9 @@ class DataSource[T <: CursorProxy](
   extends SQLDataSource
   with WrapperNotSupported {
 
-  private[this] val url: String = "jdbc:sqlite:" + dbPath
+  protected final val url: String = BaseDriver.sqlitePrefix + dbPath
 
-  lazy val connection: Connection[T] = driver.connect(url, properties)
-
-  override def getConnection: SQLConnection = connection
+  override def getConnection: SQLConnection = driver.connect(url, properties)
 
   override def getConnection(username: String, password: String): SQLConnection = getConnection
 

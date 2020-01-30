@@ -25,6 +25,6 @@ object Libraries {
 
   lazy val sqliteJdbc = "org.xerial" % "sqlite-jdbc" % xerialJdbc
 
-  lazy val android = "com.google.android" % "android" % androidJar
+//  lazy val android = "com.google.android" % "android" % androidJar
 
 }

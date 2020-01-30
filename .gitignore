@@ -6,3 +6,5 @@ project/target/
 /proguard-sbt.txt
 *.iml
 local.*
+z-platform.sbt
+*/z-platform.sbt
