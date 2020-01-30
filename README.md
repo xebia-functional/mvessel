@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/47deg/mvessel.svg?branch=master)](https://travis-ci.org/47deg/mvessel) [![Codacy Badge](https://www.codacy.com/project/badge/3e561d02afd44b8287ab0e84fc66daaf)](https://www.codacy.com/app/47deg/mvessel) [![Codacy Coverage](https://api.codacy.com/project/badge/coverage/3e561d02afd44b8287ab0e84fc66daaf)](https://www.codacy.com/app/47deg/mvessel)
+# This project is no longer maintained
 
 Mvessel
 =============
@@ -18,7 +18,7 @@ The project is organized in three modules:
 
 Also contains the [android-it](android-it) subdirectory with [instrumentation tests](http://developer.android.com/tools/testing/testing_android.html#Instrumentation) and a subdirectory [samples](samples) with some example projects about how to use.
 
-# How to use in Android
+# How to use in Android
 
 ## Import in your project
 
@@ -49,7 +49,7 @@ You can use the SNAPSHOT version by adding the sonatype SNAPSHOT repository to y
 
 And use the latest version: `0.2-SNAPSHOT`
 
-## Create a SQLiteOpenHelper
+## Create a SQLiteOpenHelper
 
 Android comes with a helper class to manage the creation and version management of our database. This class is [SQLiteOpenHelper](http://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html). We can use this helper class to let Android platform create the database file for us and later access to that file through our JDBC driver or favorite ORM.
 
@@ -91,7 +91,7 @@ public class ContactsOpenHelper extends SQLiteOpenHelper {
 }
 ```
 
-## Use java.sql classes
+## Use java.sql classes
 
 If you want to work directly with the `java.sql` classes you could create a method in our `SQLiteOpenHelper` that returns the `java.sql.Connection`.
 
@@ -152,11 +152,11 @@ public Database openDatabase() {
 
 See the [sample in Java](samples/simple-android) and the [sample in Scala](samples/scala-android) for a more detailed instructions.
 
-## Use with Slick
+## Use with Slick
 
 See the [sample with Slick](samples/slick) for a sample of usage.
 
-# Build
+# Build
 
 This project is built with [SBT](http://www.scala-sbt.org/). To build the artifacts you could use:
 
